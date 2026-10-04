@@ -4,8 +4,24 @@
   "nav_customize":  "Customize",
   "nav_profile":    "Profile",
   "nav_settings":   "Settings",
+
   "search_placeholder": "Search...",
-  "settings_title": "Settings",
+
+  "welcome":        "Welcome, User!",
+
+  "settings_title":          "Settings",
   "settings_language_label": "Language",
-  "settings_language_desc":  "Choose your preferred interface language."
+  "settings_language_desc":  "Choose your preferred interface language.",
+  "settings_theme_label":    "Appearance",
+  "settings_theme_desc":     "Switch between dark and light mode.",
+  "settings_theme_dark":     "Dark",
+  "settings_theme_light":    "Light",
+
+  "customize_title":         "Customize",
+  "customize_body_label":    "Body",
+  "customize_head_label":    "Head",
+  "customize_legs_label":    "Legs",
+  "customize_arms_label":    "Arms",
+  "customize_color_label":   "Color",
+  "customize_save":          "Save"
 }
