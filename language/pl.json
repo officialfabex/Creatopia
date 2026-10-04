@@ -1,5 +1,5 @@
 {
-  "nav_home":       "Główna",
+  "nav_home":       "Strona Główna",
   "nav_create":     "Twórz",
   "nav_customize":  "Dostosuj",
   "nav_profile":    "Profil",
@@ -7,5 +7,5 @@
   "search_placeholder": "Szukaj...",
   "settings_title": "Ustawienia",
   "settings_language_label": "Język",
-  "settings_language_desc":  "Wybierz preferowany język interfejsu."
+  "settings_language_desc":  "Wybierz język interfejsu."
 }
