@@ -1,11 +1,27 @@
 {
-  "nav_home":       "Strona Główna",
+  "nav_home":       "Główna",
   "nav_create":     "Twórz",
   "nav_customize":  "Dostosuj",
   "nav_profile":    "Profil",
   "nav_settings":   "Ustawienia",
+
   "search_placeholder": "Szukaj...",
-  "settings_title": "Ustawienia",
+
+  "welcome":        "Witaj, Użytkowniku!",
+
+  "settings_title":          "Ustawienia",
   "settings_language_label": "Język",
-  "settings_language_desc":  "Wybierz język interfejsu."
+  "settings_language_desc":  "Wybierz język interfejsu.",
+  "settings_theme_label":    "Wygląd",
+  "settings_theme_desc":     "Przełącz między trybem ciemnym a jasnym.",
+  "settings_theme_dark":     "Ciemny",
+  "settings_theme_light":    "Jasny",
+
+  "customize_title":         "Dostosuj",
+  "customize_body_label":    "Tułów",
+  "customize_head_label":    "Głowa",
+  "customize_legs_label":    "Nogi",
+  "customize_arms_label":    "Ręce",
+  "customize_color_label":   "Kolor",
+  "customize_save":          "Zapisz"
 }
