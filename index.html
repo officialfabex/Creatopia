@@ -1,0 +1,83 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creatopia Alpha</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                colors: {
+                    darkBg: '#030305',
+                    darkCard: '#08080c',
+                    glassBorder: 'rgba(255, 255, 255, 0.08)',
+                },
+                fontFamily: {
+                    sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                },
+                animation: {
+                    'liquid-flow': 'liquidFlow 22s ease-in-out infinite alternate',
+                },
+                keyframes: {
+                    liquidFlow: {
+                        '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                        '50%': { transform: 'translate(30px, -20px) scale(1.05)' },
+                        '100%': { transform: 'translate(-20px, 20px) scale(0.95)' },
+                    }
+                }
+            }
+        }
+    }
+</script>
+<!-- Google Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #030305;
+        color: #e2e8f0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    .glass-panel {
+        background: rgba(8, 8, 14, 0.6);
+        backdrop-filter: blur(30px) saturate(190%);
+        -webkit-backdrop-filter: blur(30px) saturate(190%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 
+            0 25px 60px rgba(0, 0, 0, 0.7),
+            inset 0 1px 1px rgba(255, 255, 255, 0.08),
+            inset 0 -1px 1px rgba(0, 0, 0, 0.6);
+    }
+
+    .glass-pill {
+        background: rgba(20, 20, 30, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-pill:hover {
+        background: rgba(35, 35, 50, 0.55);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .glass-pill.active {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .ambient-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(140px);
+        pointer-events: none;
+        opacity: 0.18;
+    }
+</style>
