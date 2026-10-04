@@ -6,10 +6,8 @@
   "nav_settings":   "Ustawienia",
 
   "search_placeholder": "Szukaj...",
+  "welcome":            "Witaj, Użytkowniku!",
 
-  "welcome":        "Witaj, Użytkowniku!",
-
-  "settings_title":          "Ustawienia",
   "settings_language_label": "Język",
   "settings_language_desc":  "Wybierz język interfejsu.",
   "settings_theme_label":    "Wygląd",
@@ -17,11 +15,20 @@
   "settings_theme_dark":     "Ciemny",
   "settings_theme_light":    "Jasny",
 
-  "customize_title":         "Dostosuj",
-  "customize_body_label":    "Tułów",
-  "customize_head_label":    "Głowa",
-  "customize_legs_label":    "Nogi",
-  "customize_arms_label":    "Ręce",
-  "customize_color_label":   "Kolor",
+  "customize_tab_all":       "Wszystko",
+  "customize_tab_hats":      "Czapki",
+  "customize_tab_shirts":    "Koszulki",
+  "customize_tab_pants":     "Spodnie",
+  "customize_tab_face":      "Twarz",
+  "customize_tab_skin":      "Kolor",
+
+  "profile_greeting":        "Cześć,",
+  "profile_username":        "Użytkowniku",
+  "profile_joined":          "Dołączono",
+  "profile_joined_date":     "Październik 2026",
+  "profile_friends":         "Znajomi",
+  "profile_creations":       "Tworzenia",
+  "profile_edit":            "Edytuj profil",
+
   "customize_save":          "Zapisz"
 }
