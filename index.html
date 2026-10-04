@@ -8,168 +8,166 @@
 @font-face{font-family:CHL;src:url('assets/fonts/ComicHelvetic_Light.otf')format('opentype')}
 @font-face{font-family:CHM;src:url('assets/fonts/ComicHelvetic_Medium.otf')format('opentype')}
 *{box-sizing:border-box;margin:0;padding:0}
+
 :root{
   --bg:#0a0a0f;--sur:#111118;--bdr:rgba(255,255,255,.07);
   --dim:rgba(255,255,255,.3);--acc:rgba(255,255,255,.1);--txt:#c8c8d8;
+  --card-bg:#13131a;--card-bdr:rgba(255,255,255,.06);
   --w:280px;--wc:76px;--th:70px;--r:15px;
-  /* icon left offset when collapsed: (wc - 2*12padding - 24icon) / 2 = (76-24-24)/2 = 14 */
-  --ico-left:14px;
   --ease:.38s cubic-bezier(.16,1,.3,1);
 }
+html[data-theme="light"]{
+  --bg:#f0f0f5;--sur:#e4e4ec;--bdr:rgba(0,0,0,.08);
+  --dim:rgba(0,0,0,.4);--acc:rgba(0,0,0,.08);--txt:#1a1a2e;
+  --card-bg:#dddde8;--card-bdr:rgba(0,0,0,.07);
+}
+
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
   font-family:CHL,sans-serif;font-size:16px;letter-spacing:.04em;-webkit-font-smoothing:antialiased}
 
-/* baseline nudge for this font */
-.lbl,.m-title,.lt,.setting-label,.setting-desc,.lang-name,.tog-lbl{
+.lbl,.m-title,.lt,.setting-label,.setting-desc,.lang-name,.welcome,.game-title,.game-author{
   position:relative;top:2px}
 
-/* blobs */
 .blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:.12;pointer-events:none;
   animation:bf 22s ease-in-out infinite alternate}
+html[data-theme="light"] .blob{opacity:.06}
 @keyframes bf{0%{transform:translate(0,0)scale(1)}50%{transform:translate(25px,-18px)scale(1.04)}to{transform:translate(-18px,18px)scale(.96)}}
 
-/* ── SHELL ── */
 .app{display:flex;flex-direction:column;height:100vh;width:100vw;position:relative;z-index:1}
 
-/* ── TOPBAR — always full width, never hides ── */
-.topbar{
-  display:flex;align-items:center;
-  height:var(--th);padding:0 28px;
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;height:var(--th);padding:0 28px;
   background:var(--sur);border-bottom:1px solid var(--bdr);
-  flex-shrink:0;gap:18px;
-  position:relative;z-index:10; /* stays on top always */
-}
+  flex-shrink:0;gap:18px;position:relative;z-index:10}
 
-/* logo slot — matches sidebar width so search starts at same x as content */
-.t-logo{
-  display:flex;align-items:center;justify-content:center;
-  width:var(--w);min-width:var(--w);
-  flex-shrink:0;overflow:hidden;
-  transition:width var(--ease),min-width var(--ease);
-}
-.app.col .t-logo{width:var(--wc);min-width:var(--wc)}
-
+/* logo — fixed width, NEVER changes size, never hides */
+.t-logo{display:flex;align-items:center;justify-content:center;
+  width:var(--w);min-width:var(--w);flex-shrink:0;overflow:visible}
 .t-logo img{max-height:40px;width:auto;object-fit:contain;flex-shrink:0}
 .lt{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.14em;
-  color:#fff;text-transform:uppercase;white-space:nowrap;display:none}
+  color:var(--txt);text-transform:uppercase;white-space:nowrap;display:none}
+
+.t-right{flex:1;display:flex;align-items:center;gap:12px}
 
 /* search */
 .t-search{flex:1;max-width:380px;position:relative;display:flex;align-items:center}
 .t-search .si{position:absolute;left:13px;display:flex;align-items:center;pointer-events:none;color:var(--dim)}
-.t-search .si img{width:16px;height:16px;filter:invert(1);opacity:.4}
-.t-search .si svg{width:16px;height:16px;opacity:.4}
-.t-search input{width:100%;padding:11px 12px 11px 38px;background:rgba(255,255,255,.05);
-  border:1px solid var(--bdr);border-radius:var(--r);color:#fff;
+.t-search .si img,.t-search .si svg{width:16px;height:16px;opacity:.5}
+html[data-theme="light"] .t-search .si img{filter:none}
+.t-search .si img{filter:invert(1)}
+.t-search input{width:100%;padding:11px 12px 11px 38px;background:var(--acc);
+  border:1px solid var(--bdr);border-radius:var(--r);color:var(--txt);
   font-family:CHL,sans-serif;font-size:14px;letter-spacing:.04em;outline:none;
   transition:border-color .18s,background .18s}
 .t-search input::placeholder{color:var(--dim)}
-.t-search input:focus{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.08)}
+.t-search input:focus{border-color:rgba(128,128,200,.4)}
 .t-search .cb{position:absolute;right:12px;display:none;align-items:center;cursor:pointer;color:var(--dim)}
-.t-search .cb:hover{color:#fff}
+.t-search .cb:hover{color:var(--txt)}
 .t-search .cb.on{display:flex}
+
+/* theme toggle */
+.theme-btn{display:flex;align-items:center;justify-content:center;
+  width:42px;height:42px;border-radius:var(--r);cursor:pointer;
+  border:1px solid var(--bdr);background:var(--acc);color:var(--dim);
+  flex-shrink:0;transition:background .18s,border-color .18s,color .18s}
+.theme-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.15);color:var(--txt)}
+html[data-theme="light"] .theme-btn:hover{background:rgba(0,0,0,.1)}
+.theme-btn img{width:20px;height:20px;filter:invert(1);opacity:.6}
+html[data-theme="light"] .theme-btn img{filter:none;opacity:.7}
 
 /* ── ROW ── */
 .row{display:flex;flex:1;overflow:hidden}
 
 /* ── SIDEBAR ── */
-.sidebar{
-  width:var(--w);min-width:var(--w);
-  display:flex;flex-direction:column;
+.sidebar{width:var(--w);min-width:var(--w);display:flex;flex-direction:column;
   background:var(--sur);border-right:1px solid var(--bdr);
   overflow:hidden;flex-shrink:0;
-  transition:width var(--ease),min-width var(--ease);
-}
+  transition:width var(--ease),min-width var(--ease)}
 .app.col .sidebar{width:var(--wc);min-width:var(--wc)}
 
 .nl{flex:1;display:flex;flex-direction:column;gap:5px;padding:16px 12px;overflow:hidden}
 
-/* ── NAV ITEM ──
-   Icon sits at a fixed pixel offset from the left.
-   We achieve this with padding-left fixed, and only animate the label width.
-   Icon NEVER moves — no justify-content change, no margin change.
-*/
-.ni{
-  display:flex;align-items:center;gap:0;
-  /* left padding leaves room for icon at a fixed spot */
-  padding:14px 15px;
-  border-radius:var(--r);
-  cursor:pointer;border:1px solid transparent;background:transparent;
+/* nav item — icon never moves */
+.ni{display:flex;align-items:center;gap:0;padding:14px 15px;
+  border-radius:var(--r);cursor:pointer;border:1px solid transparent;background:transparent;
   width:100%;overflow:hidden;color:var(--dim);
-  transition:background .2s,border-color .2s,color .2s,padding var(--ease);
-}
-.ni:hover{background:rgba(255,255,255,.06);border-color:var(--bdr);color:var(--txt)}
-.ni.on{background:var(--acc);border-color:rgba(255,255,255,.13);color:#fff}
+  transition:background .2s,border-color .2s,color .2s,padding var(--ease)}
+.ni:hover{background:var(--acc);border-color:var(--bdr);color:var(--txt)}
+.ni.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.13);color:#fff}
+html[data-theme="light"] .ni.on{background:rgba(0,0,0,.1);border-color:rgba(0,0,0,.15);color:#000}
 
-/* collapsed: shift padding so icon lands at center of --wc=76px */
-/* wc=76, border=1 each side → inner=74. icon=24. (74-24)/2=25. minus border=1 → 24px left padding */
-.app.col .ni{padding:14px 0 14px 14px}
+/* collapsed: padding shifts icon to visual center of 76px */
+/* inner width = 76-2px borders = 74. icon=24. left=(74-24)/2=25. but we add it as padding-left */
+.app.col .ni{padding:14px 0 14px 25px}
 
-.ico{
-  flex-shrink:0;width:24px;height:24px;
-  display:flex;align-items:center;justify-content:center;
-}
+.ico{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
 .ico img,.ico svg{width:24px;height:24px;filter:invert(1);opacity:.45;display:block;transition:opacity .2s}
+html[data-theme="light"] .ico img{filter:none;opacity:.5}
 .ni:hover .ico img,.ni:hover .ico svg,
 .ni.on  .ico img,.ni.on  .ico svg{opacity:1}
 
-/* spacer between icon and label */
-.ico-gap{
-  width:14px;min-width:14px;flex-shrink:0;
-  transition:width var(--ease),min-width var(--ease),opacity var(--ease);
-  opacity:1;overflow:hidden;
-}
+.ico-gap{width:14px;min-width:14px;flex-shrink:0;overflow:hidden;opacity:1;
+  transition:width var(--ease),min-width var(--ease),opacity var(--ease)}
 .app.col .ico-gap{width:0;min-width:0;opacity:0}
 
-/* label fades + shrinks, icon untouched */
-.lbl{
-  font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.1em;text-transform:uppercase;
-  white-space:nowrap;overflow:hidden;
-  max-width:200px;opacity:1;flex-shrink:0;
-  transition:max-width var(--ease),opacity var(--ease);
-}
+.lbl{font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;max-width:200px;opacity:1;flex-shrink:0;
+  transition:max-width var(--ease),opacity var(--ease)}
 .app.col .lbl{max-width:0;opacity:0}
 
-/* ── BOTTOM: toggle button — square, icon only, never changes ── */
-.nb{padding:10px 12px 16px;border-top:1px solid var(--bdr);flex-shrink:0}
-
-/* The toggle is a fixed-size square button, always centered in sidebar */
-.tog{
-  display:flex;align-items:center;justify-content:center;
-  width:48px;height:48px;
-  border-radius:var(--r);cursor:pointer;
-  border:1px solid var(--bdr);
-  background:rgba(255,255,255,.04);
-  color:var(--dim);
-  /* margin-left animates to keep it centered as sidebar width changes */
-  margin-left:auto;margin-right:auto;
-  transition:background .2s,border-color .2s,color .2s;
-}
-.tog:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#fff}
-.tog svg{opacity:.55;transition:opacity .2s,transform var(--ease)}
+/* toggle square */
+.nb{padding:10px 12px 16px;border-top:1px solid var(--bdr);flex-shrink:0;
+  display:flex;justify-content:center}
+.tog{display:flex;align-items:center;justify-content:center;
+  width:48px;height:48px;border-radius:var(--r);cursor:pointer;
+  border:1px solid var(--bdr);background:var(--acc);color:var(--dim);
+  transition:background .2s,border-color .2s,color .2s}
+.tog:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:var(--txt)}
+.tog svg{opacity:.6;transition:opacity .2s,transform var(--ease)}
 .tog:hover svg{opacity:1}
 .app.col .tog svg{transform:rotate(180deg)}
 
 /* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.m-top{display:flex;align-items:center;padding:32px 36px 24px;flex-shrink:0}
-.m-title{font-family:CHM,sans-serif;font-size:36px;letter-spacing:.18em;color:#fff;text-transform:uppercase;line-height:1}
+.m-top{padding:30px 36px 20px;flex-shrink:0}
+.m-title{font-family:CHM,sans-serif;font-size:28px;letter-spacing:.18em;
+  color:var(--txt);text-transform:uppercase;line-height:1}
+.welcome{font-family:CHL,sans-serif;font-size:15px;letter-spacing:.06em;
+  color:var(--dim);margin-top:8px;display:block}
 .m-body{flex:1;overflow:auto;padding:0 36px 36px}
 
+/* ── HOME PAGE: game grid ── */
+.game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;padding-top:4px}
+.game-card{display:flex;flex-direction:column;gap:10px;cursor:pointer}
+.game-thumb{width:100%;aspect-ratio:16/9;border-radius:12px;
+  background:var(--card-bg);border:1px solid var(--card-bdr);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--dim);font-size:28px;
+  transition:border-color .18s,transform .18s}
+.game-card:hover .game-thumb{border-color:rgba(255,255,255,.18);transform:translateY(-2px)}
+html[data-theme="light"] .game-card:hover .game-thumb{border-color:rgba(0,0,0,.2)}
+.game-info{padding:0 2px}
+.game-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.06em;
+  color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.game-author{font-family:CHL,sans-serif;font-size:12px;letter-spacing:.04em;
+  color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:2px}
+
 /* ── SETTINGS ── */
-.settings-page{max-width:660px;padding-top:8px}
+.settings-page{max-width:660px;padding-top:4px}
 .setting-block{margin-bottom:36px}
 .setting-label{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
-  text-transform:uppercase;color:#fff;margin-bottom:6px;display:block}
+  text-transform:uppercase;color:var(--txt);margin-bottom:6px;display:block}
 .setting-desc{font-size:14px;color:var(--dim);margin-bottom:18px;display:block;letter-spacing:.04em}
 .lang-cards{display:flex;gap:12px;flex-wrap:wrap}
 .lang-card{display:flex;align-items:center;gap:14px;padding:14px 20px;
-  border-radius:var(--r);border:1px solid var(--bdr);background:rgba(255,255,255,.04);
+  border-radius:var(--r);border:1px solid var(--bdr);background:var(--acc);
   cursor:pointer;transition:background .18s,border-color .18s;user-select:none}
-.lang-card:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
-.lang-card.active{background:var(--acc);border-color:rgba(255,255,255,.22)}
-.lang-flag{width:30px;height:21px;border-radius:4px;object-fit:cover;flex-shrink:0;
-  border:1px solid rgba(255,255,255,.1)}
-.lang-name{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.08em;color:#fff}
+.lang-card:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18)}
+html[data-theme="light"] .lang-card:hover{background:rgba(0,0,0,.1)}
+.lang-card.active{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28)}
+html[data-theme="light"] .lang-card.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25)}
+.lang-flag{width:30px;height:21px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,.1)}
+.lang-name{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.08em;color:var(--txt)}
 </style>
 </head>
 <body>
@@ -179,24 +177,34 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
 
 <div class="app" id="app">
 
-  <!-- TOPBAR — always visible, never collapses -->
+  <!-- TOPBAR -->
   <header class="topbar">
+    <!-- logo: fixed width, never collapses -->
     <div class="t-logo">
       <img src="assets/images/logos/Creatopia Alpha V2.png" alt="Creatopia Alpha"
            onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
       <span class="lt" style="display:none">Creatopia</span>
     </div>
-    <div class="t-search">
-      <div class="si">
-        <img src="assets/icons/search_icon.svg" alt=""
-             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'">
+
+    <div class="t-right">
+      <div class="t-search">
+        <div class="si">
+          <img src="assets/icons/search_icon.svg" alt=""
+               onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'">
+        </div>
+        <input id="search" type="text" autocomplete="off" data-i18n-ph="search_placeholder" placeholder="Search...">
+        <span class="cb" id="cb">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </span>
       </div>
-      <input id="search" type="text" autocomplete="off" data-i18n-ph="search_placeholder" placeholder="Search...">
-      <span class="cb" id="cb">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </span>
+
+      <!-- theme toggle -->
+      <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">
+        <img id="theme-icon" src="assets/icons/moon_icon.svg" alt="theme"
+             onerror="this.outerHTML='<svg width=&quot;20&quot; height=&quot;20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6a9.718 9.718 0 01.002-3.752 9.75 9.75 0 1013.5 12.754z&quot;/></svg>'">
+      </button>
     </div>
   </header>
 
@@ -238,7 +246,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
 
       </nav>
 
-      <!-- toggle at the very bottom -->
       <div class="nb">
         <button class="tog" id="tog" aria-label="Toggle navigation">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -252,6 +259,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
     <div class="main">
       <div class="m-top">
         <h1 class="m-title" id="title">HOME</h1>
+        <span class="welcome" id="welcome">Welcome, User!</span>
       </div>
       <div class="m-body" id="content"></div>
     </div>
@@ -280,12 +288,27 @@ function t(k){ return S[k] || k; }
 function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
-  // refresh title
   const active = document.querySelector('.ni.on');
-  if (active) titleEl.textContent = t('nav_' + active.dataset.tab).toUpperCase();
-  // refresh settings if open
+  if (active) updateTitle(active.dataset.tab);
   if (active?.dataset.tab === 'settings') renderSettings();
 }
+
+// ── Theme ─────────────────────────────────────────────────────
+let theme = localStorage.getItem('creatopia_theme') || 'dark';
+
+function applyTheme(t2) {
+  theme = t2;
+  document.documentElement.setAttribute('data-theme', t2);
+  localStorage.setItem('creatopia_theme', t2);
+  const icon = document.getElementById('theme-icon');
+  if (icon) {
+    icon.src = t2 === 'dark' ? 'assets/icons/moon_icon.svg' : 'assets/icons/light_icon.svg';
+  }
+}
+
+document.getElementById('theme-btn').addEventListener('click', () => {
+  applyTheme(theme === 'dark' ? 'light' : 'dark');
+});
 
 // ── DOM refs ──────────────────────────────────────────────────
 const app     = document.getElementById('app');
@@ -293,24 +316,30 @@ const tog     = document.getElementById('tog');
 const searchEl= document.getElementById('search');
 const cbEl    = document.getElementById('cb');
 const titleEl = document.getElementById('title');
+const welcomeEl=document.getElementById('welcome');
 const content = document.getElementById('content');
 const items   = document.querySelectorAll('.ni[data-tab]');
 
-// ── Hash routing (works on GitHub Pages & workers.dev) ────────
 const TABS = ['home','create','customize','profile','settings'];
-const BASE_URL = 'https://play.creatopia.workers.dev';
 
 function getHashTab() {
   const h = location.hash.replace('#','').toLowerCase();
   return TABS.includes(h) ? h : 'home';
 }
 
+function updateTitle(tab) {
+  titleEl.textContent = t('nav_' + tab).toUpperCase();
+}
+
 function setTab(tab, push = true) {
   items.forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  titleEl.textContent = t('nav_' + tab).toUpperCase();
+  updateTitle(tab);
+  // show/hide welcome line
+  welcomeEl.style.display = tab === 'home' ? 'block' : 'none';
   if (push) history.pushState(null, '', '#' + tab);
-  content.innerHTML = tab === 'settings' ? '' : '';
   if (tab === 'settings') renderSettings();
+  else if (tab === 'home') renderHome();
+  else content.innerHTML = '';
 }
 
 items.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
@@ -331,6 +360,23 @@ cbEl.addEventListener('click', () => {
   items.forEach(b => b.style.display = 'flex');
 });
 
+// ── Home page ─────────────────────────────────────────────────
+const GAMES = Array.from({length:5}, (_,i) => ({ title:'Game', author:'Player' }));
+
+function renderHome() {
+  content.innerHTML = `
+    <div class="game-grid">
+      ${GAMES.map(g => `
+        <div class="game-card">
+          <div class="game-thumb">?</div>
+          <div class="game-info">
+            <span class="game-title">${g.title}</span>
+            <span class="game-author">${g.author}</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
 // ── Settings page ─────────────────────────────────────────────
 const LANGS = [
   { code:'en', label:'English', flag:'assets/images/en.png' },
@@ -346,8 +392,7 @@ function renderSettings() {
         <div class="lang-cards">
           ${LANGS.map(l=>`
             <div class="lang-card${lang===l.code?' active':''}" data-lang="${l.code}">
-              <img class="lang-flag" src="${l.flag}" alt="${l.label} flag"
-                   onerror="this.style.display='none'">
+              <img class="lang-flag" src="${l.flag}" alt="${l.label} flag" onerror="this.style.display='none'">
               <span class="lang-name">${l.label}</span>
             </div>`).join('')}
         </div>
@@ -359,6 +404,7 @@ function renderSettings() {
 }
 
 // ── Init ──────────────────────────────────────────────────────
+applyTheme(theme);
 loadLang(lang).then(() => setTab(getHashTab(), false));
 </script>
 </body>
