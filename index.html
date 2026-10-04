@@ -13,7 +13,6 @@
   --bg:#0a0a0f;--sur:#111118;--bdr:rgba(255,255,255,.07);
   --dim:rgba(255,255,255,.3);--acc:rgba(255,255,255,.1);--txt:#c8c8d8;
   --card-bg:#13131a;--card-bdr:rgba(255,255,255,.06);
-  --swatch-bdr:rgba(255,255,255,.18);
   --w:280px;--wc:76px;--th:70px;--r:15px;
   --ease:.38s cubic-bezier(.16,1,.3,1);
 }
@@ -21,13 +20,14 @@ html[data-theme="light"]{
   --bg:#f0f0f5;--sur:#e4e4ec;--bdr:rgba(0,0,0,.09);
   --dim:rgba(0,0,0,.4);--acc:rgba(0,0,0,.07);--txt:#1a1a2e;
   --card-bg:#dddde8;--card-bdr:rgba(0,0,0,.08);
-  --swatch-bdr:rgba(0,0,0,.18);
 }
-
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
   font-family:CHL,sans-serif;font-size:16px;letter-spacing:.04em;-webkit-font-smoothing:antialiased}
 
-.nudge{position:relative;top:2px}
+/* font baseline nudge — applied surgically, NOT on layout elements */
+.lbl,.m-title,.lt,.s-label,.s-desc,.lang-name,.theme-lbl,.av-sec-lbl,
+.welcome,.game-title,.game-author,.prof-name,.prof-stat-val,.prof-stat-key{
+  position:relative;top:2px}
 
 .blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:.12;pointer-events:none;
   animation:bf 22s ease-in-out infinite alternate}
@@ -39,33 +39,40 @@ html[data-theme="light"] .blob{opacity:.05}
 /* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;height:var(--th);padding:0 28px;
   background:var(--sur);border-bottom:1px solid var(--bdr);
-  flex-shrink:0;gap:18px;position:relative;z-index:10}
+  flex-shrink:0;gap:18px;z-index:10}
 
+/* logo slot: fixed width, never shrinks, never hides */
 .t-logo{display:flex;align-items:center;justify-content:center;
-  width:var(--w);min-width:var(--w);flex-shrink:0;overflow:visible}
-.t-logo img{max-height:40px;width:auto;object-fit:contain;flex-shrink:0}
-.t-logo .lt{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.14em;
+  width:var(--w);min-width:var(--w);flex-shrink:0}
+.t-logo img{max-height:40px;width:auto;object-fit:contain}
+.lt{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.14em;
   color:var(--txt);text-transform:uppercase;white-space:nowrap;display:none}
 
 .t-right{flex:1;display:flex;align-items:center;gap:12px}
 .t-search{flex:1;max-width:380px;position:relative;display:flex;align-items:center}
-.t-search .si{position:absolute;left:13px;display:flex;align-items:center;pointer-events:none;color:var(--dim)}
-.t-search .si img{width:16px;height:16px;filter:invert(1);opacity:.45}
-html[data-theme="light"] .t-search .si img{filter:none;opacity:.5}
+.si{position:absolute;left:13px;display:flex;align-items:center;pointer-events:none;color:var(--dim)}
+.si img,.si svg{width:16px;height:16px;opacity:.45}
+.si img{filter:invert(1)}
+html[data-theme="light"] .si img{filter:none}
 .t-search input{width:100%;padding:11px 12px 11px 38px;background:var(--acc);
   border:1px solid var(--bdr);border-radius:var(--r);color:var(--txt);
   font-family:CHL,sans-serif;font-size:14px;letter-spacing:.04em;outline:none;
   transition:border-color .18s,background .18s}
 .t-search input::placeholder{color:var(--dim)}
-.t-search input:focus{border-color:rgba(128,128,200,.4)}
-.t-search .cb{position:absolute;right:12px;display:none;align-items:center;cursor:pointer;color:var(--dim)}
-.t-search .cb:hover{color:var(--txt)}
-.t-search .cb.on{display:flex}
+.t-search input:focus{border-color:rgba(120,120,200,.45)}
+.cb{position:absolute;right:12px;display:none;align-items:center;cursor:pointer;color:var(--dim)}
+.cb:hover{color:var(--txt)}
+.cb.on{display:flex}
 
 /* ── ROW ── */
 .row{display:flex;flex:1;overflow:hidden}
 
-/* ── SIDEBAR ── */
+/* ── SIDEBAR ──
+   Key rule: icon is always at a fixed absolute position.
+   We use padding-left=15px on expanded and padding-left=26px on collapsed
+   (= (76 − 24) / 2 = 26) so the 24px icon visually centres inside the 76px strip.
+   No justify-content change, no gap change — only label fades/shrinks.
+*/
 .sidebar{width:var(--w);min-width:var(--w);display:flex;flex-direction:column;
   background:var(--sur);border-right:1px solid var(--bdr);
   overflow:hidden;flex-shrink:0;
@@ -74,31 +81,40 @@ html[data-theme="light"] .t-search .si img{filter:none;opacity:.5}
 
 .nl{flex:1;display:flex;flex-direction:column;gap:5px;padding:16px 12px;overflow:hidden}
 
-.ni{display:flex;align-items:center;gap:0;padding:14px 15px;
-  border-radius:var(--r);cursor:pointer;border:1px solid transparent;background:transparent;
+.ni{
+  display:flex;align-items:center;
+  padding:13px 15px;          /* icon sits at x=15 always */
+  gap:0;
+  border-radius:var(--r);cursor:pointer;
+  border:1px solid transparent;background:transparent;
   width:100%;overflow:hidden;color:var(--dim);
-  transition:background .2s,border-color .2s,color .2s,padding var(--ease)}
+  transition:background .2s,border-color .2s,color .2s,padding var(--ease);
+}
 .ni:hover{background:var(--acc);border-color:var(--bdr);color:var(--txt)}
 .ni.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.13);color:#fff}
-html[data-theme="light"] .ni.on{background:rgba(0,0,0,.1);border-color:rgba(0,0,0,.15);color:#000}
-.app.col .ni{padding:14px 0 14px 25px}
+html[data-theme="light"] .ni.on{background:rgba(0,0,0,.09);border-color:rgba(0,0,0,.14);color:#000}
+/* collapsed: shift left-padding so icon (24px) centres in wc strip (76 total, 2px borders → 74px inner): (74−24)/2 = 25 */
+.app.col .ni{padding:13px 0 13px 25px}
 
+/* icon — absolutely fixed; must NOT be touched by any collapsed rule */
 .ico{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
 .ico img,.ico svg{width:24px;height:24px;filter:invert(1);opacity:.45;display:block;transition:opacity .2s}
 html[data-theme="light"] .ico img{filter:none;opacity:.5}
 .ni:hover .ico img,.ni:hover .ico svg,
-.ni.on  .ico img,.ni.on  .ico svg{opacity:1}
+.ni.on   .ico img,.ni.on   .ico svg{opacity:1}
 
-.ico-gap{width:14px;min-width:14px;flex-shrink:0;overflow:hidden;opacity:1;
+/* spacer between icon and label — shrinks, icon never moves */
+.g{width:14px;min-width:14px;flex-shrink:0;overflow:hidden;
   transition:width var(--ease),min-width var(--ease),opacity var(--ease)}
-.app.col .ico-gap{width:0;min-width:0;opacity:0}
+.app.col .g{width:0;min-width:0;opacity:0}
 
+/* label */
 .lbl{font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.1em;text-transform:uppercase;
-  white-space:nowrap;overflow:hidden;max-width:200px;opacity:1;flex-shrink:0;
-  position:relative;top:2px;
+  white-space:nowrap;overflow:hidden;max-width:200px;flex-shrink:0;
   transition:max-width var(--ease),opacity var(--ease)}
 .app.col .lbl{max-width:0;opacity:0}
 
+/* toggle button */
 .nb{padding:10px 12px 16px;border-top:1px solid var(--bdr);flex-shrink:0;display:flex;justify-content:center}
 .tog{display:flex;align-items:center;justify-content:center;
   width:48px;height:48px;border-radius:var(--r);cursor:pointer;
@@ -113,116 +129,115 @@ html[data-theme="light"] .ico img{filter:none;opacity:.5}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 .m-top{padding:30px 36px 20px;flex-shrink:0}
 .m-title{font-family:CHM,sans-serif;font-size:26px;letter-spacing:.18em;
-  color:var(--txt);text-transform:uppercase;line-height:1;position:relative;top:2px}
+  color:var(--txt);text-transform:uppercase;line-height:1}
 .welcome{font-family:CHL,sans-serif;font-size:15px;letter-spacing:.06em;
-  color:var(--dim);margin-top:8px;display:block;position:relative;top:2px}
+  color:var(--dim);margin-top:8px;display:block}
 .m-body{flex:1;overflow:auto;padding:0 36px 36px}
 
-/* ── HOME GAME GRID ── */
+/* ── HOME GRID ── */
 .game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;padding-top:4px}
 .game-card{display:flex;flex-direction:column;gap:10px;cursor:pointer}
 .game-thumb{width:100%;aspect-ratio:16/9;border-radius:12px;
   background:var(--card-bg);border:1px solid var(--card-bdr);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--dim);font-size:28px;
+  display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:28px;
   transition:border-color .18s,transform .18s}
 .game-card:hover .game-thumb{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
 html[data-theme="light"] .game-card:hover .game-thumb{border-color:rgba(0,0,0,.2)}
 .game-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.06em;
-  color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  display:block;position:relative;top:2px}
+  color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .game-author{font-family:CHL,sans-serif;font-size:12px;letter-spacing:.04em;
-  color:var(--dim);display:block;margin-top:2px;position:relative;top:2px}
+  color:var(--dim);display:block;margin-top:2px}
 
 /* ── SETTINGS ── */
-.settings-page{max-width:680px;padding-top:4px;display:flex;flex-direction:column;gap:10px}
-.setting-block{padding:22px;border-radius:var(--r);
-  background:var(--card-bg);border:1px solid var(--card-bdr)}
-.setting-label{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--txt);margin-bottom:5px;display:block;position:relative;top:2px}
-.setting-desc{font-size:13px;color:var(--dim);margin-bottom:16px;display:block;
-  letter-spacing:.04em;position:relative;top:2px}
+.spage{max-width:680px;padding-top:4px;display:flex;flex-direction:column;gap:10px}
+.sblock{padding:22px;border-radius:var(--r);background:var(--card-bg);border:1px solid var(--card-bdr)}
+.s-label{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--txt);margin-bottom:5px;display:block}
+.s-desc{font-size:13px;color:var(--dim);margin-bottom:16px;display:block;letter-spacing:.04em}
 
-/* language cards */
-.lang-cards{display:flex;gap:10px;flex-wrap:wrap}
-.lang-card{display:flex;align-items:center;gap:12px;padding:12px 18px;
+.lang-cards,.theme-cards{display:flex;gap:10px;flex-wrap:wrap}
+.lang-card,.theme-card{display:flex;align-items:center;gap:12px;padding:12px 18px;
   border-radius:var(--r);border:1px solid var(--bdr);background:var(--acc);
   cursor:pointer;transition:background .18s,border-color .18s;user-select:none}
-.lang-card:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
-html[data-theme="light"] .lang-card:hover{background:rgba(0,0,0,.1)}
-.lang-card.active{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.28)}
-html[data-theme="light"] .lang-card.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25)}
+.lang-card:hover,.theme-card:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
+html[data-theme="light"] .lang-card:hover,
+html[data-theme="light"] .theme-card:hover{background:rgba(0,0,0,.1)}
+.lang-card.active,.theme-card.active{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.28)}
+html[data-theme="light"] .lang-card.active,
+html[data-theme="light"] .theme-card.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25)}
 .lang-flag{width:28px;height:20px;border-radius:4px;object-fit:cover;flex-shrink:0;
   border:1px solid rgba(255,255,255,.12)}
-.lang-name{font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.08em;
-  color:var(--txt);position:relative;top:2px}
+.lang-name,.theme-lbl{font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.08em;color:var(--txt)}
 
-/* theme toggle cards */
-.theme-cards{display:flex;gap:10px}
-.theme-card{display:flex;align-items:center;gap:12px;padding:12px 20px;
-  border-radius:var(--r);border:1px solid var(--bdr);background:var(--acc);
-  cursor:pointer;transition:background .18s,border-color .18s;user-select:none}
-.theme-card:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16)}
-html[data-theme="light"] .theme-card:hover{background:rgba(0,0,0,.1)}
-.theme-card.active{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.28)}
-html[data-theme="light"] .theme-card.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25)}
-.theme-card img{width:22px;height:22px;filter:invert(1);opacity:.8;flex-shrink:0}
-html[data-theme="light"] .theme-card img{filter:none;opacity:.7}
-.theme-card-lbl{font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.08em;
-  color:var(--txt);position:relative;top:2px}
+/* theme icon — invert in dark, normal in light */
+.theme-ico{width:22px;height:22px;flex-shrink:0;filter:invert(1);opacity:.85}
+html[data-theme="light"] .theme-ico{filter:none;opacity:.8}
 
-/* ── AVATAR EDITOR (blokus mobile style) ── */
-.av-wrap{display:flex;flex-direction:row;align-items:stretch;gap:18px;
-  width:100%;height:100%;padding-top:4px}
-
-/* left: 3D preview */
-.av-preview{flex:0 0 180px;display:flex;flex-direction:column;align-items:center;gap:14px}
-.av-canvas-box{
-  width:180px;height:240px;
-  background:var(--card-bg);border:1px solid var(--card-bdr);
-  border-radius:var(--r);
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;position:relative}
-.av-canvas-box canvas{display:block}
-.av-canvas-placeholder{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:8px;opacity:.3;font-size:13px;letter-spacing:.06em;text-align:center;padding:16px}
-.av-canvas-placeholder svg{width:48px;height:48px;opacity:.5}
-
-/* right: subtabs + color grid */
-.av-right{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
-
-.av-subtabs{display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0}
-.av-tab-btn{flex:1;text-align:center;background:none;border:none;
+/* ── PROFILE PAGE ── */
+.prof-page{max-width:700px;padding-top:4px;display:flex;flex-direction:column;gap:16px}
+.prof-header{display:flex;align-items:center;gap:22px;padding:24px;
+  background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
+.prof-avatar{width:80px;height:80px;border-radius:50%;
+  background:var(--sur);border:2px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--dim)}
+.prof-avatar svg{width:44px;height:44px;opacity:.4}
+.prof-info{flex:1;min-width:0}
+.prof-greeting{font-size:13px;color:var(--dim);letter-spacing:.06em;display:block;position:relative;top:2px}
+.prof-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.1em;
+  color:var(--txt);display:block;margin-top:2px}
+.prof-joined{font-size:12px;color:var(--dim);display:block;margin-top:5px;letter-spacing:.04em;position:relative;top:2px}
+.prof-edit-btn{padding:9px 18px;border-radius:var(--r);
+  background:var(--acc);border:1px solid var(--bdr);
   color:var(--txt);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;cursor:pointer;padding:12px 4px;
-  opacity:.45;transition:opacity .2s;position:relative;top:1px}
-.av-tab-btn.active{opacity:1;border-bottom:2px solid var(--txt)}
+  text-transform:uppercase;cursor:pointer;flex-shrink:0;
+  transition:background .18s,border-color .18s;position:relative;top:2px}
+.prof-edit-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
+html[data-theme="light"] .prof-edit-btn:hover{background:rgba(0,0,0,.1)}
 
-.av-subtab-content{display:none;flex:1;overflow-y:auto;padding:16px 4px 4px;
-  flex-direction:column;gap:14px}
-.av-subtab-content.active{display:flex}
+.prof-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.prof-stat{padding:18px;background:var(--card-bg);border:1px solid var(--card-bdr);
+  border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:4px}
+.prof-stat-val{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.06em;color:var(--txt)}
+.prof-stat-key{font-size:12px;color:var(--dim);letter-spacing:.06em;text-align:center}
 
-/* color grid */
-.av-section-label{font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--dim);flex-shrink:0;position:relative;top:2px}
-.av-colors{display:flex;flex-wrap:wrap;gap:8px}
-.av-swatch{width:32px;height:32px;border-radius:8px;
-  border:2px solid transparent;cursor:pointer;
-  transition:transform .15s,border-color .15s;flex-shrink:0}
-.av-swatch:hover{transform:scale(1.12)}
-.av-swatch.active{border-color:var(--txt);transform:scale(1.08)}
+.prof-games-label{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--txt);display:block;margin-bottom:12px;position:relative;top:2px}
+.prof-games-section{padding:22px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
+.prof-empty{font-size:13px;color:var(--dim);letter-spacing:.04em;position:relative;top:2px}
 
-.av-save-row{flex-shrink:0;padding-top:10px}
-.av-save-btn{
-  padding:11px 28px;border-radius:var(--r);
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
-  color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.1em;
-  text-transform:uppercase;cursor:pointer;
-  transition:background .18s,border-color .18s}
-.av-save-btn:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3)}
-html[data-theme="light"] .av-save-btn{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.2);color:#000}
-html[data-theme="light"] .av-save-btn:hover{background:rgba(0,0,0,.14)}
+/* ── AVATAR EDITOR (customize tab) ── */
+.av-wrap{display:flex;flex-direction:row;align-items:stretch;gap:18px;
+  width:100%;height:calc(100vh - var(--th) - 90px)}
+
+.av-left{flex:0 0 180px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.av-box{width:180px;height:240px;background:var(--card-bg);border:1px solid var(--card-bdr);
+  border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.av-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:.3;padding:16px;text-align:center}
+.av-placeholder svg{width:52px;height:52px}
+.av-placeholder span{font-size:12px;letter-spacing:.06em;position:relative;top:2px}
+
+.av-right{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+
+.av-tabs{display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0;overflow-x:auto}
+.av-tab{flex:1;min-width:fit-content;text-align:center;background:none;border:none;
+  color:var(--txt);font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.07em;
+  text-transform:uppercase;cursor:pointer;padding:12px 8px;
+  opacity:.4;transition:opacity .2s;white-space:nowrap;position:relative;top:1px}
+.av-tab.active{opacity:1;border-bottom:2px solid var(--txt)}
+
+.av-body{flex:1;overflow-y:auto;padding:18px 4px 8px}
+.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:12px}
+
+/* placeholder item */
+.av-item{border-radius:10px;aspect-ratio:1;
+  background:var(--card-bg);border:1px solid var(--card-bdr);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:22px}
+.av-item:hover{border-color:rgba(255,255,255,.2);transform:scale(1.04)}
+html[data-theme="light"] .av-item:hover{border-color:rgba(0,0,0,.18)}
+.av-item.active{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.06)}
+html[data-theme="light"] .av-item.active{border-color:rgba(0,0,0,.3)}
 </style>
 </head>
 <body>
@@ -256,37 +271,39 @@ html[data-theme="light"] .av-save-btn:hover{background:rgba(0,0,0,.14)}
   </header>
 
   <div class="row">
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <nav class="nl" id="nav">
 
         <button class="ni on" data-tab="home">
           <span class="ico"><img src="assets/icons/home_icon.svg" alt=""
             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75&quot;/></svg>'">
-          </span><span class="ico-gap"></span><span class="lbl" data-i18n="nav_home">Home</span>
+          </span><span class="g"></span><span class="lbl" data-i18n="nav_home">Home</span>
         </button>
 
         <button class="ni" data-tab="create">
           <span class="ico"><img src="assets/icons/create_icon.svg" alt=""
             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z&quot;/></svg>'">
-          </span><span class="ico-gap"></span><span class="lbl" data-i18n="nav_create">Create</span>
+          </span><span class="g"></span><span class="lbl" data-i18n="nav_create">Create</span>
         </button>
 
         <button class="ni" data-tab="customize">
           <span class="ico"><img src="assets/icons/customize_icon.svg" alt=""
             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5M13.5 12h6.75m-6.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12H9&quot;/></svg>'">
-          </span><span class="ico-gap"></span><span class="lbl" data-i18n="nav_customize">Customize</span>
+          </span><span class="g"></span><span class="lbl" data-i18n="nav_customize">Customize</span>
         </button>
 
         <button class="ni" data-tab="profile">
           <span class="ico"><img src="assets/icons/profile_icon.svg" alt=""
             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z&quot;/></svg>'">
-          </span><span class="ico-gap"></span><span class="lbl" data-i18n="nav_profile">Profile</span>
+          </span><span class="g"></span><span class="lbl" data-i18n="nav_profile">Profile</span>
         </button>
 
         <button class="ni" data-tab="settings">
           <span class="ico"><img src="assets/icons/settings_icon.svg" alt=""
             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 12a3 3 0 11-6 0 3 3 0 016 0z&quot;/></svg>'">
-          </span><span class="ico-gap"></span><span class="lbl" data-i18n="nav_settings">Settings</span>
+          </span><span class="g"></span><span class="lbl" data-i18n="nav_settings">Settings</span>
         </button>
 
       </nav>
@@ -299,6 +316,7 @@ html[data-theme="light"] .av-save-btn:hover{background:rgba(0,0,0,.14)}
       </div>
     </aside>
 
+    <!-- MAIN -->
     <div class="main">
       <div class="m-top">
         <h1 class="m-title" id="title">HOME</h1>
@@ -306,23 +324,11 @@ html[data-theme="light"] .av-save-btn:hover{background:rgba(0,0,0,.14)}
       </div>
       <div class="m-body" id="content"></div>
     </div>
+
   </div>
 </div>
 
 <script>
-// ── Colours for avatar swatches ────────────────────────────────
-const PALETTE = [
-  '#f5f5f5','#d4d4d4','#a3a3a3','#737373','#404040','#171717',
-  '#fee2e2','#fca5a5','#ef4444','#b91c1c','#7f1d1d',
-  '#fef3c7','#fcd34d','#f59e0b','#b45309','#78350f',
-  '#d1fae5','#6ee7b7','#10b981','#065f46','#022c22',
-  '#dbeafe','#93c5fd','#3b82f6','#1d4ed8','#1e3a8a',
-  '#ede9fe','#c4b5fd','#8b5cf6','#5b21b6','#2e1065',
-  '#fce7f3','#f9a8d4','#ec4899','#9d174d','#500724',
-];
-
-const PARTS = ['body','head','legs','arms'];
-
 // ── i18n ──────────────────────────────────────────────────────
 let S = {}, lang = localStorage.getItem('creatopia_lang') || 'en';
 
@@ -337,236 +343,210 @@ async function loadLang(code) {
     applyLang();
   } catch(e) { console.warn('lang load failed:', code); }
 }
-
 function t(k){ return S[k] || k; }
-
 function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
   const active = document.querySelector('.ni.on');
-  if (active) updateTitle(active.dataset.tab);
+  if (active) titleEl.textContent = t('nav_' + active.dataset.tab).toUpperCase();
   const tab = active?.dataset.tab;
   if (tab === 'settings')  renderSettings();
   if (tab === 'customize') renderCustomize();
+  if (tab === 'profile')   renderProfile();
 }
 
 // ── Theme ─────────────────────────────────────────────────────
 let theme = localStorage.getItem('creatopia_theme') || 'dark';
-
 function applyTheme(val) {
   theme = val;
   document.documentElement.setAttribute('data-theme', val);
   localStorage.setItem('creatopia_theme', val);
-  // re-render settings cards if open
   if (document.querySelector('.ni.on')?.dataset.tab === 'settings') renderSettings();
 }
 
 // ── DOM refs ──────────────────────────────────────────────────
-const app     = document.getElementById('app');
-const tog     = document.getElementById('tog');
-const searchEl= document.getElementById('search');
-const cbEl    = document.getElementById('cb');
-const titleEl = document.getElementById('title');
-const welcomeEl=document.getElementById('welcome');
-const content = document.getElementById('content');
-const items   = document.querySelectorAll('.ni[data-tab]');
-const TABS    = ['home','create','customize','profile','settings'];
+const app      = document.getElementById('app');
+const tog      = document.getElementById('tog');
+const searchEl = document.getElementById('search');
+const cbEl     = document.getElementById('cb');
+const titleEl  = document.getElementById('title');
+const welcomeEl= document.getElementById('welcome');
+const content  = document.getElementById('content');
+const items    = document.querySelectorAll('.ni[data-tab]');
+const TABS     = ['home','create','customize','profile','settings'];
 
 function getHashTab(){
   const h = location.hash.replace('#','').toLowerCase();
   return TABS.includes(h) ? h : 'home';
 }
 
-function updateTitle(tab){
-  titleEl.textContent = t('nav_' + tab).toUpperCase();
-}
-
 function setTab(tab, push=true){
-  items.forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  updateTitle(tab);
-  welcomeEl.style.display = tab === 'home' ? 'block' : 'none';
+  items.forEach(b => b.classList.toggle('on', b.dataset.tab===tab));
+  titleEl.textContent = t('nav_'+tab).toUpperCase();
+  welcomeEl.style.display = tab==='home' ? 'block' : 'none';
   if (push) history.pushState(null,'','#'+tab);
-  if      (tab === 'home')      renderHome();
-  else if (tab === 'settings')  renderSettings();
-  else if (tab === 'customize') renderCustomize();
-  else content.innerHTML = '';
+  if      (tab==='home')      renderHome();
+  else if (tab==='settings')  renderSettings();
+  else if (tab==='customize') renderCustomize();
+  else if (tab==='profile')   renderProfile();
+  else content.innerHTML='';
 }
 
-items.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-window.addEventListener('hashchange', () => setTab(getHashTab(), false));
+items.forEach(b => b.addEventListener('click', ()=>setTab(b.dataset.tab)));
+window.addEventListener('hashchange', ()=>setTab(getHashTab(),false));
+tog.addEventListener('click', ()=>app.classList.toggle('col'));
 
-tog.addEventListener('click', () => app.classList.toggle('col'));
-
-searchEl.addEventListener('input', () => {
+searchEl.addEventListener('input', ()=>{
   const q = searchEl.value.toLowerCase().trim();
-  cbEl.classList.toggle('on', q.length > 0);
-  items.forEach(b => b.style.display = b.dataset.tab.includes(q) ? 'flex' : 'none');
+  cbEl.classList.toggle('on', q.length>0);
+  items.forEach(b => b.style.display = b.dataset.tab.includes(q)?'flex':'none');
 });
-cbEl.addEventListener('click', () => {
-  searchEl.value = '';
-  cbEl.classList.remove('on');
-  items.forEach(b => b.style.display = 'flex');
+cbEl.addEventListener('click', ()=>{
+  searchEl.value='';cbEl.classList.remove('on');
+  items.forEach(b=>b.style.display='flex');
 });
 
 // ── Home ──────────────────────────────────────────────────────
-const GAMES = Array.from({length:5}, () => ({ title:'Game', author:'Player' }));
-
+const GAMES = Array.from({length:5},()=>({title:'Game',author:'Player'}));
 function renderHome(){
-  content.innerHTML = `<div class="game-grid">${GAMES.map(g=>`
+  content.innerHTML=`<div class="game-grid">${GAMES.map(g=>`
     <div class="game-card">
       <div class="game-thumb">?</div>
-      <div>
-        <span class="game-title">${g.title}</span>
-        <span class="game-author">${g.author}</span>
-      </div>
+      <span class="game-title">${g.title}</span>
+      <span class="game-author">${g.author}</span>
     </div>`).join('')}</div>`;
 }
 
 // ── Settings ──────────────────────────────────────────────────
-const LANGS = [
-  { code:'en', label:'English', flag:'assets/images/en.png' },
-  { code:'pl', label:'Polski',  flag:'assets/images/pl.png' },
+const LANGS=[
+  {code:'en',label:'English',flag:'assets/images/en.png'},
+  {code:'pl',label:'Polski', flag:'assets/images/pl.png'},
 ];
-
 function renderSettings(){
-  content.innerHTML = `
-  <div class="settings-page">
-
-    <div class="setting-block">
-      <span class="setting-label">${t('settings_language_label')}</span>
-      <span class="setting-desc">${t('settings_language_desc')}</span>
+  content.innerHTML=`
+  <div class="spage">
+    <div class="sblock">
+      <span class="s-label">${t('settings_language_label')}</span>
+      <span class="s-desc">${t('settings_language_desc')}</span>
       <div class="lang-cards">
         ${LANGS.map(l=>`
           <div class="lang-card${lang===l.code?' active':''}" data-lang="${l.code}">
-            <img class="lang-flag" src="${l.flag}" alt="${l.label} flag" onerror="this.style.display='none'">
+            <img class="lang-flag" src="${l.flag}" alt="${l.label}" onerror="this.style.display='none'">
             <span class="lang-name">${l.label}</span>
           </div>`).join('')}
       </div>
     </div>
-
-    <div class="setting-block">
-      <span class="setting-label">${t('settings_theme_label')}</span>
-      <span class="setting-desc">${t('settings_theme_desc')}</span>
+    <div class="sblock">
+      <span class="s-label">${t('settings_theme_label')}</span>
+      <span class="s-desc">${t('settings_theme_desc')}</span>
       <div class="theme-cards">
-        <div class="theme-card${theme==='dark'?' active':''}" data-theme-val="dark">
-          <img src="assets/icons/moon_icon.svg" alt=""
-               onerror="this.outerHTML='<svg width=&quot;22&quot; height=&quot;22&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6a9.718 9.718 0 01.002-3.752 9.75 9.75 0 1013.5 12.754z&quot;/></svg>'">
-          <span class="theme-card-lbl">${t('settings_theme_dark')}</span>
+        <div class="theme-card${theme==='dark'?' active':''}" data-tv="dark">
+          <img class="theme-ico" src="assets/icons/moon_icon.svg" alt=""
+               onerror="this.outerHTML='<svg class=&quot;theme-ico&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6a9.718 9.718 0 01.002-3.752 9.75 9.75 0 1013.5 12.754z&quot;/></svg>'">
+          <span class="theme-lbl">${t('settings_theme_dark')}</span>
         </div>
-        <div class="theme-card${theme==='light'?' active':''}" data-theme-val="light">
-          <img src="assets/icons/light_icon.svg" alt=""
-               onerror="this.outerHTML='<svg width=&quot;22&quot; height=&quot;22&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z&quot;/></svg>'">
-          <span class="theme-card-lbl">${t('settings_theme_light')}</span>
+        <div class="theme-card${theme==='light'?' active':''}" data-tv="light">
+          <img class="theme-ico" src="assets/icons/light_icon.svg" alt=""
+               onerror="this.outerHTML='<svg class=&quot;theme-ico&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z&quot;/></svg>'">
+          <span class="theme-lbl">${t('settings_theme_light')}</span>
         </div>
       </div>
     </div>
-
   </div>`;
-
-  content.querySelectorAll('.lang-card').forEach(c =>
-    c.addEventListener('click', () => loadLang(c.dataset.lang)));
-  content.querySelectorAll('.theme-card').forEach(c =>
-    c.addEventListener('click', () => applyTheme(c.dataset.themeVal)));
+  content.querySelectorAll('.lang-card').forEach(c=>c.addEventListener('click',()=>loadLang(c.dataset.lang)));
+  content.querySelectorAll('.theme-card').forEach(c=>c.addEventListener('click',()=>applyTheme(c.dataset.tv)));
 }
 
-// ── Customize / Avatar editor ─────────────────────────────────
-// avatar colours stored per-part
-const avatarColors = JSON.parse(localStorage.getItem('creatopia_avatar') || 'null')
-  || { body:'#f5f5f5', head:'#f5f5f5', legs:'#404040', arms:'#f5f5f5' };
-
-let activeAvatarPart = 'body';
-
-function saveAvatar(){
-  localStorage.setItem('creatopia_avatar', JSON.stringify(avatarColors));
+// ── Profile ───────────────────────────────────────────────────
+function renderProfile(){
+  content.innerHTML=`
+  <div class="prof-page">
+    <div class="prof-header">
+      <div class="prof-avatar">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/>
+        </svg>
+      </div>
+      <div class="prof-info">
+        <span class="prof-greeting">${t('profile_greeting')}</span>
+        <span class="prof-name">${t('profile_username')}</span>
+        <span class="prof-joined">${t('profile_joined')}: ${t('profile_joined_date')}</span>
+      </div>
+      <button class="prof-edit-btn">${t('profile_edit')}</button>
+    </div>
+    <div class="prof-stats">
+      <div class="prof-stat">
+        <span class="prof-stat-val">0</span>
+        <span class="prof-stat-key">${t('profile_friends')}</span>
+      </div>
+      <div class="prof-stat">
+        <span class="prof-stat-val">0</span>
+        <span class="prof-stat-key">${t('profile_creations')}</span>
+      </div>
+      <div class="prof-stat">
+        <span class="prof-stat-val">0</span>
+        <span class="prof-stat-key">Visits</span>
+      </div>
+    </div>
+    <div class="prof-games-section">
+      <span class="prof-games-label">${t('profile_creations')}</span>
+      <span class="prof-empty">—</span>
+    </div>
+  </div>`;
 }
+
+// ── Customize ─────────────────────────────────────────────────
+const AV_TABS = [
+  {key:'customize_tab_all',   id:'all'},
+  {key:'customize_tab_hats',  id:'hats'},
+  {key:'customize_tab_shirts',id:'shirts'},
+  {key:'customize_tab_pants', id:'pants'},
+  {key:'customize_tab_face',  id:'face'},
+  {key:'customize_tab_skin',  id:'skin'},
+];
+let activeAvTab = 'all';
 
 function renderCustomize(){
-  const partLabels = {
-    body: t('customize_body_label'),
-    head: t('customize_head_label'),
-    legs: t('customize_legs_label'),
-    arms: t('customize_arms_label'),
-  };
-
-  content.innerHTML = `
+  content.innerHTML=`
   <div class="av-wrap">
-
-    <!-- left: 3D preview placeholder -->
-    <div class="av-preview">
-      <div class="av-canvas-box">
-        <div class="av-canvas-placeholder">
+    <div class="av-left">
+      <div class="av-box">
+        <div class="av-placeholder">
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/>
           </svg>
-          <span style="font-family:CHL,sans-serif;font-size:11px;letter-spacing:.06em;position:relative;top:2px">
-            Avatar
-          </span>
+          <span>Avatar</span>
         </div>
       </div>
     </div>
-
-    <!-- right: part tabs + colour picker -->
     <div class="av-right">
-      <div class="av-subtabs" id="av-tabs">
-        ${PARTS.map(p=>`
-          <button class="av-tab-btn${p===activeAvatarPart?' active':''}" data-part="${p}">
-            ${partLabels[p]}
+      <div class="av-tabs">
+        ${AV_TABS.map(tb=>`
+          <button class="av-tab${activeAvTab===tb.id?' active':''}" data-avt="${tb.id}">
+            ${t(tb.key)}
           </button>`).join('')}
       </div>
-
-      <div class="av-subtab-content active" id="av-color-tab">
-        <span class="av-section-label">${t('customize_color_label')}</span>
-        <div class="av-colors" id="av-colors">
-          ${PALETTE.map(c=>`
-            <div class="av-swatch${avatarColors[activeAvatarPart]===c?' active':''}"
-                 data-color="${c}"
-                 style="background:${c}"></div>`).join('')}
-        </div>
-        <div class="av-save-row">
-          <button class="av-save-btn" id="av-save">${t('customize_save')}</button>
+      <div class="av-body">
+        <div class="av-grid" id="av-grid">
+          ${Array.from({length:12},()=>`<div class="av-item">?</div>`).join('')}
         </div>
       </div>
     </div>
-
   </div>`;
 
-  // part tab switching
-  content.querySelectorAll('.av-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeAvatarPart = btn.dataset.part;
-      content.querySelectorAll('.av-tab-btn').forEach(b => b.classList.toggle('active', b===btn));
-      refreshSwatches();
+  content.querySelectorAll('.av-tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      activeAvTab=btn.dataset.avt;
+      content.querySelectorAll('.av-tab').forEach(b=>b.classList.toggle('active',b===btn));
     });
-  });
-
-  // swatch click
-  content.addEventListener('click', e => {
-    const sw = e.target.closest('.av-swatch');
-    if (!sw) return;
-    avatarColors[activeAvatarPart] = sw.dataset.color;
-    refreshSwatches();
-  });
-
-  // save
-  content.querySelector('#av-save').addEventListener('click', () => {
-    saveAvatar();
-    // brief visual feedback
-    const btn = content.querySelector('#av-save');
-    btn.textContent = '✓';
-    setTimeout(() => btn.textContent = t('customize_save'), 1200);
-  });
-}
-
-function refreshSwatches(){
-  content.querySelectorAll('.av-swatch').forEach(sw => {
-    sw.classList.toggle('active', sw.dataset.color === avatarColors[activeAvatarPart]);
   });
 }
 
 // ── Init ──────────────────────────────────────────────────────
 applyTheme(theme);
-loadLang(lang).then(() => setTab(getHashTab(), false));
+loadLang(lang).then(()=>setTab(getHashTab(),false));
 </script>
 </body>
 </html>
