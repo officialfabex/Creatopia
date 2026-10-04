@@ -6,10 +6,8 @@
   "nav_settings":   "Settings",
 
   "search_placeholder": "Search...",
+  "welcome":            "Welcome, User!",
 
-  "welcome":        "Welcome, User!",
-
-  "settings_title":          "Settings",
   "settings_language_label": "Language",
   "settings_language_desc":  "Choose your preferred interface language.",
   "settings_theme_label":    "Appearance",
@@ -17,11 +15,20 @@
   "settings_theme_dark":     "Dark",
   "settings_theme_light":    "Light",
 
-  "customize_title":         "Customize",
-  "customize_body_label":    "Body",
-  "customize_head_label":    "Head",
-  "customize_legs_label":    "Legs",
-  "customize_arms_label":    "Arms",
-  "customize_color_label":   "Color",
+  "customize_tab_all":       "All",
+  "customize_tab_hats":      "Hats",
+  "customize_tab_shirts":    "Shirts",
+  "customize_tab_pants":     "Pants",
+  "customize_tab_face":      "Face",
+  "customize_tab_skin":      "Skin Color",
+
+  "profile_greeting":        "Hello,",
+  "profile_username":        "User",
+  "profile_joined":          "Joined",
+  "profile_joined_date":     "October 2026",
+  "profile_friends":         "Friends",
+  "profile_creations":       "Creations",
+  "profile_edit":            "Edit Profile",
+
   "customize_save":          "Save"
 }
