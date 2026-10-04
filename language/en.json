@@ -1,0 +1,11 @@
+{
+  "nav_home":       "Home",
+  "nav_create":     "Create",
+  "nav_customize":  "Customize",
+  "nav_profile":    "Profile",
+  "nav_settings":   "Settings",
+  "search_placeholder": "Search...",
+  "settings_title": "Settings",
+  "settings_language_label": "Language",
+  "settings_language_desc":  "Choose your preferred interface language."
+}
