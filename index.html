@@ -21,42 +21,32 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:#c8c8d8;
   font-family:CHL,sans-serif;font-size:14px;letter-spacing:.04em;
   -webkit-font-smoothing:antialiased}
 
-/* text nudge — fixes font baseline */
-*{position:relative;top:2px}
-/* but don't shift layout elements */
-html,body,div,aside,header,nav,main,span.ni{top:0!important}
+/* baseline nudge for ComicHelvetic */
+.lbl,.m-top h1,.t-logo .lt{position:relative;top:2px}
 
 /* blobs */
 .blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:.12;pointer-events:none;
   animation:bf 22s ease-in-out infinite alternate}
-@keyframes bf{0%{transform:translate(0,0)scale(1)}50%{transform:translate(25px,-18px)scale(1.04)}100%{transform:translate(-18px,18px)scale(.96)}}
+@keyframes bf{
+  0%  {transform:translate(0,0)scale(1)}
+  50% {transform:translate(25px,-18px)scale(1.04)}
+  100%{transform:translate(-18px,18px)scale(.96)}
+}
 
 /* shell */
 .app{display:flex;flex-direction:column;height:100vh;width:100vw;position:relative;z-index:1}
 
-/* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;height:var(--th);padding:0 20px 0 0;
+/* ── TOPBAR — always full width, never collapses ── */
+.topbar{display:flex;align-items:center;height:var(--th);padding:0 20px;
   background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0;gap:14px}
 
-.t-brand{display:flex;align-items:center;justify-content:space-between;
-  width:var(--w);min-width:var(--w);padding:0 14px 0 20px;flex-shrink:0;
-  transition:width var(--ease),min-width var(--ease),padding var(--ease)}
-.app.col .t-brand{width:var(--wc);min-width:var(--wc);padding:0;justify-content:center}
-
-.t-logo{display:flex;align-items:center;justify-content:center;flex:1;overflow:hidden;gap:0}
+/* logo area — fixed width matching sidebar, stays visible always */
+.t-logo{display:flex;align-items:center;justify-content:center;
+  width:var(--w);min-width:var(--w);overflow:hidden;flex-shrink:0;
+  transition:width var(--ease),min-width var(--ease)}
 .t-logo img{max-height:34px;width:auto;object-fit:contain}
 .t-logo .lt{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.14em;
   color:#fff;text-transform:uppercase;white-space:nowrap;display:none}
-.app.col .t-logo img{display:none}
-.app.col .t-logo .lt{display:block}
-
-/* toggle btn */
-.tog{display:flex;align-items:center;justify-content:center;width:32px;height:32px;
-  border-radius:9px;background:transparent;border:1px solid transparent;cursor:pointer;
-  color:var(--dim);transition:background .18s,color .18s,border-color .18s;flex-shrink:0}
-.tog:hover{background:var(--acc);border-color:var(--bdr);color:#fff}
-.tog svg{transition:transform var(--ease)}
-.app.col .tog svg{transform:rotate(180deg)}
 
 /* search */
 .t-search{flex:1;max-width:340px;position:relative;display:flex;align-items:center}
@@ -83,6 +73,16 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
   transition:width var(--ease),min-width var(--ease)}
 .app.col .sidebar{width:var(--wc);min-width:var(--wc)}
 
+/* toggle button — lives inside sidebar at the top */
+.tog{display:flex;align-items:center;justify-content:center;width:100%;height:44px;
+  border-radius:0;background:transparent;border:none;border-bottom:1px solid var(--bdr);
+  cursor:pointer;color:var(--dim);flex-shrink:0;
+  transition:background .18s,color .18s}
+.tog:hover{background:rgba(255,255,255,.05);color:#fff}
+.tog svg{transition:transform var(--ease)}
+.app.col .tog svg{transform:rotate(180deg)}
+
+/* nav list */
 .nl{flex:1;display:flex;flex-direction:column;gap:4px;padding:12px 10px;overflow:hidden}
 
 /* nav items */
@@ -92,16 +92,23 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
   transition:background .18s,border-color .18s,color .18s}
 .ni:hover{background:rgba(255,255,255,.06);border-color:var(--bdr);color:#c8c8d8}
 .ni.on{background:var(--acc);border-color:rgba(255,255,255,.13);color:#fff}
-.app.col .ni{justify-content:center;padding:11px 0}
 
-/* icon */
-.ico{flex-shrink:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center}
-.ico img,.ico svg{width:20px;height:20px;filter:invert(1);opacity:.45;display:block;transition:opacity .18s}
-.ni:hover .ico img,.ni:hover .ico svg,.ni.on .ico img,.ni.on .ico svg{opacity:1}
+/* collapsed: center icon, hide label */
+.app.col .ni{justify-content:center;padding:11px 0;gap:0}
+
+/* icon — always centered within its 20px box */
+.ico{flex-shrink:0;width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center}
+.ico img,.ico svg{width:20px;height:20px;filter:invert(1);opacity:.45;
+  display:block;transition:opacity .18s}
+.ni:hover .ico img,.ni:hover .ico svg,
+.ni.on  .ico img,.ni.on  .ico svg{opacity:1}
 
 /* label */
-.lbl{font-family:CHM,sans-serif;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
-  overflow:hidden;max-width:180px;transition:max-width var(--ease),opacity var(--ease)}
+.lbl{font-family:CHM,sans-serif;font-size:12.5px;letter-spacing:.1em;
+  text-transform:uppercase;overflow:hidden;
+  max-width:180px;opacity:1;
+  transition:max-width var(--ease),opacity var(--ease)}
 .app.col .lbl{max-width:0;opacity:0}
 
 /* settings bottom */
@@ -109,12 +116,10 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
 
 /* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-
 .m-top{display:flex;align-items:center;height:52px;padding:0 28px;
   border-bottom:1px solid var(--bdr);flex-shrink:0}
 .m-top h1{font-family:CHM,sans-serif;font-size:17px;letter-spacing:.22em;
   color:#fff;text-transform:uppercase;line-height:1}
-
 .m-body{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto}
 </style>
 </head>
@@ -125,19 +130,12 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
 
 <div class="app" id="app">
 
-  <!-- TOPBAR -->
+  <!-- TOPBAR — logo always visible here -->
   <header class="topbar">
-    <div class="t-brand">
-      <div class="t-logo">
-        <img src="assets/images/logos/Creatopia Alpha V2.png" alt="Creatopia Alpha"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-        <span class="lt">Creatopia</span>
-      </div>
-      <button class="tog" id="tog" aria-label="Toggle nav">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
+    <div class="t-logo">
+      <img src="assets/images/logos/Creatopia Alpha V2.png" alt="Creatopia Alpha"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="lt" style="display:none">Creatopia Alpha</span>
     </div>
     <div class="t-search">
       <div class="si">
@@ -157,12 +155,20 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
+
+      <!-- toggle arrow lives here, not in topbar -->
+      <button class="tog" id="tog" aria-label="Toggle nav">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
       <nav class="nl" id="nav">
 
-        <button class="ni on" data-tab="GAMES">
-          <span class="ico"><img src="assets/icons/games_icon.svg" alt=""
-            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 6H9C5.134 6 2 9.134 2 13c0 3.866 3.134 7 7 7h6c3.866 0 7-3.134 7-7 0-3.866-3.134-7-7-7z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M6 13h4m-2-2v4m7-2h.01m2 2h.01&quot;/></svg>'">
-          </span><span class="lbl">Games</span>
+        <button class="ni on" data-tab="HOME">
+          <span class="ico"><img src="assets/icons/home_icon.svg" alt=""
+            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25&quot;/></svg>'">
+          </span><span class="lbl">Home</span>
         </button>
 
         <button class="ni" data-tab="CREATE">
@@ -184,6 +190,7 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
         </button>
 
       </nav>
+
       <div class="nb">
         <button class="ni" data-tab="SETTINGS">
           <span class="ico"><img src="assets/icons/settings_icon.svg" alt=""
@@ -191,11 +198,12 @@ html,body,div,aside,header,nav,main,span.ni{top:0!important}
           </span><span class="lbl">Settings</span>
         </button>
       </div>
+
     </aside>
 
     <!-- MAIN -->
     <div class="main">
-      <div class="m-top"><h1 id="title">GAMES</h1></div>
+      <div class="m-top"><h1 id="title">HOME</h1></div>
       <div class="m-body" id="content"></div>
     </div>
 
@@ -225,7 +233,7 @@ si.addEventListener('input',()=>{
 });
 cb.onclick=()=>{si.value='';cb.classList.remove('on');items.forEach(b=>b.style.display='flex')};
 
-setTab('GAMES');
+setTab('HOME');
 </script>
 </body>
 </html>
