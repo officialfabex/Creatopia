@@ -1,458 +1,424 @@
 <!DOCTYPE html>
-<html lang="pl" class="dark h-full">
+<html lang="pl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Creatopia Alpha</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#030305',
-                        darkCard: '#08080c',
-                    },
-                    fontFamily: {
-                        sans:  ['ComicHelvetic_Light', 'sans-serif'],
-                        title: ['ComicHelvetic_Medium', 'sans-serif'],
-                    },
-                    animation: {
-                        'liquid-flow': 'liquidFlow 22s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        liquidFlow: {
-                            '0%':   { transform: 'translate(0px, 0px) scale(1)' },
-                            '50%':  { transform: 'translate(30px, -20px) scale(1.05)' },
-                            '100%': { transform: 'translate(-20px, 20px) scale(0.95)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
+        /* ── FONTS ── */
         @font-face {
-            font-family: 'ComicHelvetic_Light';
+            font-family: 'CH_Light';
             src: url('assets/fonts/ComicHelvetic_Light.otf') format('opentype'),
-                 url('assets/fonts/ComicHelvetic_Light.ttf') format('truetype'),
-                 url('assets/fonts/ComicHelvetic_Light.woff2') format('woff2'),
-                 url('assets/fonts/ComicHelvetic_Light.woff') format('woff');
+                 url('assets/fonts/ComicHelvetic_Light.ttf') format('truetype');
             font-weight: 300;
             font-style: normal;
         }
         @font-face {
-            font-family: 'ComicHelvetic_Medium';
+            font-family: 'CH_Medium';
             src: url('assets/fonts/ComicHelvetic_Medium.otf') format('opentype'),
-                 url('assets/fonts/ComicHelvetic_Medium.ttf') format('truetype'),
-                 url('assets/fonts/ComicHelvetic_Medium.woff2') format('woff2'),
-                 url('assets/fonts/ComicHelvetic_Medium.woff') format('woff');
+                 url('assets/fonts/ComicHelvetic_Medium.ttf') format('truetype');
             font-weight: 500;
             font-style: normal;
         }
 
-        * { box-sizing: border-box; }
+        /* ── RESET & BASE ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background-color: #030305;
-            color: #e2e8f0;
-            font-family: 'ComicHelvetic_Light', sans-serif;
+        :root {
+            --bg:          #0a0a0f;
+            --surface:     #111118;
+            --border:      rgba(255,255,255,0.07);
+            --text:        #c8c8d8;
+            --text-dim:    rgba(255,255,255,0.35);
+            --accent:      rgba(255,255,255,0.12);
+            --nav-width:   220px;
+            --nav-collapsed: 56px;
+            --topbar-h:    52px;
+            --transition:  0.28s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        html, body {
+            height: 100%;
             overflow: hidden;
-            user-select: none;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'CH_Light', system-ui, sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.03em;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .font-title {
-            font-family: 'ComicHelvetic_Medium', sans-serif;
-        }
-
-        /* Ambient blobs */
-        .ambient-blob {
-            position: absolute;
+        /* ── AMBIENT BLOBS ── */
+        .blob {
+            position: fixed;
             border-radius: 50%;
-            filter: blur(140px);
+            filter: blur(130px);
             pointer-events: none;
-            opacity: 0.18;
+            opacity: 0.13;
+            z-index: 0;
+            animation: blobFloat 22s ease-in-out infinite alternate;
+        }
+        @keyframes blobFloat {
+            0%   { transform: translate(0,0) scale(1); }
+            50%  { transform: translate(25px,-18px) scale(1.04); }
+            100% { transform: translate(-18px,18px) scale(0.96); }
         }
 
-        /* ── OUTER SHELL (one unified dark panel) ── */
-        .app-shell {
+        /* ── LAYOUT SHELL ── */
+        .app {
             position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: row;
-            width: calc(100vw - 2rem);
-            height: calc(100vh - 2rem);
-            max-width: 1700px;
-            background: rgba(8, 8, 14, 0.72);
-            backdrop-filter: blur(30px) saturate(190%);
-            -webkit-backdrop-filter: blur(30px) saturate(190%);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
+            z-index: 1;
             display: flex;
             flex-direction: column;
-            width: 260px;
-            min-width: 260px;
-            height: 100%;
-            border-right: 1px solid rgba(255,255,255,0.06);
-            transition: width 0.3s cubic-bezier(0.16,1,0.3,1),
-                        min-width 0.3s cubic-bezier(0.16,1,0.3,1);
-            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
         }
 
-        .sidebar.collapsed {
-            width: 64px;
-            min-width: 64px;
+        /* ════════════════════════════════
+           TOPBAR
+        ════════════════════════════════ */
+        .topbar {
+            display: flex;
+            align-items: center;
+            height: var(--topbar-h);
+            padding: 0 16px 0 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+            gap: 12px;
         }
 
-        /* Sidebar top bar: logo + toggle */
-        .sidebar-top {
+        /* Brand block — same width as sidebar so they align */
+        .topbar-brand {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 18px 16px 14px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            min-height: 64px;
+            width: var(--nav-width);
+            min-width: var(--nav-width);
+            padding: 0 12px 0 16px;
+            transition: width var(--transition), min-width var(--transition);
+            overflow: hidden;
             flex-shrink: 0;
         }
-
-        .sidebar.collapsed .sidebar-top {
+        .app.collapsed .topbar-brand {
+            width: var(--nav-collapsed);
+            min-width: var(--nav-collapsed);
+            padding: 0 10px;
             justify-content: center;
-            padding: 18px 0 14px 0;
         }
 
-        .logo-wrap {
+        .brand-logo {
             display: flex;
             align-items: center;
             overflow: hidden;
             flex: 1;
             min-width: 0;
         }
-
-        .sidebar.collapsed .logo-wrap {
-            display: none;
-        }
-
-        .logo-wrap img {
-            max-height: 32px;
+        .brand-logo img {
+            max-height: 28px;
             width: auto;
             object-fit: contain;
             display: block;
+            flex-shrink: 0;
         }
-
-        .logo-fallback {
-            font-family: 'ComicHelvetic_Medium', sans-serif;
+        .brand-logo .logo-text {
+            font-family: 'CH_Medium', sans-serif;
             font-size: 13px;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.14em;
             color: #fff;
             text-transform: uppercase;
             white-space: nowrap;
+            display: none;
         }
+        .app.collapsed .brand-logo { display: none; }
 
         /* Toggle button */
-        .toggle-btn {
+        .nav-toggle {
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid transparent;
             cursor: pointer;
-            transition: background 0.2s;
-            color: rgba(255,255,255,0.4);
+            color: var(--text-dim);
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
         }
-        .toggle-btn:hover {
-            background: rgba(255,255,255,0.1);
+        .nav-toggle:hover {
+            background: var(--accent);
+            border-color: var(--border);
             color: #fff;
         }
-        .toggle-btn svg {
-            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
-        }
-        .sidebar.collapsed .toggle-btn svg {
-            transform: rotate(180deg);
-        }
+        .nav-toggle svg { transition: transform var(--transition); }
+        .app.collapsed .nav-toggle svg { transform: rotate(180deg); }
 
-        /* Sidebar body (search + nav) */
-        .sidebar-body {
+        /* Search bar */
+        .topbar-search {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 14px 10px;
-            overflow: hidden;
-        }
-
-        /* Search */
-        .search-wrap {
+            max-width: 320px;
             position: relative;
-            margin-bottom: 8px;
-            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
         }
-        .sidebar.collapsed .search-wrap {
-            opacity: 0;
+        .topbar-search .s-icon {
+            position: absolute;
+            left: 10px;
+            display: flex;
+            align-items: center;
             pointer-events: none;
-            height: 0;
-            margin: 0;
-            overflow: hidden;
+            color: var(--text-dim);
         }
-
-        .search-wrap input {
+        .topbar-search .s-icon img {
+            width: 14px; height: 14px;
+            filter: invert(1); opacity: 0.4;
+        }
+        .topbar-search input {
             width: 100%;
-            padding: 9px 32px 9px 36px;
-            background: rgba(0,0,0,0.35);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
+            padding: 7px 10px 7px 32px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             color: #fff;
-            font-family: 'ComicHelvetic_Light', sans-serif;
+            font-family: 'CH_Light', sans-serif;
             font-size: 12px;
             letter-spacing: 0.04em;
             outline: none;
-            transition: border-color 0.2s, background 0.2s;
+            transition: border-color 0.18s, background 0.18s;
         }
-        .search-wrap input::placeholder { color: rgba(255,255,255,0.25); }
-        .search-wrap input:focus {
-            border-color: rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.5);
+        .topbar-search input::placeholder { color: var(--text-dim); }
+        .topbar-search input:focus {
+            border-color: rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.08);
         }
-        .search-icon {
+        .topbar-search .clear-btn {
             position: absolute;
-            left: 11px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255,255,255,0.3);
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-        }
-        .search-icon img {
-            width: 15px;
-            height: 15px;
-            opacity: 0.5;
-            filter: invert(1);
-        }
-        .clear-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255,255,255,0.3);
-            cursor: pointer;
+            right: 9px;
             display: none;
             align-items: center;
+            cursor: pointer;
+            color: var(--text-dim);
         }
-        .clear-btn:hover { color: #fff; }
-        .clear-btn.visible { display: flex; }
+        .topbar-search .clear-btn:hover { color: #fff; }
+        .topbar-search .clear-btn.show { display: flex; }
 
-        /* Divider */
-        .sidebar-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.05);
-            margin: 2px 4px 8px 4px;
+        /* ════════════════════════════════
+           BODY ROW (sidebar + main)
+        ════════════════════════════════ */
+        .body-row {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ════════════════════════════════
+           SIDEBAR
+        ════════════════════════════════ */
+        .sidebar {
+            width: var(--nav-width);
+            min-width: var(--nav-width);
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+            transition: width var(--transition), min-width var(--transition);
             flex-shrink: 0;
-            transition: opacity 0.2s;
         }
-        .sidebar.collapsed .sidebar-divider {
-            opacity: 0;
+        .app.collapsed .sidebar {
+            width: var(--nav-collapsed);
+            min-width: var(--nav-collapsed);
         }
 
-        /* Nav items */
+        .nav-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 10px 8px;
+            overflow: hidden;
+        }
+
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: 12px;
+            gap: 11px;
+            padding: 9px 10px;
+            border-radius: 10px;
             cursor: pointer;
             border: 1px solid transparent;
             background: transparent;
-            transition: background 0.2s, border-color 0.2s;
             text-align: left;
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
+            transition: background 0.18s, border-color 0.18s;
+            color: var(--text-dim);
         }
         .nav-item:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.08);
+            background: var(--accent);
+            border-color: var(--border);
+            color: var(--text);
         }
         .nav-item.active {
             background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.13);
+            color: #fff;
+        }
+
+        .app.collapsed .nav-item {
+            justify-content: center;
+            padding: 9px 0;
         }
 
         .nav-icon {
             flex-shrink: 0;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0.45;
-            transition: opacity 0.2s;
         }
         .nav-icon img {
-            width: 20px;
-            height: 20px;
+            width: 18px; height: 18px;
             filter: invert(1);
+            opacity: 0.5;
             display: block;
+            transition: opacity 0.18s;
         }
-        /* fallback svg inside nav-icon */
         .nav-icon svg {
-            width: 20px;
-            height: 20px;
+            width: 18px; height: 18px;
+            opacity: 0.5;
+            transition: opacity 0.18s;
         }
-        .nav-item:hover .nav-icon,
-        .nav-item.active .nav-icon {
-            opacity: 1;
-        }
+        .nav-item:hover .nav-icon img,
+        .nav-item:hover .nav-icon svg,
+        .nav-item.active .nav-icon img,
+        .nav-item.active .nav-icon svg { opacity: 1; }
 
         .nav-label {
-            font-family: 'ComicHelvetic_Medium', sans-serif;
+            font-family: 'CH_Medium', sans-serif;
             font-size: 11.5px;
             letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.55);
             text-transform: uppercase;
-            transition: color 0.2s, opacity 0.2s, max-width 0.3s;
             overflow: hidden;
-            max-width: 200px;
+            max-width: 160px;
+            opacity: 1;
+            transition: max-width var(--transition), opacity var(--transition);
         }
-        .nav-item:hover .nav-label,
-        .nav-item.active .nav-label {
-            color: #fff;
-        }
-        .sidebar.collapsed .nav-label {
+        .app.collapsed .nav-label {
             max-width: 0;
             opacity: 0;
         }
 
-        /* Collapsed: center icon */
-        .sidebar.collapsed .nav-item {
-            justify-content: center;
-            padding: 10px 0;
-        }
-
-        /* Settings at bottom */
-        .sidebar-bottom {
-            padding: 10px 10px 14px 10px;
-            border-top: 1px solid rgba(255,255,255,0.05);
+        /* Settings pinned at bottom */
+        .nav-bottom {
+            padding: 8px 8px 12px;
+            border-top: 1px solid var(--border);
             flex-shrink: 0;
         }
 
-        /* ── MAIN CONTENT ── */
-        .main-content {
+        /* ════════════════════════════════
+           MAIN CONTENT
+        ════════════════════════════════ */
+        .main {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
+            background: var(--bg);
         }
 
-        /* Top bar inside main */
         .main-topbar {
             display: flex;
             align-items: center;
+            height: 48px;
             padding: 0 28px;
-            height: 64px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--border);
             flex-shrink: 0;
         }
 
         .main-topbar h1 {
-            font-family: 'ComicHelvetic_Medium', sans-serif;
-            font-size: 18px;
-            letter-spacing: 0.18em;
+            font-family: 'CH_Medium', sans-serif;
+            font-size: 15px;
+            letter-spacing: 0.2em;
             color: #fff;
             text-transform: uppercase;
             line-height: 1;
-            /* vertical centering already handled by flexbox on parent */
         }
 
-        /* Main body */
         .main-body {
             flex: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: auto;
         }
     </style>
 </head>
 <body>
 
     <!-- Ambient blobs -->
-    <div style="position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
-        <div class="ambient-blob animate-liquid-flow" style="width:500px;height:500px;background:#1e293b;top:-80px;left:-80px;"></div>
-        <div class="ambient-blob animate-liquid-flow" style="width:600px;height:600px;background:#1e1b4b;top:50%;right:2.5rem;animation-delay:-7s;"></div>
-    </div>
+    <div class="blob" style="width:520px;height:520px;background:#1e293b;top:-100px;left:180px;"></div>
+    <div class="blob" style="width:580px;height:580px;background:#1e1b4b;bottom:-80px;right:-60px;animation-delay:-9s;"></div>
 
-    <!-- App shell -->
-    <div class="app-shell">
+    <div class="app" id="app">
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
+        <!-- ── TOPBAR ── -->
+        <header class="topbar">
 
-            <!-- Top: logo + toggle -->
-            <div class="sidebar-top">
-                <div class="logo-wrap">
+            <!-- Brand (aligned with sidebar) -->
+            <div class="topbar-brand">
+                <div class="brand-logo">
                     <img
                         src="assets/images/logos/Creatopia Alpha V2.png"
                         alt="Creatopia Alpha"
                         id="logo-img"
                         onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block';"
                     />
-                    <span class="logo-fallback" id="logo-text" style="display:none;">Creatopia Alpha</span>
+                    <span class="logo-text" id="logo-text">Creatopia Alpha</span>
                 </div>
-                <button class="toggle-btn" id="toggle-sidebar" title="Toggle sidebar">
-                    <!-- chevron-left icon -->
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <button class="nav-toggle" id="nav-toggle" title="Toggle navigation" aria-label="Toggle navigation">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
             </div>
 
-            <!-- Body: search + nav -->
-            <div class="sidebar-body">
-
-                <!-- Search -->
-                <div class="search-wrap">
-                    <div class="search-icon">
-                        <img src="assets/icons/search_icon.svg" alt=""
-                             onerror="this.outerHTML='<svg width=&quot;15&quot; height=&quot;15&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'"/>
-                    </div>
-                    <input type="text" id="search-input" placeholder="Search..." />
-                    <span class="clear-btn" id="clear-search">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </span>
+            <!-- Search -->
+            <div class="topbar-search">
+                <div class="s-icon">
+                    <img src="assets/icons/search_icon.svg" alt=""
+                         onerror="this.outerHTML='<svg width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'"/>
                 </div>
+                <input type="text" id="search-input" placeholder="Search..." autocomplete="off" />
+                <span class="clear-btn" id="clear-btn">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </span>
+            </div>
 
-                <div class="sidebar-divider"></div>
+        </header>
 
-                <!-- Nav items -->
-                <nav id="main-nav" style="display:flex;flex-direction:column;gap:3px;">
+        <!-- ── BODY ROW ── -->
+        <div class="body-row">
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+
+                <nav class="nav-list" id="main-nav">
 
                     <button class="nav-item active" data-tab="GAMES">
                         <span class="nav-icon">
-                            <img src="assets/icons/games_icon.svg" alt="Games"
+                            <img src="assets/icons/games_icon.svg" alt=""
                                  onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 6H9C5.134 6 2 9.134 2 13c0 3.866 3.134 7 7 7h6c3.866 0 7-3.134 7-7 0-3.866-3.134-7-7-7z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M6 13h4m-2-2v4m7-2h.01m2 2h.01&quot;/></svg>'"/>
                         </span>
                         <span class="nav-label">Games</span>
@@ -460,7 +426,7 @@
 
                     <button class="nav-item" data-tab="CREATE">
                         <span class="nav-icon">
-                            <img src="assets/icons/create_icon.svg" alt="Create"
+                            <img src="assets/icons/create_icon.svg" alt=""
                                  onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z&quot;/></svg>'"/>
                         </span>
                         <span class="nav-label">Create</span>
@@ -468,7 +434,7 @@
 
                     <button class="nav-item" data-tab="CUSTOMIZE">
                         <span class="nav-icon">
-                            <img src="assets/icons/customize_icon.svg" alt="Customize"
+                            <img src="assets/icons/customize_icon.svg" alt=""
                                  onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5M13.5 12h6.75m-6.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12H9&quot;/></svg>'"/>
                         </span>
                         <span class="nav-label">Customize</span>
@@ -476,86 +442,75 @@
 
                     <button class="nav-item" data-tab="PROFILE">
                         <span class="nav-icon">
-                            <img src="assets/icons/profile_icon.svg" alt="Profile"
+                            <img src="assets/icons/profile_icon.svg" alt=""
                                  onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z&quot;/></svg>'"/>
                         </span>
                         <span class="nav-label">Profile</span>
                     </button>
 
                 </nav>
+
+                <!-- Settings at bottom -->
+                <div class="nav-bottom">
+                    <button class="nav-item" data-tab="SETTINGS">
+                        <span class="nav-icon">
+                            <img src="assets/icons/settings_icon.svg" alt=""
+                                 onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 12a3 3 0 11-6 0 3 3 0 016 0z&quot;/></svg>'"/>
+                        </span>
+                        <span class="nav-label">Settings</span>
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- MAIN -->
+            <div class="main">
+
+                <div class="main-topbar">
+                    <h1 id="active-title">GAMES</h1>
+                </div>
+
+                <div class="main-body" id="content"></div>
+
             </div>
 
-            <!-- Bottom: settings -->
-            <div class="sidebar-bottom">
-                <button class="nav-item" data-tab="SETTINGS" id="settings-btn">
-                    <span class="nav-icon">
-                        <img src="assets/icons/settings_icon.svg" alt="Settings"
-                             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 12a3 3 0 11-6 0 3 3 0 016 0z&quot;/></svg>'"/>
-                    </span>
-                    <span class="nav-label">Settings</span>
-                </button>
-            </div>
+        </div><!-- /body-row -->
 
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-
-            <!-- Top bar -->
-            <div class="main-topbar">
-                <h1 id="active-tab-title">GAMES</h1>
-            </div>
-
-            <!-- Body -->
-            <div class="main-body" id="content-container"></div>
-
-        </div>
-
-    </div>
+    </div><!-- /app -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar       = document.getElementById('sidebar');
-            const toggleBtn     = document.getElementById('toggle-sidebar');
-            const activeTitle   = document.getElementById('active-tab-title');
-            const searchInput   = document.getElementById('search-input');
-            const clearBtn      = document.getElementById('clear-search');
-            const navButtons    = document.querySelectorAll('.nav-item[data-tab]');
+        const app       = document.getElementById('app');
+        const navToggle = document.getElementById('nav-toggle');
+        const searchEl  = document.getElementById('search-input');
+        const clearBtn  = document.getElementById('clear-btn');
+        const navItems  = document.querySelectorAll('.nav-item[data-tab]');
+        const titleEl   = document.getElementById('active-title');
 
-            // Sidebar toggle
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
+        // Sidebar toggle
+        navToggle.addEventListener('click', () => app.classList.toggle('collapsed'));
+
+        // Tab switch
+        function setTab(key) {
+            titleEl.textContent = key;
+            navItems.forEach(b => b.classList.toggle('active', b.dataset.tab === key));
+        }
+        navItems.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+        // Search filter (filters sidebar nav items)
+        searchEl.addEventListener('input', () => {
+            const q = searchEl.value.toLowerCase().trim();
+            clearBtn.classList.toggle('show', q.length > 0);
+            navItems.forEach(b => {
+                b.style.display = b.dataset.tab.toLowerCase().includes(q) ? 'flex' : 'none';
             });
-
-            // Tab switch
-            function setTab(tabKey) {
-                activeTitle.textContent = tabKey;
-                navButtons.forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.tab === tabKey);
-                });
-            }
-
-            navButtons.forEach(btn => {
-                btn.addEventListener('click', () => setTab(btn.dataset.tab));
-            });
-
-            // Search filter
-            searchInput.addEventListener('input', () => {
-                const q = searchInput.value.toLowerCase().trim();
-                clearBtn.classList.toggle('visible', q.length > 0);
-                navButtons.forEach(btn => {
-                    btn.style.display = btn.dataset.tab.toLowerCase().includes(q) ? 'flex' : 'none';
-                });
-            });
-
-            clearBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                clearBtn.classList.remove('visible');
-                navButtons.forEach(btn => btn.style.display = 'flex');
-            });
-
-            setTab('GAMES');
         });
+        clearBtn.addEventListener('click', () => {
+            searchEl.value = '';
+            clearBtn.classList.remove('show');
+            navItems.forEach(b => b.style.display = 'flex');
+        });
+
+        setTab('GAMES');
     </script>
 </body>
 </html>
