@@ -115,10 +115,13 @@ html[data-theme="light"] .ni.on{background:rgba(0,0,0,.1);border-color:rgba(0,0,
 .ni-inner{
   display:flex;align-items:center;
   width:100%;
-  /* left offset = (wc - 2px border - 24px icon) / 2 = (74-24)/2 = 25px
-     We pad the whole inner by 25px on the left so the icon visually
-     centres when collapsed. On expanded we just add right padding. */
-  padding:11px 14px 11px 25px;
+  /* expanded: normal left padding so icon sits naturally */
+  padding:11px 14px 11px 14px;
+}
+/* collapsed: shift icon to centre of wc=76px strip
+   inner = 76 - 2px borders = 74, icon = 24, left = (74-24)/2 = 25px */
+.app.col .ni-inner{
+  padding:11px 0 11px 25px;
 }
 
 /* icon column — fixed 24px, never changes position */
@@ -177,16 +180,47 @@ html[data-theme="light"] .tog:hover{background:rgba(0,0,0,.1)}
 /* ── HOME GRID ── */
 .game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;padding-top:4px}
 .game-card{display:flex;flex-direction:column;gap:8px;cursor:pointer}
-.game-thumb{width:100%;aspect-ratio:16/9;border-radius:12px;
+.game-thumb{width:100%;aspect-ratio:4/3;border-radius:12px;
   background:var(--card-bg);border:1px solid var(--card-bdr);
   display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:28px;
-  transition:border-color .18s,transform .18s}
+  overflow:hidden;transition:border-color .18s,transform .18s}
 .game-card:hover .game-thumb{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
 html[data-theme="light"] .game-card:hover .game-thumb{border-color:rgba(0,0,0,.2)}
 .game-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.06em;
   color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .game-author{font-family:CHL,sans-serif;font-size:12px;letter-spacing:.04em;
   color:var(--dim);display:block;margin-top:1px}
+
+/* ── GAME PAGE ── */
+.gpage{display:flex;flex-direction:column;gap:0;height:100%}
+.gpage-thumb{width:100%;max-width:560px;aspect-ratio:4/3;border-radius:16px;
+  background:var(--card-bg);border:1px solid var(--card-bdr);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--dim);font-size:40px;overflow:hidden;flex-shrink:0}
+.gpage-body{display:flex;gap:28px;margin-top:20px;align-items:flex-start}
+.gpage-info{flex:1;min-width:0}
+.gpage-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--txt);display:block;line-height:1;position:relative;top:2px}
+.gpage-author{font-family:CHL,sans-serif;font-size:13px;color:var(--dim);
+  display:block;margin-top:8px;letter-spacing:.04em;position:relative;top:2px}
+.gpage-desc{font-family:CHL,sans-serif;font-size:14px;color:var(--dim);
+  margin-top:14px;line-height:1.6;letter-spacing:.04em;position:relative;top:2px}
+.gpage-play{display:flex;align-items:center;gap:10px;margin-top:20px}
+.play-btn{display:inline-flex;align-items:center;gap:10px;
+  padding:13px 28px;border-radius:var(--r);
+  background:rgba(120,130,255,.25);border:1px solid rgba(120,130,255,.4);
+  color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;
+  transition:background .18s,border-color .18s}
+.play-btn:hover{background:rgba(120,130,255,.4);border-color:rgba(120,130,255,.6)}
+.play-btn svg{width:18px;height:18px}
+.back-btn{display:inline-flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);
+  color:var(--dim);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;cursor:pointer;margin-bottom:16px;
+  transition:background .18s,color .18s}
+.back-btn:hover{background:rgba(255,255,255,.12);color:var(--txt)}
+.back-btn svg{width:14px;height:14px}
 
 /* ── SETTINGS ── */
 .spage{max-width:680px;padding-top:4px;display:flex;flex-direction:column;gap:10px}
@@ -545,14 +579,48 @@ cbEl.addEventListener('click',()=>{
 });
 
 // ── Home ──────────────────────────────────────────────────────
-const GAMES=Array.from({length:5},()=>({title:'Game',author:'Player'}));
+const GAMES=Array.from({length:5},(_,i)=>({id:i,title:'Game',author:'Player',desc:'A fun game made in Creatopia.'}));
+
 function renderHome(){
   content.innerHTML=`<div class="game-grid">${GAMES.map(g=>`
-    <div class="game-card">
+    <div class="game-card" data-gid="${g.id}">
       <div class="game-thumb">?</div>
       <span class="game-title">${g.title}</span>
       <span class="game-author">${g.author}</span>
     </div>`).join('')}</div>`;
+  content.querySelectorAll('.game-card').forEach(c=>{
+    c.addEventListener('click',()=>renderGame(GAMES[+c.dataset.gid]));
+  });
+}
+
+function renderGame(g){
+  content.innerHTML=`
+  <button class="back-btn" id="back-btn">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+    Back
+  </button>
+  <div class="gpage-body">
+    <div class="gpage-thumb">?</div>
+    <div class="gpage-info">
+      <span class="gpage-name">${g.title}</span>
+      <span class="gpage-author">by ${g.author}</span>
+      <span class="gpage-desc">${g.desc}</span>
+      <div class="gpage-play">
+        <button class="play-btn" id="play-btn">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+          </svg>
+          Play
+        </button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('back-btn').addEventListener('click',()=>renderHome());
+  document.getElementById('play-btn').addEventListener('click',()=>{
+    window.open('scripts/game/engine.html','_blank');
+  });
 }
 
 // ── Create ────────────────────────────────────────────────────
