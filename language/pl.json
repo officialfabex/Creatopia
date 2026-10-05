@@ -14,6 +14,16 @@
   "settings_theme_desc":     "Przełącz między trybem ciemnym a jasnym.",
   "settings_theme_dark":     "Ciemny",
   "settings_theme_light":    "Jasny",
+  "settings_music_label":    "Muzyka",
+  "settings_music_desc":     "Włącz lub wyłącz muzykę w tle.",
+  "settings_music_on":       "Włączona",
+  "settings_music_off":      "Wyłączona",
+
+  "settings_credits_tab":    "Podziękowania",
+  "credits_icons_label":     "Ikony UI",
+  "credits_icons_text":      "Ikony użyte z SVGRepo",
+  "credits_music_label":     "Muzyka",
+  "credits_music_text":      "\"Enchanted Tiki 86\" autorstwa cynicmusic na OpenGameArt.org",
 
   "customize_tab_all":       "Wszystko",
   "customize_tab_hats":      "Czapki",
@@ -22,12 +32,9 @@
   "customize_tab_face":      "Twarz",
   "customize_tab_skin":      "Kolor",
 
-  "profile_greeting":        "Cześć,",
-  "profile_username":        "Użytkowniku",
+  "profile_username":        "Użytkownik",
   "profile_joined":          "Dołączono",
   "profile_joined_date":     "Październik 2026",
-  "profile_friends":         "Znajomi",
-  "profile_creations":       "Tworzenia",
   "profile_edit":            "Edytuj profil",
 
   "customize_save":          "Zapisz"
