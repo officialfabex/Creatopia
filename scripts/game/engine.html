@@ -6,114 +6,90 @@
 <title>Creatopia</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',system-ui,sans-serif}
-
-#c{display:block;width:100vw;height:100vh}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;
+  font-family:'Segoe UI',system-ui,sans-serif;user-select:none}
+#c{display:block;width:100vw;height:100vh;cursor:none}
 
 /* ── TOP BAR ── */
 #topbar{
-  position:fixed;top:0;left:0;right:0;
-  height:52px;
-  background:rgba(8,8,16,0.78);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid rgba(255,255,255,0.07);
-  display:flex;align-items:center;
-  padding:0 18px;
-  gap:10px;
-  z-index:100;
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:rgba(6,6,14,.82);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;padding:0 18px;gap:12px;
+  z-index:100;pointer-events:auto;
 }
-
 #menu-btn{
   display:flex;align-items:center;justify-content:center;
-  width:42px;height:38px;
-  border-radius:9px;
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.1);
-  color:rgba(255,255,255,0.8);
-  cursor:pointer;
+  width:42px;height:38px;border-radius:9px;cursor:pointer;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.8);
   transition:background .15s,border-color .15s;
 }
-#menu-btn:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.22)}
-#menu-btn svg{width:18px;height:18px}
+#menu-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.22);color:#fff}
+#menu-btn svg{width:18px;height:18px;pointer-events:none}
+
+/* zoom indicator */
+#zoom-lbl{
+  font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.3);
+  font-family:'Segoe UI',sans-serif;
+}
 
 /* ── PAUSE OVERLAY ── */
 #pause{
   position:fixed;inset:0;
-  background:rgba(0,0,0,0.58);
-  backdrop-filter:blur(5px);
-  -webkit-backdrop-filter:blur(5px);
+  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   display:flex;align-items:center;justify-content:center;
-  z-index:200;
-  opacity:0;pointer-events:none;
-  transition:opacity .2s;
+  z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
 }
 #pause.open{opacity:1;pointer-events:auto}
-
 #pause-panel{
-  background:rgba(10,10,20,0.95);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:20px;
-  padding:36px 32px;
-  min-width:230px;
-  display:flex;flex-direction:column;gap:12px;
-  box-shadow:0 28px 70px rgba(0,0,0,0.8);
-  transform:scale(.93) translateY(8px);
-  transition:transform .22s cubic-bezier(.16,1,.3,1);
+  background:rgba(8,8,18,.97);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:36px 32px;min-width:240px;
+  display:flex;flex-direction:column;gap:11px;
+  box-shadow:0 28px 72px rgba(0,0,0,.85);
+  transform:scale(.93) translateY(10px);
+  transition:transform .24s cubic-bezier(.16,1,.3,1);
 }
 #pause.open #pause-panel{transform:scale(1) translateY(0)}
 
 .pbtn{
   display:flex;align-items:center;justify-content:center;gap:9px;
-  padding:13px 20px;border-radius:12px;
-  border:1px solid rgba(255,255,255,0.1);
-  background:rgba(255,255,255,0.08);
-  color:#fff;font-size:13px;font-weight:600;
-  letter-spacing:0.1em;text-transform:uppercase;
-  cursor:pointer;
+  padding:13px 22px;border-radius:12px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);
+  color:#fff;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
   transition:background .15s,border-color .15s;
 }
-.pbtn:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.22)}
-.pbtn.exit{
-  background:rgba(160,40,40,0.22);
-  border-color:rgba(220,70,70,0.28);
-  color:rgba(255,130,130,0.9);
-}
-.pbtn.exit:hover{background:rgba(160,40,40,0.38);border-color:rgba(220,70,70,0.5);color:#fff}
+.pbtn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.24)}
+.pbtn.exit{background:rgba(160,40,40,.22);border-color:rgba(220,70,70,.28);color:rgba(255,130,130,.9)}
+.pbtn.exit:hover{background:rgba(160,40,40,.4);border-color:rgba(220,70,70,.55);color:#fff}
 .pbtn svg{width:16px;height:16px;opacity:.85;flex-shrink:0}
 
 /* crosshair */
 #cross{
-  position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:18px;height:18px;
-  pointer-events:none;z-index:50;
-  opacity:.55;
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:16px;height:16px;pointer-events:none;z-index:50;
 }
 #cross::before,#cross::after{
-  content:'';position:absolute;background:#fff;border-radius:1px;
+  content:'';position:absolute;background:rgba(255,255,255,.75);border-radius:1px;
 }
-#cross::before{width:2px;height:100%;left:50%;transform:translateX(-50%)}
-#cross::after {width:100%;height:2px;top:50%;transform:translateY(-50%)}
+#cross::before{width:2px;height:100%;left:calc(50% - 1px);top:0}
+#cross::after{width:100%;height:2px;top:calc(50% - 1px);left:0}
 </style>
 </head>
 <body>
-
 <canvas id="c"></canvas>
-
-<!-- crosshair -->
 <div id="cross"></div>
 
-<!-- top bar -->
 <div id="topbar">
-  <button id="menu-btn" title="Menu (Esc)">
+  <button id="menu-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
     </svg>
   </button>
+  <span id="zoom-lbl"></span>
 </div>
 
-<!-- pause / menu overlay -->
 <div id="pause">
   <div id="pause-panel">
     <button class="pbtn" id="resume-btn">
@@ -131,376 +107,379 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
   </div>
 </div>
 
-<!-- Three.js from CDN -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.163.0/build/three.module.js"
-  }
-}
-</script>
-
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.163.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
 
-// ─────────────────────────────────────────────
-//  SCENE SETUP
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  CONSTANTS  (match Roblox defaults as closely
+//  as possible in Three.js world-units ≈ studs)
+// ═══════════════════════════════════════════════
+const GRAVITY      = 196.2; // studs/s²  (Roblox workspace.Gravity default)
+const WALK_SPEED   = 16;    // studs/s   (Humanoid.WalkSpeed)
+const JUMP_POWER   = 50;    // studs/s   (Humanoid.JumpPower)
+const CHAR_HEIGHT  = 5.0;   // studs     (total character height)
+const HRP_OFFSET_Y = 2.5;   // studs     (HumanoidRootPart centre above feet)
+const CAM_FOCUS_Y  = 3.5;   // studs     (camera focus above feet ≈ neck/head)
+const CAM_DIST_DEF = 12.5;  // studs     (default zoom)
+const CAM_DIST_MIN = 0.5;
+const CAM_DIST_MAX = 80;
+const CAM_PITCH_MAX=  80 * Math.PI/180; // ±80°  (Roblox clamping)
+const CAM_PITCH_MIN= -80 * Math.PI/180;
+const CAM_SENSITIVITY = 0.005; // radians per px (tuned to feel like Roblox)
+const CHAR_W = 2.0, CHAR_D = 1.0; // studs (capsule approx for AABB)
+
+// ═══════════════════════════════════════════════
+//  RENDERER
+// ═══════════════════════════════════════════════
 const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor(0x1a1a3e);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
 
-const scene  = new THREE.Scene();
-scene.fog    = new THREE.Fog(0x1a1a3e, 30, 80);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb); // Roblox sky blue
+scene.fog = new THREE.Fog(0x87ceeb, 60, 150);
 
-const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 200);
-// Third-person camera offset from player
-const CAM_OFFSET = new THREE.Vector3(0, 5, 10);
+const camera = new THREE.PerspectiveCamera(70, 1, 0.1, 500);
 
 function resize(){
-  const w = window.innerWidth, h = window.innerHeight;
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
+  const w=innerWidth,h=innerHeight;
+  renderer.setSize(w,h);
+  camera.aspect=w/h;
   camera.updateProjectionMatrix();
 }
-window.addEventListener('resize', resize);
+window.addEventListener('resize',resize);
 resize();
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  LIGHTING
-// ─────────────────────────────────────────────
-const ambient = new THREE.AmbientLight(0x8888cc, 0.7);
-scene.add(ambient);
+// ═══════════════════════════════════════════════
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 
-const sun = new THREE.DirectionalLight(0xffffff, 1.4);
-sun.position.set(20, 40, 20);
+const sun = new THREE.DirectionalLight(0xfff5e0, 1.6);
+sun.position.set(40, 80, 30);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.near = 0.5;
-sun.shadow.camera.far  = 120;
-sun.shadow.camera.left = sun.shadow.camera.bottom = -40;
-sun.shadow.camera.right= sun.shadow.camera.top    =  40;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{near:.5,far:200,left:-50,right:50,top:50,bottom:-50});
 scene.add(sun);
 
-// ─────────────────────────────────────────────
-//  MATERIALS
-// ─────────────────────────────────────────────
-function mat(hex, rough=0.85, metal=0){
-  return new THREE.MeshStandardMaterial({color:hex,roughness:rough,metalness:metal});
-}
+// subtle sky fill
+const sky = new THREE.HemisphereLight(0x87ceeb, 0x4a7c3f, 0.45);
+scene.add(sky);
 
-const M = {
-  skin:  mat(0xf5deb3),
-  shirt: mat(0x4a90e2),
-  pants: mat(0x2c3e50),
-  shoe:  mat(0x1a1a1a),
-  eye:   mat(0x111111),
-  grass: mat(0x3a7d44),
-  dirt:  mat(0x7a5c3a),
-  stone: mat(0x6e7a8a),
-  wood:  mat(0x8b6914),
+// ═══════════════════════════════════════════════
+//  MATERIALS
+// ═══════════════════════════════════════════════
+const MAT = {
+  grass:  new THREE.MeshStandardMaterial({color:0x5ab552,roughness:.9}),
+  stone:  new THREE.MeshStandardMaterial({color:0x9b9b9b,roughness:.8}),
+  wood:   new THREE.MeshStandardMaterial({color:0xa0522d,roughness:.85}),
+  dirt:   new THREE.MeshStandardMaterial({color:0x8b6332,roughness:.95}),
+  brick:  new THREE.MeshStandardMaterial({color:0xb5651d,roughness:.8}),
+  skin:   new THREE.MeshStandardMaterial({color:0xffcd9a,roughness:.7}),
+  shirt:  new THREE.MeshStandardMaterial({color:0x1f78d1,roughness:.8}),
+  pants:  new THREE.MeshStandardMaterial({color:0x1a2540,roughness:.9}),
+  shoe:   new THREE.MeshStandardMaterial({color:0x111111,roughness:.8}),
+  eye:    new THREE.MeshStandardMaterial({color:0x050505}),
 };
 
-// ─────────────────────────────────────────────
-//  BLOCK BUILDER
-// ─────────────────────────────────────────────
-const blockGeo = new THREE.BoxGeometry(1,1,1);
+// ═══════════════════════════════════════════════
+//  BLOCK WORLD
+// ═══════════════════════════════════════════════
+const BOX_GEO = new THREE.BoxGeometry(4,4,4); // 1 block = 4×4×4 studs
+const blockAABBs = []; // THREE.Box3 list for collision
 
-function makeBlock(x,y,z, matKey='stone'){
-  const mesh = new THREE.Mesh(blockGeo, M[matKey]);
-  mesh.position.set(x,y,z);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  scene.add(mesh);
-  return mesh;
+function addBlock(gx,gy,gz,mat){
+  const m = new THREE.Mesh(BOX_GEO, MAT[mat]||MAT.stone);
+  m.position.set(gx*4+2, gy*4+2, gz*4+2);
+  m.castShadow = m.receiveShadow = true;
+  scene.add(m);
+  blockAABBs.push(new THREE.Box3().setFromObject(m));
 }
 
-// ─────────────────────────────────────────────
-//  MAP
-// ─────────────────────────────────────────────
-const blockMeshes = [];
-const blockBoxes  = [];  // THREE.Box3 for collision
+// Ground (y=0)
+for(let x=-8;x<=8;x++) for(let z=-8;z<=8;z++) addBlock(x,0,z,'grass');
 
-function addBlock(x,y,z,mkey){
-  const m = makeBlock(x,y,z,mkey);
-  blockMeshes.push(m);
-  const box = new THREE.Box3().setFromObject(m);
-  blockBoxes.push(box);
-}
-
-// Ground plane (grass blocks, y=0)
-for(let x=-10; x<=10; x++){
-  for(let z=-10; z<=10; z++){
-    addBlock(x, 0, z, 'grass');
-  }
-}
-
-// Scattered blocks
-const mapData = [
-  // [x, y, z, mat]
-  [-3,1,-3,'stone'], [-3,2,-3,'stone'], [-3,1,-2,'stone'],
-  [3,1,3,'wood'],  [3,2,3,'wood'],  [4,1,3,'wood'],
-  [-5,1,5,'dirt'], [-5,2,5,'dirt'],
-  [6,1,-4,'stone'],[7,1,-4,'stone'],[6,2,-4,'stone'],
-  [0,1,6,'wood'], [1,1,6,'wood'], [0,2,6,'wood'],
-  [-7,1,-7,'stone'],[-7,2,-7,'stone'],[-8,1,-7,'stone'],
-  [8,1,8,'dirt'],[9,1,8,'dirt'],[8,2,8,'dirt'],
-  // elevated platforms
-  [-2,3,-6,'stone'],[-1,3,-6,'stone'],[0,3,-6,'stone'],
+// Platforms & decorative blocks
+[
+  // [gx, gy, gz, mat]
+  [-3,1,-3,'stone'],[-2,1,-3,'stone'],[-1,1,-3,'stone'],
+  [-3,2,-3,'stone'],
+  [3,1,3,'wood'],[4,1,3,'wood'],[5,1,3,'wood'],
+  [3,2,3,'wood'],
+  [-5,1,5,'brick'],[-4,1,5,'brick'],
+  [6,1,-4,'stone'],[7,1,-4,'stone'],
+  [0,1,6,'dirt'],[1,1,6,'dirt'],
+  [-7,1,-7,'stone'],[-6,1,-7,'stone'],
+  [8,1,7,'brick'],[9,1,7,'brick'],
+  // elevated platforms (higher up)
+  [-2,3,-5,'stone'],[-1,3,-5,'stone'],[0,3,-5,'stone'],[1,3,-5,'stone'],
   [4,4,0,'wood'],[5,4,0,'wood'],[6,4,0,'wood'],
-  [-6,5,2,'stone'],[-5,5,2,'stone'],[-4,5,2,'stone'],
-];
-mapData.forEach(([x,y,z,mk])=>addBlock(x,y,z,mk));
+  [-5,5,2,'stone'],[-4,5,2,'stone'],[-3,5,2,'stone'],
+  [2,6,-2,'brick'],[3,6,-2,'brick'],
+  [-1,7,4,'stone'],[0,7,4,'stone'],
+].forEach(([gx,gy,gz,mat])=>addBlock(gx,gy,gz,mat));
 
-// ─────────────────────────────────────────────
-//  CHARACTER (Roblox-inspired blocky)
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  CHARACTER (Roblox-inspired blocky, stud scale)
+// ═══════════════════════════════════════════════
 const charRoot = new THREE.Group();
 scene.add(charRoot);
 
-function box(w,h,d,mat,px,py,pz){
-  const g = new THREE.BoxGeometry(w,h,d);
-  const m = new THREE.Mesh(g,mat);
-  m.position.set(px,py,pz);
-  m.castShadow = true;
-  charRoot.add(m);
-  return m;
+function part(w,h,d,mat){
+  return new THREE.Mesh(new THREE.BoxGeometry(w,h,d), MAT[mat]);
+}
+function addPart(mesh,px,py,pz,parent){
+  mesh.position.set(px,py,pz);
+  mesh.castShadow = true;
+  (parent||charRoot).add(mesh);
+  return mesh;
 }
 
-// Body parts (relative to charRoot which sits at feet)
-const charHead  = box(0.7,0.65,0.65, M.skin,  0, 1.85, 0);
-const charBody  = box(0.65,0.7,0.4,  M.shirt, 0, 1.15, 0);
-const charLArmG = new THREE.Group(); charRoot.add(charLArmG);
-const charRArmG = new THREE.Group(); charRoot.add(charRArmG);
-const charLLegG = new THREE.Group(); charRoot.add(charLLegG);
-const charRLegG = new THREE.Group(); charRoot.add(charRLegG);
+// Proportions (studs) — close to Roblox R6 skeleton
+const head  = addPart(part(2,2,2,'skin'),  0,4.5,0);
+const body  = addPart(part(2,2,1,'shirt'), 0,3,  0);
+const larmG = new THREE.Group(); larmG.position.set(-1.5,4,0); charRoot.add(larmG);
+const rarmG = new THREE.Group(); rarmG.position.set( 1.5,4,0); charRoot.add(rarmG);
+const llegG = new THREE.Group(); llegG.position.set(-0.6,2,0); charRoot.add(llegG);
+const rlegG = new THREE.Group(); rlegG.position.set( 0.6,2,0); charRoot.add(rlegG);
+const larmM = addPart(part(.9,2,.9,'shirt'), 0,-1,0, larmG);
+const rarmM = addPart(part(.9,2,.9,'shirt'), 0,-1,0, rarmG);
+const llegM = addPart(part(.9,2,.9,'pants'), 0,-1,0, llegG);
+const rlegM = addPart(part(.9,2,.9,'pants'), 0,-1,0, rlegG);
 
-// Arms — pivot at shoulder
-charLArmG.position.set(-0.575, 1.5, 0);
-charRArmG.position.set( 0.575, 1.5, 0);
-const charLArm = new THREE.Mesh(new THREE.BoxGeometry(0.28,0.7,0.3), M.shirt);
-const charRArm = new THREE.Mesh(new THREE.BoxGeometry(0.28,0.7,0.3), M.shirt);
-charLArm.position.y = -0.35; charLArm.castShadow=true;
-charRArm.position.y = -0.35; charRArm.castShadow=true;
-charLArmG.add(charLArm);
-charRArmG.add(charRArm);
+// Eyes on head face (+Z forward)
+const eyeGeo = new THREE.BoxGeometry(.35,.3,.1);
+const eyeL = new THREE.Mesh(eyeGeo,MAT.eye); eyeL.position.set(-.5,.15,1.01);
+const eyeR = new THREE.Mesh(eyeGeo,MAT.eye); eyeR.position.set( .5,.15,1.01);
+head.add(eyeL,eyeR);
 
-// Legs — pivot at hip
-charLLegG.position.set(-0.18, 0.8, 0);
-charRLegG.position.set( 0.18, 0.8, 0);
-const charLLeg = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.75,0.3), M.pants);
-const charRLeg = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.75,0.3), M.pants);
-charLLeg.position.y = -0.375; charLLeg.castShadow=true;
-charRLeg.position.y = -0.375; charRLeg.castShadow=true;
-charLLegG.add(charLLeg);
-charRLegG.add(charRLeg);
-
-// Eyes (small dark boxes on head face)
-const eyeGeo = new THREE.BoxGeometry(0.12,0.1,0.05);
-const eyeL = new THREE.Mesh(eyeGeo, M.eye);
-const eyeR = new THREE.Mesh(eyeGeo, M.eye);
-eyeL.position.set(-0.17, 0.06, 0.33);
-eyeR.position.set( 0.17, 0.06, 0.33);
-charHead.add(eyeL); charHead.add(eyeR);
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  PLAYER STATE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 const player = {
-  pos:    new THREE.Vector3(0, 1, 0),
-  vel:    new THREE.Vector3(0, 0, 0),
-  yaw:    0,   // horizontal rotation (radians)
+  pos: new THREE.Vector3(0, CHAR_HEIGHT, 0), // feet position
+  vel: new THREE.Vector3(),
   onGround: false,
+  facingYaw: 0, // character facing angle
 };
 
-const GRAVITY   = 22;
-const SPEED     = 6;
-const JUMP_VEL  = 9;
-const PLAYER_H  = 2.1;  // height for collision
-const PLAYER_R  = 0.32; // horizontal radius
+// ═══════════════════════════════════════════════
+//  CAMERA STATE  (Roblox orbit model)
+//
+//  The camera orbits around a focus point:
+//    focus = player.pos + (0, CAM_FOCUS_Y, 0)
+//  Yaw   = horizontal angle (rotated by mouse X)
+//  Pitch = vertical angle   (rotated by mouse Y, clamped ±80°)
+//  Dist  = zoom distance    (scroll wheel)
+//
+//  Camera position = focus
+//    + spherical(dist, yaw, pitch)
+//  Camera always looks at focus.
+// ═══════════════════════════════════════════════
+const cam = {
+  yaw:   Math.PI,   // start behind character
+  pitch: 0.35,      // slight downward angle
+  dist:  CAM_DIST_DEF,
+  targetDist: CAM_DIST_DEF,
+};
+const focusPt = new THREE.Vector3();
+const camPos  = new THREE.Vector3();
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  INPUT
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 const keys = {};
-window.addEventListener('keydown', e=>{
-  keys[e.code]=true;
-  if((e.code==='Space'||e.code==='KeyW') && player.onGround){
-    // only jump on Space
-  }
-  if(e.code==='Space' && player.onGround){
-    player.vel.y = JUMP_VEL;
-    player.onGround = false;
-  }
-  if(e.code==='Escape') togglePause();
-});
-window.addEventListener('keyup', e=>{ keys[e.code]=false; });
+let   mdx=0, mdy=0;
+let   pointerLocked = false;
+let   paused = false;
 
-// Pointer lock for mouse look
 const canvas = document.getElementById('c');
-canvas.addEventListener('click', ()=>{
-  if(!paused) canvas.requestPointerLock();
+canvas.addEventListener('click', ()=>{ if(!paused) canvas.requestPointerLock(); });
+document.addEventListener('pointerlockchange', ()=>{
+  pointerLocked = document.pointerLockElement === canvas;
 });
-
-let mouseDX = 0, mouseDY = 0;
-let camPitch = 0.3; // vertical camera angle
 
 document.addEventListener('mousemove', e=>{
-  if(document.pointerLockElement !== canvas) return;
-  mouseDX += e.movementX;
-  mouseDY += e.movementY;
+  if(!pointerLocked||paused) return;
+  mdx += e.movementX;
+  mdy += e.movementY;
 });
 
-// ─────────────────────────────────────────────
-//  PAUSE
-// ─────────────────────────────────────────────
-let paused = false;
+document.addEventListener('keydown', e=>{
+  keys[e.code]=true;
+  if(e.code==='Escape') togglePause();
+  // Roblox: Space = jump
+  if(e.code==='Space' && player.onGround && !paused){
+    player.vel.y = JUMP_POWER;
+    player.onGround = false;
+  }
+});
+document.addEventListener('keyup', e=>{ keys[e.code]=false; });
+
+// Scroll zoom (matches Roblox scroll-to-zoom)
+canvas.addEventListener('wheel', e=>{
+  e.preventDefault();
+  cam.targetDist = THREE.MathUtils.clamp(
+    cam.targetDist + e.deltaY * 0.04,
+    CAM_DIST_MIN, CAM_DIST_MAX
+  );
+},{passive:false});
+
+// ═══════════════════════════════════════════════
+//  PAUSE UI
+// ═══════════════════════════════════════════════
 const pauseEl  = document.getElementById('pause');
-const menuBtn  = document.getElementById('menu-btn');
-const resumeBtn= document.getElementById('resume-btn');
-const exitBtn  = document.getElementById('exit-btn');
+const zoomLbl  = document.getElementById('zoom-lbl');
 
 function togglePause(){
   paused = !paused;
-  pauseEl.classList.toggle('open', paused);
-  if(paused && document.pointerLockElement === canvas){
-    document.exitPointerLock();
-  }
+  pauseEl.classList.toggle('open',paused);
+  if(paused && pointerLocked) document.exitPointerLock();
 }
-menuBtn.addEventListener('click',  togglePause);
-resumeBtn.addEventListener('click',()=>{ paused=false; pauseEl.classList.remove('open'); });
-exitBtn.addEventListener('click',  ()=>{ window.close(); history.back(); });
+document.getElementById('menu-btn')  .addEventListener('click', togglePause);
+document.getElementById('resume-btn').addEventListener('click', ()=>{ paused=false; pauseEl.classList.remove('open'); });
+document.getElementById('exit-btn')  .addEventListener('click', ()=>{ history.back(); });
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  COLLISION HELPERS
-// ─────────────────────────────────────────────
-const _box    = new THREE.Box3();
-const _sphere = new THREE.Sphere();
+// ═══════════════════════════════════════════════
+const _pb = new THREE.Box3();
 
 function playerBox(pos){
-  _box.min.set(pos.x-PLAYER_R, pos.y,         pos.z-PLAYER_R);
-  _box.max.set(pos.x+PLAYER_R, pos.y+PLAYER_H, pos.z+PLAYER_R);
-  return _box;
+  _pb.min.set(pos.x-CHAR_W/2, pos.y,            pos.z-CHAR_D/2);
+  _pb.max.set(pos.x+CHAR_W/2, pos.y+CHAR_HEIGHT, pos.z+CHAR_D/2);
+  return _pb;
 }
 
-function resolveAxis(pos, vel, axis){
-  const testPos = pos.clone();
-  testPos[axis] += vel[axis];
-  const pb = playerBox(testPos);
-  let hit = false;
-  for(const bb of blockBoxes){
+// Resolve one axis at a time (standard discrete AABB)
+function resolveAxis(axis, delta){
+  const next = player.pos.clone();
+  next[axis] += delta;
+  const pb = playerBox(next);
+  for(const bb of blockAABBs){
     if(!pb.intersectsBox(bb)) continue;
-    hit = true;
-    if(vel[axis] > 0) testPos[axis] = bb.min[axis] - (axis==='y'?PLAYER_H:PLAYER_R) - 0.001;
-    else              testPos[axis] = bb.max[axis]  + (axis==='y'?0:PLAYER_R) + 0.001;
-    if(axis==='y' && vel[axis] < 0) player.onGround = true;
-    vel[axis] = 0;
+    if(delta > 0){
+      if(axis==='y'){ next.y = bb.min.y - CHAR_HEIGHT - 0.001; }
+      else           { next[axis] = bb.min[axis] - (axis==='x'?CHAR_W/2:CHAR_D/2) - 0.001; }
+    } else {
+      if(axis==='y'){ next.y = bb.max.y + 0.001; player.onGround=true; }
+      else           { next[axis] = bb.max[axis] + (axis==='x'?CHAR_W/2:CHAR_D/2) + 0.001; }
+    }
+    player.vel[axis] = 0;
     break;
   }
-  pos[axis] = testPos[axis];
+  player.pos[axis] = next[axis];
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  WALK ANIMATION
-// ─────────────────────────────────────────────
-let walkTime = 0;
-
+// ═══════════════════════════════════════════════
+let walkT = 0;
 function animateChar(moving, dt){
-  if(moving && player.onGround) walkTime += dt * 8;
-  else walkTime *= 0.85;
-
-  const swing = Math.sin(walkTime) * 0.5;
-  charLArmG.rotation.x =  swing;
-  charRArmG.rotation.x = -swing;
-  charLLegG.rotation.x = -swing;
-  charRLegG.rotation.x =  swing;
+  if(moving && player.onGround) walkT += dt * (WALK_SPEED * 1.8);
+  else walkT *= 0.85;
+  const s = Math.sin(walkT) * 0.55;
+  larmG.rotation.x =  s;
+  rarmG.rotation.x = -s;
+  llegG.rotation.x = -s;
+  rlegG.rotation.x =  s;
 }
 
-// ─────────────────────────────────────────────
-//  GAME LOOP
-// ─────────────────────────────────────────────
-const _dir    = new THREE.Vector3();
-const _right  = new THREE.Vector3();
-const _camPos = new THREE.Vector3();
-
+// ═══════════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════════
 let last = 0;
+
 function loop(ts){
   requestAnimationFrame(loop);
-  const dt = Math.min((ts - last)/1000, 0.05);
+  const dt = Math.min((ts-last)/1000, 0.05);
   last = ts;
 
   if(!paused){
-    // ── Mouse look ──
-    player.yaw   -= mouseDX * 0.002;
-    camPitch      = Math.max(-0.5, Math.min(0.6, camPitch + mouseDY * 0.002));
-    mouseDX = mouseDY = 0;
+    // ── Camera orbit (Roblox style) ──────────────
+    // Apply mouse delta to yaw/pitch
+    cam.yaw   -= mdx * CAM_SENSITIVITY;
+    cam.pitch  = THREE.MathUtils.clamp(
+      cam.pitch + mdy * CAM_SENSITIVITY,
+      CAM_PITCH_MIN, CAM_PITCH_MAX
+    );
+    mdx = mdy = 0;
 
-    // ── Movement direction (relative to yaw) ──
-    _dir.set(0,0,0);
-    if(keys['KeyW']||keys['ArrowUp'])    _dir.z -= 1;
-    if(keys['KeyS']||keys['ArrowDown'])  _dir.z += 1;
-    if(keys['KeyA']||keys['ArrowLeft'])  _dir.x -= 1;
-    if(keys['KeyD']||keys['ArrowRight']) _dir.x += 1;
+    // Smooth zoom interpolation
+    cam.dist += (cam.targetDist - cam.dist) * Math.min(dt*12, 1);
 
-    const moving = _dir.lengthSq() > 0;
+    // ── Movement (relative to camera yaw) ────────
+    // In Roblox WASD moves in camera-relative direction,
+    // character auto-rotates to face movement direction
+    let mx=0, mz=0;
+    if(keys['KeyW']||keys['ArrowUp'])    mz=-1;
+    if(keys['KeyS']||keys['ArrowDown'])  mz= 1;
+    if(keys['KeyA']||keys['ArrowLeft'])  mx=-1;
+    if(keys['KeyD']||keys['ArrowRight']) mx= 1;
+
+    const moving = (mx!==0||mz!==0);
+
     if(moving){
-      _dir.normalize();
-      // rotate by yaw
-      const cos = Math.cos(player.yaw), sin = Math.sin(player.yaw);
-      const wx = _dir.x*cos - _dir.z*sin;
-      const wz = _dir.x*sin + _dir.z*cos;
-      player.vel.x = wx * SPEED;
-      player.vel.z = wz * SPEED;
-      // face direction of movement
-      charRoot.rotation.y = Math.atan2(wx, wz);
+      // Rotate movement by cam.yaw
+      const cy=Math.cos(cam.yaw), sy=Math.sin(cam.yaw);
+      const wx = mx*cy - mz*sy;
+      const wz = mx*sy + mz*cy;
+      const len = Math.sqrt(wx*wx+wz*wz);
+      player.vel.x = (wx/len)*WALK_SPEED;
+      player.vel.z = (wz/len)*WALK_SPEED;
+      // AutoRotate: character faces movement direction
+      player.facingYaw = Math.atan2(wx, wz);
     } else {
-      player.vel.x *= 0.12;
-      player.vel.z *= 0.12;
+      // Roblox applies no deceleration force — velocity zeroes instantly on ground
+      player.vel.x *= player.onGround ? 0.02 : 0.98;
+      player.vel.z *= player.onGround ? 0.02 : 0.98;
     }
 
-    // ── Gravity ──
-    if(!player.onGround) player.vel.y -= GRAVITY * dt;
+    // ── Physics ───────────────────────────────────
     player.onGround = false;
+    if(!player.onGround || player.vel.y > 0)
+      player.vel.y -= GRAVITY * dt;
 
-    // ── Collision per axis ──
-    const dv = player.vel.clone().multiplyScalar(dt);
-    resolveAxis(player.pos, dv, 'x');
-    resolveAxis(player.pos, dv, 'y');
-    resolveAxis(player.pos, dv, 'z');
-    // sync vel after clamping
-    if(dt > 0){
-      player.vel.x = dv.x / dt;
-      player.vel.y = dv.y / dt;
-      player.vel.z = dv.z / dt;
-    }
+    // Per-axis collision (X, Y, Z)
+    resolveAxis('x', player.vel.x * dt);
+    resolveAxis('y', player.vel.y * dt);
+    resolveAxis('z', player.vel.z * dt);
 
-    // floor kill plane
-    if(player.pos.y < -20){ player.pos.set(0,2,0); player.vel.set(0,0,0); }
+    // Kill plane
+    if(player.pos.y < -40){ player.pos.set(0,CHAR_HEIGHT,0); player.vel.set(0,0,0); }
 
-    // ── Character mesh ──
+    // ── Character mesh ────────────────────────────
     charRoot.position.copy(player.pos);
+    charRoot.rotation.y = player.facingYaw;
     animateChar(moving, dt);
 
-    // ── Camera (third person) ──
-    const cpSin = Math.sin(camPitch);
-    const cpCos = Math.cos(camPitch);
-    const ySin  = Math.sin(player.yaw);
-    const yCos  = Math.cos(player.yaw);
-    const dist  = 7;
-    _camPos.set(
-      player.pos.x + dist * ySin * cpCos,
-      player.pos.y + PLAYER_H/2 + dist * cpSin,
-      player.pos.z + dist * yCos * cpCos
+    // ── Camera position (spherical orbit) ────────
+    // focus = feet + CAM_FOCUS_Y
+    focusPt.set(player.pos.x, player.pos.y+CAM_FOCUS_Y, player.pos.z);
+
+    // Spherical coords:  yaw around Y, pitch above horizontal
+    const cosPitch = Math.cos(cam.pitch);
+    const sinPitch = Math.sin(cam.pitch);
+    const cosYaw   = Math.cos(cam.yaw);
+    const sinYaw   = Math.sin(cam.yaw);
+
+    camPos.set(
+      focusPt.x + cam.dist * sinYaw * cosPitch,
+      focusPt.y + cam.dist * sinPitch,
+      focusPt.z + cam.dist * cosYaw * cosPitch
     );
-    camera.position.lerp(_camPos, 0.12);
-    camera.lookAt(
-      player.pos.x,
-      player.pos.y + PLAYER_H * 0.55,
-      player.pos.z
-    );
+
+    // Smooth camera follow (Roblox uses a fast lerp, ~0.25 lag)
+    camera.position.lerp(camPos, Math.min(dt*14, 1));
+    camera.lookAt(focusPt);
   }
+
+  // HUD zoom label
+  zoomLbl.textContent = `zoom: ${cam.dist.toFixed(1)}`;
 
   renderer.render(scene, camera);
 }
