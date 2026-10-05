@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Creatopia Game</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:sans-serif}
+#game-root{position:relative;width:100vw;height:100vh}
+canvas{display:block;width:100%;height:100%}
+/* UI overlay iframe */
+#ui-frame{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:none;background:transparent;pointer-events:none;z-index:10;
+}
+/* allow pointer events when menu open */
+#ui-frame.menu-open{pointer-events:auto}
+</style>
+</head>
+<body>
+<div id="game-root">
+  <canvas id="c"></canvas>
+  <iframe id="ui-frame" src="ui.html" allowtransparency="true"></iframe>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  CANVAS SETUP
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+function resize(){
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ─────────────────────────────────────────────
+//  WORLD CONFIG
+// ─────────────────────────────────────────────
+const TILE   = 48;   // px per world unit
+const GRAVITY= 1400; // px/s²
+const SPEED  = 220;  // px/s
+const JUMP   = -620; // px/s
+
+// Block map — each entry [col, row]
+// Layout: a flat ground + scattered platform blocks
+const BLOCKS = [];
+
+// Ground row (row 0 = bottom-most visible ground)
+const MAP_W = 40, GROUND_ROW = 0;
+for(let c=0; c<MAP_W; c++) BLOCKS.push([c, GROUND_ROW]);
+
+// Platforms
+const PLATFORMS = [
+  // [startCol, row, width]
+  [3,  3, 4],
+  [9,  5, 3],
+  [14, 3, 5],
+  [20, 6, 4],
+  [26, 4, 3],
+  [30, 7, 5],
+  [7,  2, 2],
+  [17, 8, 3],
+];
+PLATFORMS.forEach(([sc, row, w]) => {
+  for(let i=0; i<w; i++) BLOCKS.push([sc+i, row]);
+});
+
+// Scattered decorative blocks (higher up)
+const SCATTER = [[5,5],[6,5],[12,6],[13,6],[22,3],[23,3],[28,9],[29,9],[32,5]];
+SCATTER.forEach(b => BLOCKS.push(b));
+
+// ─────────────────────────────────────────────
+//  PLAYER
+// ─────────────────────────────────────────────
+const PW = 32, PH = 52; // player width/height in px
+
+const player = {
+  x: TILE * 2,           // world px
+  y: TILE * 2,
+  vx: 0,
+  vy: 0,
+  onGround: false,
+  facing: 1,             // 1=right, -1=left
+  // animation
+  walkFrame: 0,
+  walkTimer: 0,
+};
+
+// ─────────────────────────────────────────────
+//  INPUT
+// ─────────────────────────────────────────────
+const keys = {};
+window.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if((e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW') && player.onGround){
+    player.vy = JUMP;
+    player.onGround = false;
+  }
+});
+window.addEventListener('keyup', e => { keys[e.code]=false; });
+
+// Message from UI iframe (menu open/close, resume, exit)
+window.addEventListener('message', e => {
+  const frame = document.getElementById('ui-frame');
+  if(e.data === 'menu-open')  { frame.classList.add('menu-open');    paused=true;  }
+  if(e.data === 'menu-close') { frame.classList.remove('menu-open'); paused=false; }
+  if(e.data === 'exit')       { window.close(); }
+});
+
+let paused = false;
+
+// ─────────────────────────────────────────────
+//  BLOCK HELPERS
+// ─────────────────────────────────────────────
+// Build a set for O(1) lookup
+function blockKey(c,r){ return c+','+r; }
+const blockSet = new Set(BLOCKS.map(([c,r])=>blockKey(c,r)));
+
+function blockRect(c, r, camX, camY){
+  // Convert world-grid to screen coords
+  // row 0 = ground at bottom of view
+  const worldY = canvas.height - TILE - r * TILE;
+  return {
+    x: c * TILE - camX,
+    y: worldY    - camY,
+    w: TILE,
+    h: TILE,
+  };
+}
+
+function blockWorldRect(c, r){
+  const worldY = canvas.height - TILE - r * TILE;
+  return { x:c*TILE, y:worldY, w:TILE, h:TILE };
+}
+
+// ─────────────────────────────────────────────
+//  COLLISION
+// ─────────────────────────────────────────────
+function resolveCollisions(px, py, vx, vy){
+  // Test all blocks — only check nearby ones for perf
+  const margin = 3;
+  const col0 = Math.floor((px - margin*TILE) / TILE);
+  const col1 = Math.ceil( (px + PW + margin*TILE) / TILE);
+  const onG  = { v: false };
+
+  // Horizontal first
+  let nx = px + vx;
+  for(let c=col0; c<=col1; c++){
+    for(let r=-2; r<=14; r++){
+      if(!blockSet.has(blockKey(c,r))) continue;
+      const br = blockWorldRect(c,r);
+      if(nx < br.x+br.w && nx+PW > br.x && py < br.y+br.h && py+PH > br.y){
+        if(vx > 0) nx = br.x - PW;
+        if(vx < 0) nx = br.x + br.w;
+        vx = 0;
+      }
+    }
+  }
+
+  // Vertical
+  let ny = py + vy;
+  for(let c=col0; c<=col1; c++){
+    for(let r=-2; r<=14; r++){
+      if(!blockSet.has(blockKey(c,r))) continue;
+      const br = blockWorldRect(c,r);
+      if(nx < br.x+br.w && nx+PW > br.x && ny < br.y+br.h && ny+PH > br.y){
+        if(vy > 0){ ny = br.y - PH; onG.v = true; }
+        if(vy < 0){ ny = br.y + br.h; }
+        vy = 0;
+      }
+    }
+  }
+  return { x:nx, y:ny, vx, vy, onGround:onG.v };
+}
+
+// ─────────────────────────────────────────────
+//  DRAW CHARACTER (Roblox-inspired blocky)
+// ─────────────────────────────────────────────
+function drawChar(cx, cy, facing, walkFrame, onGround){
+  ctx.save();
+  ctx.translate(cx + PW/2, cy);
+
+  if(facing < 0) ctx.scale(-1, 1);
+
+  const W = PW, H = PH;
+  const HEAD_W = 24, HEAD_H = 22;
+  const BODY_W = 22, BODY_H = 18;
+  const ARM_W  = 8,  ARM_H  = 18;
+  const LEG_W  = 10, LEG_H  = 14;
+
+  // Walk leg swing
+  const swing = onGround ? Math.sin(walkFrame * 0.25) * 6 : 0;
+
+  const outline = '#222';
+  const skin    = '#f5deb3';
+  const shirt   = '#4a90e2';
+  const pants   = '#2c3e50';
+  const eyes    = '#222';
+
+  function roundRect(x,y,w,h,r,fill,stroke){
+    ctx.beginPath();
+    ctx.roundRect(x,y,w,h,r);
+    ctx.fillStyle=fill; ctx.fill();
+    if(stroke){ ctx.strokeStyle=outline; ctx.lineWidth=1.5; ctx.stroke(); }
+  }
+
+  // Origins relative to character centre-top
+  const hx = -HEAD_W/2, hy = 0;
+  const bx = -BODY_W/2, by = HEAD_H + 2;
+  const lax= -BODY_W/2 - ARM_W - 1, lay = by;
+  const rax=  BODY_W/2 + 1,          ray = by;
+  const llx= -BODY_W/2 + 1,          lly = by + BODY_H;
+  const rlx=  BODY_W/2 - LEG_W - 1,  rly = by + BODY_H;
+
+  // Left arm
+  ctx.save(); ctx.translate(lax + ARM_W/2, lay + ARM_H/2);
+  ctx.rotate(swing * 0.05);
+  ctx.translate(-(lax + ARM_W/2), -(lay + ARM_H/2));
+  roundRect(lax, lay, ARM_W, ARM_H, 3, shirt, true);
+  ctx.restore();
+
+  // Right arm
+  ctx.save(); ctx.translate(rax + ARM_W/2, ray + ARM_H/2);
+  ctx.rotate(-swing * 0.05);
+  ctx.translate(-(rax + ARM_W/2), -(ray + ARM_H/2));
+  roundRect(rax, ray, ARM_W, ARM_H, 3, shirt, true);
+  ctx.restore();
+
+  // Body
+  roundRect(bx, by, BODY_W, BODY_H, 3, shirt, true);
+
+  // Left leg
+  ctx.save(); ctx.translate(llx + LEG_W/2, lly);
+  ctx.rotate(swing * 0.06);
+  ctx.translate(-(llx + LEG_W/2), -lly);
+  roundRect(llx, lly, LEG_W, LEG_H, 3, pants, true);
+  ctx.restore();
+
+  // Right leg
+  ctx.save(); ctx.translate(rlx + LEG_W/2, rly);
+  ctx.rotate(-swing * 0.06);
+  ctx.translate(-(rlx + LEG_W/2), -rly);
+  roundRect(rlx, rly, LEG_W, LEG_H, 3, pants, true);
+  ctx.restore();
+
+  // Head
+  roundRect(hx, hy, HEAD_W, HEAD_H, 5, skin, true);
+
+  // Eyes
+  ctx.fillStyle = eyes;
+  ctx.beginPath(); ctx.roundRect(hx+5,  hy+7, 4, 4, 1); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(hx+15, hy+7, 4, 4, 1); ctx.fill();
+
+  // Smile
+  ctx.beginPath();
+  ctx.arc(hx+HEAD_W/2, hy+13, 5, 0.2, Math.PI-0.2);
+  ctx.strokeStyle='#555'; ctx.lineWidth=1.5; ctx.stroke();
+
+  ctx.restore();
+}
+
+// ─────────────────────────────────────────────
+//  DRAW BLOCK
+// ─────────────────────────────────────────────
+const BLOCK_COLORS = [
+  '#5a6e8c','#4e6b5a','#7a5a4e','#6e5a7a','#7a7a4e'
+];
+function blockColor(c,r){
+  return BLOCK_COLORS[((c*3+r*7)) % BLOCK_COLORS.length];
+}
+
+function drawBlock(sx, sy, c, r){
+  const color = blockColor(c,r);
+  // main face
+  ctx.fillStyle = color;
+  ctx.fillRect(sx, sy, TILE, TILE);
+  // top highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillRect(sx, sy, TILE, 4);
+  // left highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.07)';
+  ctx.fillRect(sx, sy, 4, TILE);
+  // border
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(sx+0.5, sy+0.5, TILE-1, TILE-1);
+}
+
+// ─────────────────────────────────────────────
+//  CAMERA
+// ─────────────────────────────────────────────
+let camX = 0, camY = 0;
+
+function updateCamera(){
+  // target: player centred horizontally, slightly below vertical centre
+  const tx = player.x + PW/2 - canvas.width/2;
+  const ty = player.y + PH/2 - canvas.height * 0.45;
+  camX += (tx - camX) * 0.12;
+  camY += (ty - camY) * 0.12;
+}
+
+// ─────────────────────────────────────────────
+//  BACKGROUND (sky gradient + simple hills)
+// ─────────────────────────────────────────────
+function drawBackground(){
+  const grad = ctx.createLinearGradient(0,0,0,canvas.height);
+  grad.addColorStop(0,'#1a1a3e');
+  grad.addColorStop(1,'#2d1b69');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // stars
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  for(let i=0;i<80;i++){
+    // deterministic positions using index
+    const sx = ((i*173+13) % canvas.width);
+    const sy = ((i*97+37)  % (canvas.height*0.6));
+    ctx.fillRect(sx,sy,1.5,1.5);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  GAME LOOP
+// ─────────────────────────────────────────────
+let last = 0;
+
+function loop(ts){
+  const dt = Math.min((ts - last) / 1000, 0.05);
+  last = ts;
+
+  if(!paused){
+    // ── INPUT ──
+    let ax = 0;
+    if(keys['ArrowLeft'] || keys['KeyA'])  ax = -1;
+    if(keys['ArrowRight']|| keys['KeyD'])  ax =  1;
+    if(ax !== 0) player.facing = ax;
+
+    player.vx = ax * SPEED;
+    player.vy += GRAVITY * dt;
+
+    // walk animation
+    if(ax !== 0 && player.onGround){
+      player.walkTimer += dt;
+      if(player.walkTimer > 0.06){ player.walkFrame++; player.walkTimer=0; }
+    } else {
+      player.walkFrame = 0; player.walkTimer=0;
+    }
+
+    // ── PHYSICS + COLLISION ──
+    const res = resolveCollisions(
+      player.x, player.y,
+      player.vx * dt, player.vy * dt
+    );
+    player.x        = res.x;
+    player.y        = res.y;
+    player.vx       = res.vx / dt || 0;
+    player.vy       = res.vy / dt || 0;
+    player.onGround = res.onGround;
+
+    updateCamera();
+  }
+
+  // ── DRAW ──
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawBackground();
+
+  // blocks
+  BLOCKS.forEach(([c,r])=>{
+    const br = blockWorldRect(c,r);
+    const sx = br.x - camX;
+    const sy = br.y - camY;
+    // cull off-screen
+    if(sx > canvas.width+TILE || sx < -TILE) return;
+    if(sy > canvas.height+TILE || sy < -TILE) return;
+    drawBlock(sx, sy, c, r);
+  });
+
+  // player
+  drawChar(
+    player.x - camX,
+    player.y - camY,
+    player.facing,
+    player.walkFrame,
+    player.onGround
+  );
+
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

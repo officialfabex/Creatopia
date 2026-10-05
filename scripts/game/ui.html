@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game UI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;height:100%;
+  overflow:hidden;
+  background:transparent;
+  font-family:'Segoe UI',system-ui,sans-serif;
+  pointer-events:none; /* pass-through by default */
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:absolute;top:0;left:0;right:0;
+  height:38px;
+  background:rgba(10,10,18,0.72);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  display:flex;align-items:center;
+  padding:0 14px;
+  gap:10px;
+  pointer-events:auto; /* topbar is always interactive */
+  z-index:20;
+}
+
+.menu-btn{
+  display:flex;align-items:center;justify-content:center;
+  gap:7px;
+  padding:5px 14px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.75);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s;
+  user-select:none;
+}
+.menu-btn:hover{
+  background:rgba(255,255,255,0.14);
+  border-color:rgba(255,255,255,0.2);
+  color:#fff;
+}
+.menu-btn svg{width:14px;height:14px;opacity:.8}
+
+/* ── MENU OVERLAY ── */
+.menu-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:10;
+  pointer-events:auto;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s;
+}
+.menu-overlay.open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* ── MENU PANEL ── */
+.menu-panel{
+  background:rgba(12,12,20,0.92);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:32px 28px;
+  min-width:220px;
+  display:flex;flex-direction:column;
+  gap:10px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.7);
+  transform:scale(0.94) translateY(6px);
+  transition:transform .22s cubic-bezier(.16,1,.3,1);
+}
+.menu-overlay.open .menu-panel{
+  transform:scale(1) translateY(0);
+}
+
+.menu-title{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+  text-align:center;
+  margin-bottom:6px;
+}
+
+.mpbtn{
+  display:flex;align-items:center;justify-content:center;
+  gap:9px;
+  padding:12px 18px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.07);
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background .15s,border-color .15s;
+  user-select:none;
+}
+.mpbtn:hover{
+  background:rgba(255,255,255,0.14);
+  border-color:rgba(255,255,255,0.22);
+}
+.mpbtn.exit{
+  background:rgba(180,50,50,0.2);
+  border-color:rgba(220,80,80,0.25);
+  color:rgba(255,140,140,0.9);
+}
+.mpbtn.exit:hover{
+  background:rgba(180,50,50,0.35);
+  border-color:rgba(220,80,80,0.45);
+  color:#fff;
+}
+.mpbtn svg{width:16px;height:16px;opacity:.8}
+</style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <button class="menu-btn" id="menu-btn">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+      </svg>
+      Menu
+    </button>
+  </div>
+
+  <!-- MENU OVERLAY -->
+  <div class="menu-overlay" id="menu-overlay">
+    <div class="menu-panel">
+      <div class="menu-title">Paused</div>
+
+      <button class="mpbtn" id="resume-btn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+        </svg>
+        Resume
+      </button>
+
+      <button class="mpbtn exit" id="exit-btn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+        </svg>
+        Exit
+      </button>
+    </div>
+  </div>
+
+<script>
+const menuBtn     = document.getElementById('menu-btn');
+const menuOverlay = document.getElementById('menu-overlay');
+const resumeBtn   = document.getElementById('resume-btn');
+const exitBtn     = document.getElementById('exit-btn');
+
+function openMenu(){
+  menuOverlay.classList.add('open');
+  window.parent.postMessage('menu-open','*');
+}
+function closeMenu(){
+  menuOverlay.classList.remove('open');
+  window.parent.postMessage('menu-close','*');
+}
+
+menuBtn.addEventListener('click', openMenu);
+resumeBtn.addEventListener('click', closeMenu);
+exitBtn.addEventListener('click', ()=>{
+  window.parent.postMessage('exit','*');
+});
+
+// Escape key closes menu
+window.addEventListener('keydown', e=>{
+  if(e.code==='Escape'){
+    if(menuOverlay.classList.contains('open')) closeMenu();
+    else openMenu();
+  }
+});
+</script>
+</body>
+</html>
