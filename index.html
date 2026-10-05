@@ -550,23 +550,45 @@ const welcomeEl=document.getElementById('welcome');
 const content=document.getElementById('content');
 const items=document.querySelectorAll('.ni[data-tab]');
 const TABS=['home','create','customize','profile','settings'];
+const GAME_RE = /^\/game\/(\d+)$/;
 
-function getHashTab(){const h=location.hash.replace('#','').toLowerCase();return TABS.includes(h)?h:'home'}
+// ── Path routing (no # — works with Cloudflare SPA mode) ──────
+function getPathTab(){
+  const p = location.pathname.replace(/\/+$/,'') || '/home';
+  // game page e.g. /game/1
+  const gm = p.match(GAME_RE);
+  if(gm) return {tab:'home', gameId:+gm[1]};
+  const seg = p.split('/').filter(Boolean)[0] || 'home';
+  return {tab: TABS.includes(seg)?seg:'home', gameId:null};
+}
 
-function setTab(tab,push=true){
+function setTab(tab, push=true, gameId=null){
   items.forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   titleEl.textContent=t('nav_'+tab).toUpperCase();
-  welcomeEl.style.display=tab==='home'?'block':'none';
-  if(push) history.pushState(null,'','#'+tab);
-  if(tab==='home')       renderHome();
-  else if(tab==='create')    renderCreate();
-  else if(tab==='customize') renderCustomize();
-  else if(tab==='profile')   renderProfile();
-  else if(tab==='settings')  renderSettings();
+  welcomeEl.style.display=tab==='home'&&gameId===null?'block':'none';
+
+  if(push){
+    const path = gameId!==null ? `/game/${gameId}` : `/${tab}`;
+    history.pushState({tab,gameId},''  ,path);
+  }
+
+  if(gameId!==null){
+    const g=GAMES.find(x=>x.id===gameId)||GAMES[0];
+    renderGame(g);
+  } else if(tab==='home')       renderHome();
+  else if(tab==='create')       renderCreate();
+  else if(tab==='customize')    renderCustomize();
+  else if(tab==='profile')      renderProfile();
+  else if(tab==='settings')     renderSettings();
   else content.innerHTML='';
 }
 items.forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
-window.addEventListener('hashchange',()=>setTab(getHashTab(),false));
+
+// Handle browser back/forward
+window.addEventListener('popstate',()=>{
+  const {tab,gameId}=getPathTab();
+  setTab(tab,false,gameId);
+});
 tog.addEventListener('click',()=>app.classList.toggle('col'));
 searchEl.addEventListener('input',()=>{
   const q=searchEl.value.toLowerCase().trim();
@@ -594,6 +616,9 @@ function renderHome(){
 }
 
 function renderGame(g){
+  // Update URL to /game/:id
+  history.pushState({tab:'home',gameId:g.id},'',`/game/${g.id}`);
+  welcomeEl.style.display='none';
   content.innerHTML=`
   <button class="back-btn" id="back-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -617,7 +642,7 @@ function renderGame(g){
       </div>
     </div>
   </div>`;
-  document.getElementById('back-btn').addEventListener('click',()=>renderHome());
+  document.getElementById('back-btn').addEventListener('click',()=>setTab('home'));
   document.getElementById('play-btn').addEventListener('click',()=>{
     window.open('scripts/game/engine.html','_blank');
   });
@@ -807,7 +832,8 @@ function renderCustomize(){
 // ── Init ──────────────────────────────────────────────────────
 applyTheme(theme);
 loadLang(lang).then(()=>{
-  setTab(getHashTab(),false);
+  const {tab,gameId}=getPathTab();
+  setTab(tab,false,gameId);
   if(musicOn) bgm.play().catch(()=>{});
 });
 </script>
