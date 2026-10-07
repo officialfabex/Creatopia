@@ -454,7 +454,7 @@ html[data-theme="light"] .av-item.active{border-color:rgba(0,0,0,.3)}
         <button class="ni" data-tab="profile">
           <div class="ni-inner"><span class="ico"><img src="assets/icons/profile_icon.svg" alt=""
             onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z&quot;/></svg>'">
-          </span><span class="g"></span><span class="lbl" data-i18n="nav_profile">Profile</span></div>
+          </span><span class="g"></span><span class="lbl" data-i18n="nav_profile">Users</span></div>
         </button>
 
         <button class="ni" data-tab="settings">
@@ -735,31 +735,108 @@ function renderSettings(){
   content.querySelectorAll('.music-card').forEach(c=>c.addEventListener('click',()=>applyMusic(c.dataset.mv==='on')));
 }
 
-// ── Profile ───────────────────────────────────────────────────
+// ── Profile / Users ───────────────────────────────────────────
 function renderProfile(){
-  const wearingSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
-  const items=['Hat','Shirt','Pants'];
+  const avatarSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
+  const itemSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
+  const wearing = ['Hat','Shirt','Pants','Shoes','Accessory'];
+
   content.innerHTML=`
-  <div class="prof-page">
-    <div class="prof-header">
-      <div class="prof-avatar">${wearingSvg}</div>
-      <div class="prof-info">
-        <span class="prof-name">${t('profile_username')}</span>
-        <span class="prof-joined">${t('profile_joined')}: ${t('profile_joined_date')}</span>
-      </div>
-      <button class="prof-edit-btn">${t('profile_edit')}</button>
+  <style>
+    .up-page{display:flex;flex-direction:column;gap:14px;max-width:820px}
+
+    /* header bar */
+    .up-header{display:flex;align-items:center;gap:18px;padding:18px 22px;
+      background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
+    .up-av{width:52px;height:52px;border-radius:50%;
+      background:var(--sur);border:1px solid var(--bdr);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--dim)}
+    .up-av svg{width:30px;height:30px}
+    .up-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.08em;
+      color:var(--txt);flex:1;position:relative;top:2px}
+    .up-friends{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.06em;
+      color:var(--dim);white-space:nowrap;position:relative;top:2px}
+    .up-edit-btn{padding:8px 16px;border-radius:10px;
+      background:var(--acc);border:1px solid var(--bdr);
+      color:var(--txt);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
+      text-transform:uppercase;cursor:pointer;flex-shrink:0;
+      transition:background .18s,border-color .18s;position:relative;top:2px}
+    .up-edit-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
+    html[data-theme="light"] .up-edit-btn:hover{background:rgba(0,0,0,.1)}
+
+    /* two column layout */
+    .up-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+
+    /* about block */
+    .up-block{padding:20px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
+    .up-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .up-block-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--txt);position:relative;top:2px}
+    .up-block-btn{padding:5px 12px;border-radius:8px;
+      background:var(--acc);border:1px solid var(--bdr);
+      color:var(--dim);font-family:CHM,sans-serif;font-size:11px;letter-spacing:.08em;
+      text-transform:uppercase;cursor:pointer;
+      transition:background .18s,color .18s;position:relative;top:2px}
+    .up-block-btn:hover{background:rgba(255,255,255,.12);color:var(--txt)}
+    .up-about-body{min-height:80px;font-size:13px;color:var(--dim);
+      letter-spacing:.04em;line-height:1.6;position:relative;top:2px}
+
+    /* currently wearing */
+    .up-wearing-preview{width:100%;aspect-ratio:4/3;
+      background:var(--sur);border:1px solid var(--bdr);border-radius:10px;
+      display:flex;align-items:center;justify-content:center;color:var(--dim);
+      margin-bottom:14px}
+    .up-wearing-preview svg{width:52px;height:52px;opacity:.25}
+    .up-wearing-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+    .up-chip{display:flex;align-items:center;gap:6px;
+      padding:5px 10px;border-radius:8px;
+      background:var(--sur);border:1px solid var(--bdr)}
+    .up-chip-ico{width:16px;height:16px;color:var(--dim);flex-shrink:0}
+    .up-chip-ico svg{width:16px;height:16px}
+    .up-chip-name{font-size:12px;letter-spacing:.04em;color:var(--dim);
+      position:relative;top:1px}
+    .up-show-all{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
+      color:var(--txt);cursor:pointer;padding:5px 10px;
+      border-radius:8px;background:var(--acc);border:1px solid var(--bdr);
+      transition:background .18s;white-space:nowrap;position:relative;top:1px}
+    .up-show-all:hover{background:rgba(255,255,255,.12)}
+  </style>
+
+  <div class="up-page">
+    <!-- header -->
+    <div class="up-header">
+      <div class="up-av">${avatarSvg}</div>
+      <span class="up-name">${t('profile_username')}</span>
+      <span class="up-friends">Friends: 0</span>
+      <button class="up-edit-btn">Edit</button>
     </div>
-    <div class="prof-wearing">
-      <span class="prof-wearing-header">Currently wearing</span>
-      <div class="prof-wearing-body">
-        <div class="prof-wearing-items">
-          ${items.map(name=>`
-            <div class="prof-wearing-item">
-              <div class="prof-wearing-swatch">${wearingSvg}</div>
-              <span class="prof-wearing-name">${name}</span>
-            </div>`).join('')}
+
+    <!-- two columns -->
+    <div class="up-cols">
+      <!-- about -->
+      <div class="up-block">
+        <div class="up-block-header">
+          <span class="up-block-title">About</span>
+          <button class="up-block-btn">Edit</button>
         </div>
-        <div class="prof-av-preview">${wearingSvg}</div>
+        <div class="up-about-body"></div>
+      </div>
+
+      <!-- currently wearing -->
+      <div class="up-block">
+        <div class="up-block-header">
+          <span class="up-block-title">Currently Wearing</span>
+        </div>
+        <div class="up-wearing-preview">${avatarSvg}</div>
+        <div class="up-wearing-chips">
+          ${wearing.slice(0,3).map(n=>`
+            <div class="up-chip">
+              <span class="up-chip-ico">${itemSvg}</span>
+              <span class="up-chip-name">${n}</span>
+            </div>`).join('')}
+          <span class="up-chip-name" style="color:var(--dim)">+ ${wearing.length-3} more</span>
+          <button class="up-show-all">Show All</button>
+        </div>
       </div>
     </div>
   </div>`;
