@@ -15,21 +15,28 @@ canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0}
   background:rgba(6,6,14,.82);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid rgba(255,255,255,.07);
-  display:flex;align-items:center;padding:0 18px;gap:12px;
+  display:flex;align-items:center;padding:0 18px;gap:10px;
   z-index:100;
 }
-#menu-btn{
-  display:flex;align-items:center;justify-content:center;
-  width:42px;height:38px;border-radius:9px;cursor:pointer;
+.tb-btn{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  height:38px;padding:0 14px;border-radius:9px;cursor:pointer;
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
-  color:rgba(255,255,255,.8);transition:background .15s;
+  color:rgba(255,255,255,.8);font-size:12px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;transition:background .15s,border-color .15s;
 }
-#menu-btn:hover{background:rgba(255,255,255,.16);color:#fff}
-#menu-btn svg{width:18px;height:18px;pointer-events:none}
+.tb-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.22);color:#fff}
+.tb-btn svg{width:16px;height:16px;pointer-events:none}
+.tb-btn.active{background:rgba(120,180,255,.18);border-color:rgba(120,180,255,.4);color:#a8d4ff}
+
+#mode-label{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-left:4px;
+}
 
 #pause{
   position:fixed;inset:0;
-  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
   display:flex;align-items:center;justify-content:center;
   z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
 }
@@ -54,492 +61,539 @@ canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0}
 .pbtn.exit{background:rgba(160,40,40,.22);border-color:rgba(220,70,70,.28);color:rgba(255,130,130,.9)}
 .pbtn.exit:hover{background:rgba(160,40,40,.4);border-color:rgba(220,70,70,.55);color:#fff}
 .pbtn svg{width:16px;height:16px;opacity:.85;flex-shrink:0}
+
+/* studio overlay hint */
+#studio-hint{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:rgba(8,8,18,.88);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:8px 18px;
+  font-size:12px;letter-spacing:.06em;color:rgba(255,255,255,.55);
+  pointer-events:none;z-index:90;display:none;white-space:nowrap;
+}
+#studio-hint.show{display:block}
 </style>
 </head>
 <body>
 
 <div id="topbar">
-  <button id="menu-btn">
+  <!-- menu -->
+  <button class="tb-btn" id="menu-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
     </svg>
   </button>
+
+  <!-- studio toggle -->
+  <button class="tb-btn" id="studio-btn">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l5.653-4.655m5.833-4.329a18.795 18.795 0 002.684-1.88c-.465-3.223-3.474-5.7-6.755-5.7C7.78 2.25 5.25 4.78 5.25 7.5c0 3.281 2.477 6.29 5.7 6.755a18.795 18.795 0 001.88-2.684"/>
+    </svg>
+    Studio
+  </button>
+
+  <span id="mode-label">Player</span>
 </div>
+
+<div id="studio-hint">Click to place block · Right-click drag to orbit · Scroll to zoom</div>
 
 <div id="pause">
   <div id="pause-panel">
     <button class="pbtn" id="resume-btn">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
       </svg>
       Resume
     </button>
     <button class="pbtn exit" id="exit-btn">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
       </svg>
       Exit
     </button>
   </div>
 </div>
 
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.163.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.163.0/examples/jsm/"}}</script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+  }
+}
+</script>
 <script type="module">
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-// ─────────────────────────────────────────────────────────────
-//  EXACT VALUES FROM BLOKUS.HTML
-// ─────────────────────────────────────────────────────────────
+// ─── PHYSICS CONSTANTS (from blokus) ──────────────────────────
 const ROBLOX_GRAVITY    = 196.2;
 const ROBLOX_JUMP_POWER = 53.8;
 const ROBLOX_WALK_SPEED = 16;
 const TERMINAL_VELOCITY = -75;
 
-// ─────────────────────────────────────────────────────────────
-//  RENDERER / SCENE / CAMERA  (same setup as blokus)
-// ─────────────────────────────────────────────────────────────
-const scene = new THREE.Scene();
+// ─── RENDERER ─────────────────────────────────────────────────
+const scene    = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB);
 scene.fog = new THREE.Fog(0x87CEEB, 80, 200);
 
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
+if('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth/innerHeight;
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth,innerHeight);
 });
 
-// ─────────────────────────────────────────────────────────────
-//  LIGHTING  (same as blokus)
-// ─────────────────────────────────────────────────────────────
-const hemiLight = new THREE.HemisphereLight(0xaee2ff, 0x55482f, 0.65);
-scene.add(hemiLight);
+// ─── LIGHTING ─────────────────────────────────────────────────
+scene.add(new THREE.HemisphereLight(0xaee2ff, 0x55482f, 0.65));
 scene.add(new THREE.AmbientLight(0xffffff, 0.25));
 
 const dirLight = new THREE.DirectionalLight(0xfff2e0, 1.15);
-dirLight.position.set(20, 40, 20);
+dirLight.position.set(20,40,20);
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = dirLight.shadow.mapSize.height = 1536;
-dirLight.shadow.camera.near = 0.5;
-dirLight.shadow.camera.far  = 350;
+dirLight.shadow.mapSize.set(1536,1536);
+Object.assign(dirLight.shadow.camera,{near:.5,far:350,left:-120,right:120,top:120,bottom:-120});
 dirLight.shadow.bias = -0.0015;
 dirLight.shadow.normalBias = 0.02;
-const dRange = 120;
-Object.assign(dirLight.shadow.camera, {left:-dRange,right:dRange,top:dRange,bottom:-dRange});
 scene.add(dirLight);
 scene.add(dirLight.target);
 
-// ─────────────────────────────────────────────────────────────
-//  MATERIALS
-// ─────────────────────────────────────────────────────────────
-const M = {
-  grass: new THREE.MeshLambertMaterial({color:0x5ab552}),
-  stone: new THREE.MeshLambertMaterial({color:0x9b9b9b}),
-  wood:  new THREE.MeshLambertMaterial({color:0xa0522d}),
-  dirt:  new THREE.MeshLambertMaterial({color:0x8b6332}),
-  brick: new THREE.MeshLambertMaterial({color:0xb5651d}),
-  skin:  new THREE.MeshLambertMaterial({color:0xffcd9a}),
-  shirt: new THREE.MeshLambertMaterial({color:0x1f78d1}),
-  pants: new THREE.MeshLambertMaterial({color:0x1a2540}),
-  eye:   new THREE.MeshLambertMaterial({color:0x050505}),
-};
-
-// ─────────────────────────────────────────────────────────────
-//  COLLISION SYSTEM  (same as blokus: collidersBoxes + OBB SAT)
-// ─────────────────────────────────────────────────────────────
+// ─── COLLISION ────────────────────────────────────────────────
 const collidersBoxes = [];
 
-function addCollider(box) {
-  const c = box.getCenter(new THREE.Vector3());
-  const s = box.getSize(new THREE.Vector3());
+function addCollider(box){
+  const c=box.getCenter(new THREE.Vector3());
+  const s=box.getSize(new THREE.Vector3());
   collidersBoxes.push({
-    type:'box', box,
-    cx:c.x, cy:c.y, cz:c.z, r:s.length()/2,
-    hx:s.x/2, hy:s.y/2, hz:s.z/2,
-    ax:{x:1,y:0,z:0}, ay:{x:0,y:1,z:0}, az:{x:0,y:0,z:1}
+    type:'box',box,
+    cx:c.x,cy:c.y,cz:c.z,r:s.length()/2,
+    hx:s.x/2,hy:s.y/2,hz:s.z/2,
+    ax:{x:1,y:0,z:0},ay:{x:0,y:1,z:0},az:{x:0,y:0,z:1}
   });
 }
 
-// AABB vs OBB SAT  (exact copy from blokus)
-function testAABBvsOBB(minX,minY,minZ,maxX,maxY,maxZ,obb) {
+function testAABBvsOBB(minX,minY,minZ,maxX,maxY,maxZ,o){
   const aCx=(minX+maxX)/2,aCy=(minY+maxY)/2,aCz=(minZ+maxZ)/2;
   const aHx=(maxX-minX)/2,aHy=(maxY-minY)/2,aHz=(maxZ-minZ)/2;
-  const {ax,ay,az,cx,cy,cz,hx,hy,hz}=obb;
-  const eps=1e-6;
-  const AR00=Math.abs(ax.x)+eps,AR01=Math.abs(ay.x)+eps,AR02=Math.abs(az.x)+eps;
-  const AR10=Math.abs(ax.y)+eps,AR11=Math.abs(ay.y)+eps,AR12=Math.abs(az.y)+eps;
-  const AR20=Math.abs(ax.z)+eps,AR21=Math.abs(ay.z)+eps,AR22=Math.abs(az.z)+eps;
-  const tx=cx-aCx,ty=cy-aCy,tz=cz-aCz;
-  // 15 SAT axes (3 AABB + 3 OBB + 9 cross)
-  if(Math.abs(tx)>aHx+hx*AR00+hy*AR01+hz*AR02)return false;
-  if(Math.abs(ty)>aHy+hx*AR10+hy*AR11+hz*AR12)return false;
-  if(Math.abs(tz)>aHz+hx*AR20+hy*AR21+hz*AR22)return false;
-  const tDotA0=tx*ax.x+ty*ax.y+tz*ax.z;
-  const tDotA1=tx*ay.x+ty*ay.y+tz*ay.z;
-  const tDotA2=tx*az.x+ty*az.y+tz*az.z;
-  if(Math.abs(tDotA0)>hx+aHx*AR00+aHy*AR10+aHz*AR20)return false;
-  if(Math.abs(tDotA1)>hy+aHx*AR01+aHy*AR11+aHz*AR21)return false;
-  if(Math.abs(tDotA2)>hz+aHx*AR02+aHy*AR12+aHz*AR22)return false;
+  const e=1e-6;
+  const AR00=Math.abs(o.ax.x)+e,AR01=Math.abs(o.ay.x)+e,AR02=Math.abs(o.az.x)+e;
+  const AR10=Math.abs(o.ax.y)+e,AR11=Math.abs(o.ay.y)+e,AR12=Math.abs(o.az.y)+e;
+  const AR20=Math.abs(o.ax.z)+e,AR21=Math.abs(o.ay.z)+e,AR22=Math.abs(o.az.z)+e;
+  const tx=o.cx-aCx,ty=o.cy-aCy,tz=o.cz-aCz;
+  if(Math.abs(tx)>aHx+o.hx*AR00+o.hy*AR01+o.hz*AR02)return false;
+  if(Math.abs(ty)>aHy+o.hx*AR10+o.hy*AR11+o.hz*AR12)return false;
+  if(Math.abs(tz)>aHz+o.hx*AR20+o.hy*AR21+o.hz*AR22)return false;
+  const d0=tx*o.ax.x+ty*o.ax.y+tz*o.ax.z;
+  const d1=tx*o.ay.x+ty*o.ay.y+tz*o.ay.z;
+  const d2=tx*o.az.x+ty*o.az.y+tz*o.az.z;
+  if(Math.abs(d0)>o.hx+aHx*AR00+aHy*AR10+aHz*AR20)return false;
+  if(Math.abs(d1)>o.hy+aHx*AR01+aHy*AR11+aHz*AR21)return false;
+  if(Math.abs(d2)>o.hz+aHx*AR02+aHy*AR12+aHz*AR22)return false;
   return true;
 }
 
-function checkCollisionWithWorld(testBox) {
-  const bc = testBox.getCenter(new THREE.Vector3());
-  const bs = testBox.getSize(new THREE.Vector3());
-  const tr = bs.length()/2;
+function checkCollision(testBox){
+  const bc=testBox.getCenter(new THREE.Vector3());
+  const bs=testBox.getSize(new THREE.Vector3());
+  const tr=bs.length()/2;
   for(const c of collidersBoxes){
     const dx=bc.x-c.cx,dy=bc.y-c.cy,dz=bc.z-c.cz;
     if(dx*dx+dy*dy+dz*dz>(tr+c.r)*(tr+c.r))continue;
-    if(testAABBvsOBB(testBox.min.x,testBox.min.y,testBox.min.z,testBox.max.x,testBox.max.y,testBox.max.z,c))return true;
+    if(testAABBvsOBB(testBox.min.x,testBox.min.y,testBox.min.z,
+                    testBox.max.x,testBox.max.y,testBox.max.z,c))return true;
   }
   return false;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  MAP (ground + scattered blocks)
-// ─────────────────────────────────────────────────────────────
+// ─── MAP ──────────────────────────────────────────────────────
+const MAT_GRASS  = new THREE.MeshLambertMaterial({color:0x5ab552});
+const MAT_STONE  = new THREE.MeshLambertMaterial({color:0x9b9b9b});
+const MAT_WOOD   = new THREE.MeshLambertMaterial({color:0xa0522d});
+const MAT_BRICK  = new THREE.MeshLambertMaterial({color:0xb5651d});
+
 function addBlock(x,y,z,w,h,d,mat){
-  const geo = new THREE.BoxGeometry(w,h,d);
-  const mesh = new THREE.Mesh(geo, M[mat]||M.stone);
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
   mesh.position.set(x,y,z);
   mesh.castShadow=mesh.receiveShadow=true;
   scene.add(mesh);
-  const box=new THREE.Box3().setFromObject(mesh);
-  addCollider(box);
+  addCollider(new THREE.Box3().setFromObject(mesh));
+  return mesh;
 }
 
-// Ground
-addBlock(0, -0.6, 0, 200, 1.2, 200, 'grass');
+addBlock(0,-0.6,0,200,1.2,200,MAT_GRASS);
+[
+  [-12,2,-12,4,4,4,MAT_STONE],[-8,2,-12,4,4,4,MAT_STONE],[-12,6,-12,4,4,4,MAT_STONE],
+  [12,2,12,4,4,4,MAT_WOOD],[16,2,12,4,4,4,MAT_WOOD],[12,6,12,4,4,4,MAT_WOOD],
+  [-20,2,8,4,4,4,MAT_BRICK],[-16,2,8,4,4,4,MAT_BRICK],
+  [20,2,-8,4,4,4,MAT_STONE],[24,2,-8,4,4,4,MAT_STONE],
+  [-8,9,-8,12,1,12,MAT_STONE],[8,13,8,12,1,12,MAT_WOOD],
+  [-16,17,-4,8,1,8,MAT_BRICK],[0,21,0,8,1,8,MAT_STONE],
+].forEach(b=>addBlock(b[0],b[1],b[2],b[3],b[4],b[5],b[6]));
 
-// Blocks (x, y, z, w, h, d, mat)
-const blocks=[
-  [-12,1,-12, 4,4,4,'stone'],[-8,1,-12, 4,4,4,'stone'],
-  [-12,5,-12, 4,4,4,'stone'],
-  [12,1,12,  4,4,4,'wood'], [16,1,12,  4,4,4,'wood'],
-  [12,5,12,  4,4,4,'wood'],
-  [-20,1,8,  4,4,4,'brick'],[-16,1,8,  4,4,4,'brick'],
-  [20,1,-8,  4,4,4,'stone'],[24,1,-8,  4,4,4,'stone'],
-  // platforms
-  [-8, 8,-8,  12,1,12,'stone'],
-  [ 8, 12, 8, 12,1,12,'wood'],
-  [-16,16,-4, 8,1,8, 'brick'],
-  [0,  20, 0, 8,1,8, 'stone'],
-  // walls
-  [-28,1,0, 1,8,20,'stone'],
-  [ 28,1,0, 1,8,20,'stone'],
-  [0,1,-28, 20,8,1,'stone'],
-  [0,1, 28, 20,8,1,'stone'],
-];
-blocks.forEach(b=>addBlock(...b));
+// studio blocks array (placed at runtime)
+const studioBlocks = [];
 
-// ─────────────────────────────────────────────────────────────
-//  CHARACTER  (same proportions as blokus — playerSize 2×5×1)
-// ─────────────────────────────────────────────────────────────
-const charRoot = new THREE.Group();
-scene.add(charRoot);
+// ─── PLAYER MODEL (GLB) ───────────────────────────────────────
+const playerGroup = new THREE.Group();
+scene.add(playerGroup);
+playerGroup.position.set(0,5,0);
 
-function part(w,h,d,mat,px,py,pz,parent){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M[mat]);
-  m.position.set(px,py,pz);
-  m.castShadow=true;
-  (parent||charRoot).add(m);
-  return m;
+// Fallback boxes while GLB loads
+let modelLoaded = false;
+const MAT_SKIN  = new THREE.MeshLambertMaterial({color:0xffcd9a});
+const MAT_SHIRT = new THREE.MeshLambertMaterial({color:0x1f78d1});
+const MAT_PANTS = new THREE.MeshLambertMaterial({color:0x1a2540});
+
+function buildFallbackChar(){
+  const g=new THREE.Group();
+  const b=(w,h,d,m,px,py,pz)=>{
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
+    mesh.position.set(px,py,pz); mesh.castShadow=true; g.add(mesh); return mesh;
+  };
+  b(2,2,1,MAT_SKIN,0,4.2,0);   // head
+  b(2,2,1,MAT_SHIRT,0,2.5,0);  // torso
+  const lAG=new THREE.Group(); lAG.position.set(-1.5,3.5,0); g.add(lAG);
+  const rAG=new THREE.Group(); rAG.position.set( 1.5,3.5,0); g.add(rAG);
+  const lLG=new THREE.Group(); lLG.position.set(-0.55,1.5,0); g.add(lLG);
+  const rLG=new THREE.Group(); rLG.position.set( 0.55,1.5,0); g.add(rLG);
+  [lAG,rAG].forEach(ag=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),MAT_SHIRT);m.position.y=-1;m.castShadow=true;ag.add(m);});
+  [lLG,rLG].forEach(lg=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),MAT_PANTS);m.position.y=-1;m.castShadow=true;lg.add(m);});
+  return {g,lAG,rAG,lLG,rLG};
 }
 
-// R6-style proportions (studs)
-const head = part(2,2,1,'skin', 0,4.2,0);
-part(2,2,1,'shirt',  0,2.5,0);   // torso
+let charLimbs = null;
+let {g:fallback,lAG,rAG,lLG,rLG} = buildFallbackChar();
+playerGroup.add(fallback);
+charLimbs = {lAG,rAG,lLG,rLG};
 
-// Arms — pivots at shoulder top
-const lArmG=new THREE.Group(); lArmG.position.set(-1.5,3.5,0); charRoot.add(lArmG);
-const rArmG=new THREE.Group(); rArmG.position.set( 1.5,3.5,0); charRoot.add(rArmG);
-const lArmM=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),M.shirt); lArmM.position.y=-1; lArmM.castShadow=true; lArmG.add(lArmM);
-const rArmM=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),M.shirt); rArmM.position.y=-1; rArmM.castShadow=true; rArmG.add(rArmM);
+// Load real GLB
+const loader = new GLTFLoader();
+// Path is relative to this html file: ../../assets/models/
+loader.load('../../assets/models/CreatopiaBody.glb',
+  (gltf)=>{
+    playerGroup.remove(fallback);
+    const model = gltf.scene;
+    // Scale to match ~5 studs height
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const scale = 5 / size.y;
+    model.scale.setScalar(scale);
+    // Offset so feet are at y=0 of playerGroup
+    const box2 = new THREE.Box3().setFromObject(model);
+    model.position.y = -box2.min.y;
+    model.traverse(c=>{ if(c.isMesh){ c.castShadow=true; c.receiveShadow=true; } });
+    playerGroup.add(model);
+    modelLoaded = true;
 
-// Legs — pivots at hip
-const lLegG=new THREE.Group(); lLegG.position.set(-0.55,1.5,0); charRoot.add(lLegG);
-const rLegG=new THREE.Group(); rLegG.position.set( 0.55,1.5,0); charRoot.add(rLegG);
-const lLegM=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),M.pants); lLegM.position.y=-1; lLegM.castShadow=true; lLegG.add(lLegM);
-const rLegM=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),M.pants); rLegM.position.y=-1; rLegM.castShadow=true; rLegG.add(rLegM);
+    // Try to find limb groups by name for animation
+    const find = name => model.getObjectByName(name);
+    const lA = find('LeftArm')  || find('Left_Arm')  || find('leftArm');
+    const rA = find('RightArm') || find('Right_Arm') || find('rightArm');
+    const lL = find('LeftLeg')  || find('Left_Leg')  || find('leftLeg');
+    const rL = find('RightLeg') || find('Right_Leg') || find('rightLeg');
+    if(lA&&rA&&lL&&rL) charLimbs = {lAG:lA,rAG:rA,lLG:lL,rLG:rL};
+  },
+  null,
+  (err)=>{ console.warn('GLB load failed, using fallback',err); }
+);
 
-// Eyes
-const eyeGeo=new THREE.BoxGeometry(.35,.3,.12);
-const eyeL=new THREE.Mesh(eyeGeo,M.eye); eyeL.position.set(-.42,.18,.51); head.add(eyeL);
-const eyeR=new THREE.Mesh(eyeGeo,M.eye); eyeR.position.set( .42,.18,.51); head.add(eyeR);
-
-const limbs = { leftArm:lArmG, rightArm:rArmG, leftLeg:lLegG, rightLeg:rLegG, head };
-
-// ─────────────────────────────────────────────────────────────
-//  PLAYER STATE  (same box as blokus: size 2×5×1)
-// ─────────────────────────────────────────────────────────────
-const playerSize = new THREE.Vector3(2, 5, 1);
+// ─── PLAYER STATE ─────────────────────────────────────────────
+const playerSize = new THREE.Vector3(2,5,1);
 const playerBox  = new THREE.Box3();
-
 function updatePlayerBox(pos){
-  playerBox.setFromCenterAndSize(new THREE.Vector3(pos.x, pos.y+2.5, pos.z), playerSize);
+  playerBox.setFromCenterAndSize(new THREE.Vector3(pos.x,pos.y+2.5,pos.z),playerSize);
 }
 
-// player group = charRoot
-const player = charRoot;
-player.position.set(0, 5, 0);
+let yVelocity=0, isGrounded=false, wasGrounded=false;
+let animTime=0, animState='idle', airborneTimer=0;
+const AIRBORNE_DELAY=0.13;
+let highestY=playerGroup.position.y;
+let visualYOffset=0;
 
-let yVelocity  = 0;
-let isGrounded = false;
-let wasGrounded= false;
-let animTime   = 0;
-let animState  = 'idle';
-let airborneTimer = 0;
-const AIRBORNE_ANIM_DELAY = 0.13;
-let highestYThisJump = player.position.y;
-let visualYOffset = 0; // step-up smoothing
+// ─── CAMERA ───────────────────────────────────────────────────
+let camRadius=15, camTheta=Math.PI, camPhi=Math.PI/6;
+let isRightDown=false;
 
-// ─────────────────────────────────────────────────────────────
-//  CAMERA  — exact same orbit as blokus
-//  camRadius, camTheta, camPhi + right-mouse drag
-// ─────────────────────────────────────────────────────────────
-let camRadius = 15;
-let camTheta  = Math.PI;   // yaw
-let camPhi    = Math.PI/6; // pitch
-
-let isRightMouseDown = false;
-
-window.addEventListener('mousedown', e=>{ if(e.button===2)isRightMouseDown=true; });
-window.addEventListener('mouseup',   e=>{ if(e.button===2)isRightMouseDown=false; });
-window.addEventListener('mousemove', e=>{
-  if(!isRightMouseDown||isMenuOpen)return;
-  camTheta -= e.movementX * 0.008;   // exact from blokus
-  camPhi   += e.movementY * 0.008;
-  camPhi    = Math.max(-Math.PI/2+0.1, Math.min(Math.PI/2-0.1, camPhi));
+window.addEventListener('mousedown',e=>{ if(e.button===2)isRightDown=true; });
+window.addEventListener('mouseup',  e=>{ if(e.button===2)isRightDown=false; });
+window.addEventListener('mousemove',e=>{
+  if(!isRightDown||isMenuOpen||studioMode)return;
+  camTheta-=e.movementX*0.008;
+  camPhi=Math.max(-Math.PI/2+0.1,Math.min(Math.PI/2-0.1,camPhi+e.movementY*0.008));
 });
-window.addEventListener('wheel', e=>{
+window.addEventListener('wheel',e=>{
   if(isMenuOpen)return;
-  camRadius += e.deltaY * 0.05;       // exact from blokus
-  camRadius  = Math.max(5, Math.min(125, camRadius));
+  camRadius=Math.max(5,Math.min(125,camRadius+e.deltaY*0.05));
 });
+window.addEventListener('contextmenu',e=>e.preventDefault());
 
-// ─────────────────────────────────────────────────────────────
-//  INPUT
-// ─────────────────────────────────────────────────────────────
-const keys = {w:false,a:false,s:false,d:false,' ':false};
-window.addEventListener('keydown', e=>{
+// ─── INPUT ────────────────────────────────────────────────────
+const keys={w:false,a:false,s:false,d:false,' ':false};
+window.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
-  if(keys.hasOwnProperty(k)) keys[k]=true;
+  if(keys.hasOwnProperty(k))keys[k]=true;
   if(e.key==='Escape') togglePause();
 });
-window.addEventListener('keyup', e=>{
+window.addEventListener('keyup',e=>{
   const k=e.key.toLowerCase();
-  if(keys.hasOwnProperty(k)) keys[k]=false;
+  if(keys.hasOwnProperty(k))keys[k]=false;
 });
-window.addEventListener('contextmenu', e=>e.preventDefault());
 
-// ─────────────────────────────────────────────────────────────
-//  PAUSE
-// ─────────────────────────────────────────────────────────────
-let isMenuOpen = false;
-const pauseEl = document.getElementById('pause');
+// ─── PAUSE ────────────────────────────────────────────────────
+let isMenuOpen=false;
+const pauseEl=document.getElementById('pause');
+function togglePause(){ setMenu(!isMenuOpen); }
+function setMenu(v){ isMenuOpen=v; pauseEl.classList.toggle('open',v); }
+document.getElementById('menu-btn')  .addEventListener('click',()=>setMenu(true));
+document.getElementById('resume-btn').addEventListener('click',()=>setMenu(false));
+document.getElementById('exit-btn')  .addEventListener('click',()=>history.back());
 
-function togglePause(){ setMenuOpen(!isMenuOpen); }
-function openPauseMenu(){  setMenuOpen(true);  }
-function closePauseMenu(){ setMenuOpen(false); }
+// ─── STUDIO MODE ──────────────────────────────────────────────
+let studioMode = false;
+const studioBtn  = document.getElementById('studio-btn');
+const modeLabel  = document.getElementById('mode-label');
+const studioHint = document.getElementById('studio-hint');
 
-function setMenuOpen(open){
-  isMenuOpen=open;
-  pauseEl.classList.toggle('open',open);
+// Studio camera (free orbit, not tied to player)
+let studioCamTheta=Math.PI, studioCamPhi=0.4, studioCamDist=30;
+let studioTarget = new THREE.Vector3(0,2,0);
+let isStudioRightDown=false;
+
+// Raycaster for placing blocks
+const raycaster = new THREE.Raycaster();
+const studioMat = new THREE.MeshLambertMaterial({color:0x6688cc});
+
+function toggleStudio(){
+  studioMode=!studioMode;
+  studioBtn.classList.toggle('active',studioMode);
+  modeLabel.textContent = studioMode ? 'Studio' : 'Player';
+  studioHint.classList.toggle('show',studioMode);
+  // Show/hide player
+  playerGroup.visible = !studioMode;
 }
+studioBtn.addEventListener('click',toggleStudio);
 
-document.getElementById('menu-btn')  .addEventListener('click', openPauseMenu);
-document.getElementById('resume-btn').addEventListener('click', closePauseMenu);
-document.getElementById('exit-btn')  .addEventListener('click', ()=>history.back());
+// Studio mouse
+window.addEventListener('mousedown',e=>{
+  if(!studioMode||isMenuOpen)return;
+  if(e.button===2){ isStudioRightDown=true; return; }
+  if(e.button===0){
+    // Place block where we click on the ground/existing blocks
+    const nx=(e.clientX/innerWidth)*2-1;
+    const ny=-(e.clientY/innerHeight)*2+1;
+    raycaster.setFromCamera(new THREE.Vector2(nx,ny),camera);
+    // intersect all existing meshes
+    const meshes=[];
+    scene.traverse(c=>{ if(c.isMesh&&c!==playerGroup) meshes.push(c); });
+    const hits=raycaster.intersectObjects(meshes,true);
+    if(hits.length>0){
+      const pt=hits[0].point.clone();
+      const normal=hits[0].face.normal.clone()
+        .transformDirection(hits[0].object.matrixWorld);
+      // Snap to grid
+      const BLOCK=4;
+      const bx=Math.round((pt.x+normal.x*BLOCK/2)/BLOCK)*BLOCK;
+      const by=Math.round((pt.y+normal.y*BLOCK/2)/BLOCK)*BLOCK;
+      const bz=Math.round((pt.z+normal.z*BLOCK/2)/BLOCK)*BLOCK;
+      const newBlock=new THREE.Mesh(new THREE.BoxGeometry(BLOCK,BLOCK,BLOCK),studioMat.clone());
+      newBlock.position.set(bx,by,bz);
+      newBlock.castShadow=newBlock.receiveShadow=true;
+      scene.add(newBlock);
+      studioBlocks.push(newBlock);
+      addCollider(new THREE.Box3().setFromObject(newBlock));
+    }
+  }
+});
+window.addEventListener('mouseup',  e=>{ if(e.button===2)isStudioRightDown=false; });
+window.addEventListener('mousemove',e=>{
+  if(!studioMode||!isStudioRightDown||isMenuOpen)return;
+  studioCamTheta-=e.movementX*0.008;
+  studioCamPhi=Math.max(-Math.PI/2+0.05,Math.min(Math.PI/2-0.05,studioCamPhi+e.movementY*0.008));
+});
+window.addEventListener('wheel',e=>{
+  if(!studioMode||isMenuOpen)return;
+  studioCamDist=Math.max(4,Math.min(200,studioCamDist+e.deltaY*0.05));
+});
 
-// ─────────────────────────────────────────────────────────────
-//  STEP-UP / MOVE AXIS  (exact copy of blokus moveAxis logic)
-// ─────────────────────────────────────────────────────────────
-function moveAxis(axis, amount){
-  const originalY = player.position.y;
-  player.position[axis] += amount;
-  updatePlayerBox(player.position);
-
-  if(checkCollisionWithWorld(playerBox)){
-    // auto step-up only when grounded
+// ─── MOVE AXIS (blokus step-up) ───────────────────────────────
+function moveAxis(axis,amount){
+  const origY=playerGroup.position.y;
+  playerGroup.position[axis]+=amount;
+  updatePlayerBox(playerGroup.position);
+  if(checkCollision(playerBox)){
     if(!isGrounded){
-      player.position.y = originalY;
-      player.position[axis] -= amount;
-      updatePlayerBox(player.position);
+      playerGroup.position.y=origY;
+      playerGroup.position[axis]-=amount;
+      updatePlayerBox(playerGroup.position);
       return;
     }
-    player.position.y += 1.51;
-    updatePlayerBox(player.position);
-    if(!checkCollisionWithWorld(playerBox)){
-      let stepFound=false;
-      for(let drop=0; drop<=1.51; drop+=0.1){
-        player.position.y -= 0.1;
-        updatePlayerBox(player.position);
-        if(checkCollisionWithWorld(playerBox)){
-          player.position.y += 0.1;
-          updatePlayerBox(player.position);
-          stepFound=true; break;
-        }
+    playerGroup.position.y+=1.51;
+    updatePlayerBox(playerGroup.position);
+    if(!checkCollision(playerBox)){
+      let found=false;
+      for(let i=0;i<=1.51;i+=0.1){
+        playerGroup.position.y-=0.1;
+        updatePlayerBox(playerGroup.position);
+        if(checkCollision(playerBox)){playerGroup.position.y+=0.1;updatePlayerBox(playerGroup.position);found=true;break;}
       }
-      if(stepFound){ visualYOffset -= (player.position.y - originalY); }
-      else { player.position.y=originalY; player.position[axis]-=amount; }
+      if(found) visualYOffset-=(playerGroup.position.y-origY);
+      else{ playerGroup.position.y=origY; playerGroup.position[axis]-=amount; }
     } else {
-      player.position.y=originalY;
-      player.position[axis]-=amount;
-      updatePlayerBox(player.position);
+      playerGroup.position.y=origY;
+      playerGroup.position[axis]-=amount;
+      updatePlayerBox(playerGroup.position);
     }
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  ANIMATION  (same as blokus applyAnimations)
-// ─────────────────────────────────────────────────────────────
-function applyAnimations(state, dt, t){
+// ─── ANIMATION ────────────────────────────────────────────────
+function applyAnimations(state,dt,t){
+  if(!charLimbs)return;
+  const{lAG,rAG,lLG,rLG}=charLimbs;
   let lAx=0,rAx=0,lLx=0,rLx=0;
-  if(state==='jumping'){
-    lAx=rAx=-Math.PI*0.8;
-  } else if(state==='moving'){
-    const swing=Math.sin(t)*0.8;
-    rAx=swing; lAx=-swing;
-    lLx=-swing; rLx=swing;
+  if(state==='jumping'){ lAx=rAx=-Math.PI*0.8; }
+  else if(state==='moving'){
+    const s=Math.sin(t)*0.8;
+    rAx=s;lAx=-s;lLx=-s;rLx=s;
   }
-  const s=12*dt;
-  lArmG.rotation.x=THREE.MathUtils.lerp(lArmG.rotation.x,lAx,s);
-  rArmG.rotation.x=THREE.MathUtils.lerp(rArmG.rotation.x,rAx,s);
-  lLegG.rotation.x=THREE.MathUtils.lerp(lLegG.rotation.x,lLx,s);
-  rLegG.rotation.x=THREE.MathUtils.lerp(rLegG.rotation.x,rLx,s);
+  const sp=12*dt;
+  lAG.rotation.x=THREE.MathUtils.lerp(lAG.rotation.x,lAx,sp);
+  rAG.rotation.x=THREE.MathUtils.lerp(rAG.rotation.x,rAx,sp);
+  lLG.rotation.x=THREE.MathUtils.lerp(lLG.rotation.x,lLx,sp);
+  rLG.rotation.x=THREE.MathUtils.lerp(rLG.rotation.x,rLx,sp);
 }
 
-// ─────────────────────────────────────────────────────────────
-//  GAME LOOP  (physics + camera identical to blokus animate())
-// ─────────────────────────────────────────────────────────────
-const clock   = new THREE.Clock();
-const _moveDir   = new THREE.Vector3();
-const _camFwd    = new THREE.Vector3();
-const _camRight  = new THREE.Vector3();
-const _headPos   = new THREE.Vector3();
-const _idealCam  = new THREE.Vector3();
-const _upAxis    = new THREE.Vector3(0,1,0);
-const _targetQ   = new THREE.Quaternion();
-const _dirLightOffset = new THREE.Vector3(20,40,20);
+// ─── VECTORS ──────────────────────────────────────────────────
+const _moveDir  =new THREE.Vector3();
+const _camFwd   =new THREE.Vector3();
+const _camRight =new THREE.Vector3();
+const _headPos  =new THREE.Vector3();
+const _idealCam =new THREE.Vector3();
+const _upAxis   =new THREE.Vector3(0,1,0);
+const _targetQ  =new THREE.Quaternion();
+const _dirOff   =new THREE.Vector3(20,40,20);
+
+// ─── MAIN LOOP ────────────────────────────────────────────────
+const clock=new THREE.Clock();
 
 function animate(){
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dt=Math.min(clock.getDelta(),0.05);
 
   if(isMenuOpen){ renderer.render(scene,camera); return; }
 
-  // ── Grounded check (probe 0.1 below) ──────────────────────
-  wasGrounded = isGrounded;
-  player.position.y -= 0.1;
-  updatePlayerBox(player.position);
-  isGrounded = checkCollisionWithWorld(playerBox);
-  player.position.y += 0.1;
-  updatePlayerBox(player.position);
+  if(studioMode){
+    // Free orbit camera around studioTarget
+    const cp=Math.cos(studioCamPhi),sp=Math.sin(studioCamPhi);
+    const ct=Math.cos(studioCamTheta),st=Math.sin(studioCamTheta);
+    camera.position.set(
+      studioTarget.x+studioCamDist*st*cp,
+      studioTarget.y+studioCamDist*sp,
+      studioTarget.z+studioCamDist*ct*cp
+    );
+    camera.lookAt(studioTarget);
+    renderer.render(scene,camera);
+    return;
+  }
 
-  // ── Gravity / jump ────────────────────────────────────────
+  // ── Grounded probe ──
+  wasGrounded=isGrounded;
+  playerGroup.position.y-=0.1;
+  updatePlayerBox(playerGroup.position);
+  isGrounded=checkCollision(playerBox);
+  playerGroup.position.y+=0.1;
+  updatePlayerBox(playerGroup.position);
+
+  // ── Gravity / jump ──
   if(!isGrounded){
-    yVelocity += -ROBLOX_GRAVITY * dt;
-    if(yVelocity < TERMINAL_VELOCITY) yVelocity = TERMINAL_VELOCITY;
-    if(player.position.y > highestYThisJump) highestYThisJump = player.position.y;
-    airborneTimer += dt;
-    if(airborneTimer > AIRBORNE_ANIM_DELAY) animState='jumping';
+    yVelocity+=(-ROBLOX_GRAVITY)*dt;
+    if(yVelocity<TERMINAL_VELOCITY)yVelocity=TERMINAL_VELOCITY;
+    if(playerGroup.position.y>highestY)highestY=playerGroup.position.y;
+    airborneTimer+=dt;
+    if(airborneTimer>AIRBORNE_DELAY)animState='jumping';
   } else {
-    airborneTimer = 0;
-    if(yVelocity < 0) yVelocity = 0;
+    airborneTimer=0;
+    if(yVelocity<0)yVelocity=0;
     if(keys[' ']){
-      yVelocity = ROBLOX_JUMP_POWER;
-      isGrounded = false;
-      highestYThisJump = player.position.y;
-      airborneTimer = AIRBORNE_ANIM_DELAY + 1;
-      animState = 'jumping';
+      yVelocity=ROBLOX_JUMP_POWER;
+      isGrounded=false;
+      highestY=playerGroup.position.y;
+      airborneTimer=AIRBORNE_DELAY+1;
+      animState='jumping';
     }
   }
 
-  // ── Vertical movement + resolve ───────────────────────────
-  player.position.y += yVelocity * dt;
-  updatePlayerBox(player.position);
-  if(checkCollisionWithWorld(playerBox)){
-    if(yVelocity < 0){
-      for(let i=0;i<100;i++){
-        player.position.y += 0.05;
-        updatePlayerBox(player.position);
-        if(!checkCollisionWithWorld(playerBox)) break;
-      }
-      isGrounded = true;
-      highestYThisJump = player.position.y;
-      yVelocity = 0;
+  // ── Vertical resolve ──
+  playerGroup.position.y+=yVelocity*dt;
+  updatePlayerBox(playerGroup.position);
+  if(checkCollision(playerBox)){
+    if(yVelocity<0){
+      for(let i=0;i<100;i++){playerGroup.position.y+=0.05;updatePlayerBox(playerGroup.position);if(!checkCollision(playerBox))break;}
+      isGrounded=true; highestY=playerGroup.position.y; yVelocity=0;
     } else {
-      for(let i=0;i<100;i++){
-        player.position.y -= 0.05;
-        updatePlayerBox(player.position);
-        if(!checkCollisionWithWorld(playerBox)) break;
-      }
-      yVelocity = 0;
+      for(let i=0;i<100;i++){playerGroup.position.y-=0.05;updatePlayerBox(playerGroup.position);if(!checkCollision(playerBox))break;}
+      yVelocity=0;
     }
   }
+  if(playerGroup.position.y<-80){playerGroup.position.set(0,5,0);yVelocity=0;}
 
-  // void kill plane
-  if(player.position.y < -80){ player.position.set(0,5,0); yVelocity=0; }
-
-  // ── Horizontal movement ───────────────────────────────────
+  // ── Horizontal movement ──
   _moveDir.set(0,0,0);
-  camera.getWorldDirection(_camFwd);
-  _camFwd.y=0; _camFwd.normalize();
+  camera.getWorldDirection(_camFwd); _camFwd.y=0; _camFwd.normalize();
   _camRight.crossVectors(_camFwd,_upAxis).negate().normalize();
-
-  let isMoving=false;
-  if(keys['w']){ _moveDir.add(_camFwd);   isMoving=true; }
-  if(keys['s']){ _moveDir.sub(_camFwd);   isMoving=true; }
-  if(keys['d']){ _moveDir.sub(_camRight); isMoving=true; }
-  if(keys['a']){ _moveDir.add(_camRight); isMoving=true; }
-
-  if(isMoving){
+  let moving=false;
+  if(keys['w']){_moveDir.add(_camFwd);  moving=true;}
+  if(keys['s']){_moveDir.sub(_camFwd);  moving=true;}
+  if(keys['d']){_moveDir.sub(_camRight);moving=true;}
+  if(keys['a']){_moveDir.add(_camRight);moving=true;}
+  if(moving){
     _moveDir.normalize();
-    moveAxis('x', _moveDir.x * ROBLOX_WALK_SPEED * dt);
-    moveAxis('z', _moveDir.z * ROBLOX_WALK_SPEED * dt);
-    _targetQ.setFromAxisAngle(_upAxis, Math.atan2(_moveDir.x, _moveDir.z));
-    player.quaternion.slerp(_targetQ, 15*dt);
-    if(isGrounded) animState='moving';
+    moveAxis('x',_moveDir.x*ROBLOX_WALK_SPEED*dt);
+    moveAxis('z',_moveDir.z*ROBLOX_WALK_SPEED*dt);
+    _targetQ.setFromAxisAngle(_upAxis,Math.atan2(_moveDir.x,_moveDir.z));
+    playerGroup.quaternion.slerp(_targetQ,15*dt);
+    if(isGrounded)animState='moving';
   } else {
-    if(isGrounded) animState='idle';
+    if(isGrounded)animState='idle';
   }
 
-  // step-up visual smooth
-  visualYOffset = THREE.MathUtils.lerp(visualYOffset, 0, 15*dt);
+  visualYOffset=THREE.MathUtils.lerp(visualYOffset,0,15*dt);
 
-  // ── Animation ─────────────────────────────────────────────
-  if(animState==='moving') animTime += dt * ROBLOX_WALK_SPEED * 0.6;
-  else if(animState==='idle') animTime = 0;
-  else animTime += dt * 5;
-  applyAnimations(animState, dt, animTime);
+  // ── Animation ──
+  if(animState==='moving')animTime+=dt*ROBLOX_WALK_SPEED*0.6;
+  else if(animState==='idle')animTime=0;
+  else animTime+=dt*5;
+  applyAnimations(animState,dt,animTime);
 
-  // ── Camera — exact same formula as blokus ─────────────────
-  _headPos.set(player.position.x, player.position.y+4.5, player.position.z);
+  // ── Camera (same formula as blokus) ──
+  _headPos.set(playerGroup.position.x,playerGroup.position.y+4.5,playerGroup.position.z);
   _idealCam.set(
-    _headPos.x + camRadius * Math.sin(camTheta) * Math.cos(camPhi),
-    _headPos.y + camRadius * Math.sin(camPhi),
-    _headPos.z + camRadius * Math.cos(camTheta) * Math.cos(camPhi)
+    _headPos.x+camRadius*Math.sin(camTheta)*Math.cos(camPhi),
+    _headPos.y+camRadius*Math.sin(camPhi),
+    _headPos.z+camRadius*Math.cos(camTheta)*Math.cos(camPhi)
   );
   camera.position.copy(_idealCam);
   camera.lookAt(_headPos);
 
-  // ── Move dirLight with player (shadow follows) ────────────
-  dirLight.position.copy(player.position).add(_dirLightOffset);
-  dirLight.target.position.copy(player.position);
+  // Move dirLight with player
+  dirLight.position.copy(playerGroup.position).add(_dirOff);
+  dirLight.target.position.copy(playerGroup.position);
   dirLight.target.updateMatrixWorld();
 
-  renderer.render(scene, camera);
+  renderer.render(scene,camera);
 }
 animate();
 </script>
