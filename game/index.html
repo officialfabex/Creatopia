@@ -245,14 +245,14 @@ new GLTFLoader().load('../assets/models/CreatopiaBody.glb',gltf=>{
     }
 
     // Fix LeftHand — it has negative scale (Blender mirror).
-    // Flip it 180° on Z to match RightHand orientation.
-    lH.rotation.z += Math.PI;
-
-    // Shift origins to top for all four limbs
+    // IMPORTANT: shift origin BEFORE the Z flip, otherwise the Y direction is wrong.
     shiftOriginToTop(rH);
-    shiftOriginToTop(lH);
+    shiftOriginToTop(lH);  // do this BEFORE rotation.z flip
     shiftOriginToTop(lL);
     shiftOriginToTop(rL);
+
+    // Flip LeftHand 180° on Z AFTER origin shift so it matches RightHand orientation
+    lH.rotation.z += Math.PI;
 
     charLimbs = { rAG: rH, lAG: lH, lLG: lL, rLG: rL };
   }
