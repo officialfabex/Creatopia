@@ -289,12 +289,22 @@ new GLTFLoader().load('../../assets/models/CreatopiaBody.glb', gltf => {
   model.traverse(c => { if (c.isMesh) { c.castShadow = c.receiveShadow = true; } });
   playerGroup.add(model);
   prepareSkin(model);
-  const find = n => model.getObjectByName(n);
-  const lA = find('LeftArm')  || find('Left_Arm')  || find('leftArm');
-  const rA = find('RightArm') || find('Right_Arm') || find('rightArm');
-  const lL = find('LeftLeg')  || find('Left_Leg')  || find('leftLeg');
-  const rL = find('RightLeg') || find('Right_Leg') || find('rightLeg');
-  if (lA && rA && lL && rL) charLimbs = {lAG:lA, rAG:rA, lLG:lL, rLG:rL};
+
+  // Exact node names from GLB JSON: Torso, Head, RightHand, LeftHand, LeftLeg, RightLeg
+  // Nodes are direct children with their own translation — wrap each in a pivot Group
+  // so we can rotate from the joint origin (shoulder / hip).
+  const getNode = n => model.getObjectByName(n);
+
+  const rH = getNode('RightHand');
+  const lH = getNode('LeftHand');
+  const lL = getNode('LeftLeg');
+  const rL = getNode('RightLeg');
+
+  if (rH && lH && lL && rL) {
+    // For a rig-less GLB the objects rotate around their own origin.
+    // That's already correct — we just hand them directly to charLimbs.
+    charLimbs = { lAG: lH, rAG: rH, lLG: lL, rLG: rL };
+  }
 }, null, err => console.warn('GLB failed, using fallback', err));
 
 // ── player state ──────────────────────────────────────────────
