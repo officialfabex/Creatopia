@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -67,15 +67,7 @@ html[data-theme="light"] .si img{filter:none}
 /* ── ROW ── */
 .row{display:flex;flex:1;overflow:hidden}
 
-/* ══════════════════════════════════════
-   SIDEBAR — glass-pill, icon NEVER moves
-   Strategy: .ni has NO padding transition.
-   Instead we wrap content in .ni-inner
-   which has a fixed left margin equal to
-   the icon-column width. The icon sits in
-   .ico-col — a fixed-width cell. Only the
-   label fades/shrinks.
-══════════════════════════════════════ */
+/* ── SIDEBAR ── */
 .sidebar{
   width:var(--w);min-width:var(--w);
   display:flex;flex-direction:column;
@@ -91,10 +83,9 @@ html[data-theme="light"] .sidebar{background:rgba(228,228,236,.7)}
 
 .nl{flex:1;display:flex;flex-direction:column;gap:4px;padding:14px 10px;overflow:hidden}
 
-/* glass-pill nav item — NO padding transition, NO gap change */
 .ni{
   display:flex;align-items:center;
-  padding:0;           /* padding handled by .ni-inner */
+  padding:0;
   border-radius:12px;cursor:pointer;
   border:1px solid rgba(255,255,255,.06);
   background:rgba(20,20,30,.4);
@@ -103,7 +94,6 @@ html[data-theme="light"] .sidebar{background:rgba(228,228,236,.7)}
   transition:background .25s cubic-bezier(.16,1,.3,1),
              border-color .25s cubic-bezier(.16,1,.3,1),
              color .25s;
-             /* NO padding transition */
 }
 html[data-theme="light"] .ni{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.06)}
 .ni:hover{background:rgba(35,35,50,.55);border-color:rgba(255,255,255,.15);color:var(--txt)}
@@ -111,20 +101,15 @@ html[data-theme="light"] .ni:hover{background:rgba(0,0,0,.08);border-color:rgba(
 .ni.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);color:#fff}
 html[data-theme="light"] .ni.on{background:rgba(0,0,0,.1);border-color:rgba(0,0,0,.18);color:#111}
 
-/* inner row: icon cell + label */
 .ni-inner{
   display:flex;align-items:center;
   width:100%;
-  /* expanded: normal left padding so icon sits naturally */
   padding:11px 14px 11px 14px;
 }
-/* collapsed: shift icon to centre of wc=76px strip
-   inner = 76 - 2px borders = 74, icon = 24, left = (74-24)/2 = 25px */
 .app.col .ni-inner{
   padding:11px 0 11px 25px;
 }
 
-/* icon column — fixed 24px, never changes position */
 .ico{
   flex-shrink:0;
   width:24px;height:24px;
@@ -138,7 +123,6 @@ html[data-theme="light"] .ico img{filter:none;opacity:.5}
 .ni:hover .ico img,.ni:hover .ico svg,
 .ni.on   .ico img,.ni.on   .ico svg{opacity:1}
 
-/* gap spacer — shrinks smoothly, icon stays put */
 .g{
   width:13px;min-width:13px;flex-shrink:0;overflow:hidden;
   transition:width var(--ease),min-width var(--ease),opacity var(--ease);
@@ -152,7 +136,6 @@ html[data-theme="light"] .ico img{filter:none;opacity:.5}
 }
 .app.col .lbl{max-width:0;opacity:0}
 
-/* toggle square */
 .nb{padding:8px 10px 14px;border-top:1px solid var(--bdr);flex-shrink:0;display:flex;justify-content:center}
 .tog{display:flex;align-items:center;justify-content:center;
   width:46px;height:46px;border-radius:12px;cursor:pointer;
@@ -225,7 +208,6 @@ html[data-theme="light"] .game-card:hover .game-thumb{border-color:rgba(0,0,0,.2
 /* ── SETTINGS ── */
 .spage{max-width:680px;padding-top:4px;display:flex;flex-direction:column;gap:10px}
 
-/* settings sub-tabs */
 .stabs{display:flex;gap:6px;margin-bottom:2px;flex-shrink:0}
 .stab{padding:8px 18px;border-radius:10px;cursor:pointer;
   border:1px solid var(--bdr);background:var(--acc);
@@ -336,12 +318,10 @@ html[data-theme="light"] .cr-icon-btn:hover{background:rgba(0,0,0,.1)}
 .prof-edit-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
 html[data-theme="light"] .prof-edit-btn:hover{background:rgba(0,0,0,.1)}
 
-/* currently wearing block */
 .prof-wearing{padding:22px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
 .prof-wearing-header{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--txt);display:block;margin-bottom:16px;position:relative;top:2px}
 .prof-wearing-body{display:flex;align-items:stretch;gap:18px}
-/* left: item slots */
 .prof-wearing-items{flex:1;display:flex;flex-direction:column;gap:8px}
 .prof-wearing-item{display:flex;align-items:center;gap:12px;
   padding:10px 12px;border-radius:10px;
@@ -352,17 +332,14 @@ html[data-theme="light"] .prof-edit-btn:hover{background:rgba(0,0,0,.1)}
 .prof-wearing-swatch svg{width:18px;height:18px;opacity:.4}
 .prof-wearing-name{font-family:CHL,sans-serif;font-size:13px;letter-spacing:.04em;
   color:var(--dim);position:relative;top:2px}
-/* right: avatar placeholder */
 .prof-av-preview{flex:0 0 120px;display:flex;align-items:center;justify-content:center;
   background:var(--sur);border:1px solid var(--bdr);border-radius:12px}
 .prof-av-preview svg{width:56px;height:56px;opacity:.2}
 
 /* ── AVATAR EDITOR ── */
-/* height fills remaining space after .m-top padding */
 .av-wrap{display:flex;flex-direction:row;align-items:stretch;gap:18px;
   height:calc(100vh - var(--th) - 88px)}
 
-/* enlarged preview: 1.5× original 180px = 270px */
 .av-left{flex:0 0 270px;display:flex;flex-direction:column;align-items:center;gap:14px}
 .av-box{width:270px;height:360px;background:var(--card-bg);border:1px solid var(--card-bdr);
   border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -373,7 +350,6 @@ html[data-theme="light"] .prof-edit-btn:hover{background:rgba(0,0,0,.1)}
 
 .av-right{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 
-/* tabs: no overflow, no scroll — they just fit */
 .av-tabs{display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0}
 .av-tab{flex:1;text-align:center;background:none;border:none;
   color:var(--txt);font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.07em;
@@ -382,7 +358,6 @@ html[data-theme="light"] .prof-edit-btn:hover{background:rgba(0,0,0,.1)}
 .av-tab.active{opacity:1;border-bottom:2px solid var(--txt)}
 
 .av-body{flex:1;overflow-y:auto;padding:16px 4px 8px}
-/* larger grid items: minmax(110px) */
 .av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
 .av-item{border-radius:12px;aspect-ratio:1;
   background:var(--card-bg);border:1px solid var(--card-bdr);
@@ -429,7 +404,7 @@ html[data-theme="light"] .av-item.active{border-color:rgba(0,0,0,.3)}
 
   <div class="row">
 
-    <!-- SIDEBAR — glass-pill style -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <nav class="nl" id="nav">
 
@@ -510,7 +485,6 @@ let S={}, lang=localStorage.getItem('creatopia_lang')||'en';
 
 async function loadLang(code){
   try{
-    // Próbuj najpierw ścieżkę absolutną, potem względną jako fallback
     let r = await fetch('/language/'+code+'.json');
     if(!r.ok) r = await fetch('language/'+code+'.json');
     if(!r.ok)throw 0;
@@ -553,7 +527,7 @@ const content=document.getElementById('content');
 const items=document.querySelectorAll('.ni[data-tab]');
 const TABS=['home','create','customize','profile','settings'];
 
-// ── Hash routing — działa na każdym statycznym hostingu ────────
+// ── Hash routing ──────────────────────────────────────────────
 function getHashTab(){
   const h=location.hash.replace('#','').toLowerCase();
   return TABS.includes(h)?h:'home';
@@ -746,11 +720,11 @@ function mountAvatarPreview(containerId, skinColor){
   const w = container.clientWidth  || 270;
   const h = container.clientHeight || 360;
 
-  // Dynamically import Three.js and GLTFLoader (same CDN as engine.html)
-  let rafId, avRenderer;
+  let rafId, avRenderer, disposed = false;
 
   import('https://unpkg.com/three@0.163.0/build/three.module.js').then(THREE=>{
     import('https://unpkg.com/three@0.163.0/examples/jsm/loaders/GLTFLoader.js').then(({GLTFLoader})=>{
+      if(disposed) return;
 
       const avScene  = new THREE.Scene();
       avScene.background = new THREE.Color(0x111118);
@@ -793,13 +767,13 @@ function mountAvatarPreview(containerId, skinColor){
 
       const ldr = new GLTFLoader();
       ldr.load('assets/models/CreatopiaBody.glb', (gltf)=>{
+        if(disposed) return;
         avModel = gltf.scene;
         const box = new THREE.Box3().setFromObject(avModel);
         const sz  = box.getSize(new THREE.Vector3());
         avModel.scale.setScalar(5/sz.y);
         const box2 = new THREE.Box3().setFromObject(avModel);
         avModel.position.y = -box2.min.y;
-        // Apply skin color to skin-toned meshes
         if(skinColor){
           const sc = new THREE.Color(skinColor);
           avModel.traverse(c=>{
@@ -814,11 +788,13 @@ function mountAvatarPreview(containerId, skinColor){
         }
         avScene.add(avModel);
       }, null, ()=>{
+        if(disposed) return;
         avModel = buildFallback();
         avScene.add(avModel);
       });
 
       function loop(){
+        if(disposed) return;
         rafId = requestAnimationFrame(loop);
         if(avModel && spinning) avModel.rotation.y += 0.008;
         avRenderer.render(avScene, avCam);
@@ -839,6 +815,7 @@ function mountAvatarPreview(containerId, skinColor){
   });
 
   return ()=>{
+    disposed = true;
     if(rafId) cancelAnimationFrame(rafId);
     if(avRenderer){
       avRenderer.dispose();
@@ -948,7 +925,6 @@ function renderProfile(){
   // Mount avatar preview in the big slot
   activePreviewDispose = mountAvatarPreview('up-av-big', activeSkinColor);
 }
-}
 
 // ── Customize ─────────────────────────────────────────────────
 const AV_TABS=[
@@ -964,7 +940,6 @@ let activeAvTab='all';
 function renderCustomize(){
   disposeActivePreview();
 
-  // Build skin color tab HTML
   const skinTabHtml = `
     <div class="av-skin-section">
       <span class="av-skin-label">${t('customize_skin_color')||'Skin Color'}</span>
@@ -1018,13 +993,11 @@ function renderCustomize(){
       const body=document.getElementById('av-body-content');
       if(activeAvTab==='skin'){
         body.innerHTML=skinTabHtml;
-        // re-bind skin swatches
         body.querySelectorAll('.av-skin-swatch').forEach(sw=>{
           sw.addEventListener('click',()=>{
             activeSkinColor=sw.dataset.sc;
             localStorage.setItem('creatopia_skin',activeSkinColor);
             body.querySelectorAll('.av-skin-swatch').forEach(s=>s.classList.toggle('active',s.dataset.sc===activeSkinColor));
-            // Refresh preview with new skin color
             disposeActivePreview();
             activePreviewDispose=mountAvatarPreview('av-preview-box',activeSkinColor);
           });
