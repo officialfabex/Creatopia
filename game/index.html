@@ -223,44 +223,38 @@ new GLTFLoader().load('../assets/models/CreatopiaBody.glb',gltf=>{
   const lL=model.getObjectByName('LeftLeg'), rL=model.getObjectByName('RightLeg');
 
   if(rH&&lH&&lL&&rL){
-
-    // ── Step 1: flip LeftHand 180° on Z so it faces the same way as RightHand ──
-    // LeftHand was mirrored in Blender (negative scale) — this flip corrects its orientation
-    lH.rotation.z += Math.PI;
-
-    // ── Step 2: create pivot groups at the TOP of each arm (shoulder) ──
-    // We read the world bounding box top of each hand mesh to find shoulder Y,
-    // then place a pivot group there and re-parent the mesh under it.
     model.updateMatrixWorld(true);
 
-    function makePivotAtTop(node) {
-      const worldBox = new THREE.Box3().setFromObject(node);
-      // top of the mesh in world space
-      const topY = worldBox.max.y;
-
-      // Convert world top Y → playerGroup local space
-      const pgInvY = playerGroup.position.y; // playerGroup is at (0,5,0) in scene
-      const localTopY = topY - pgInvY; // approximate; model is child of playerGroup
-
-      // Create pivot at the shoulder position
-      const pivot = new THREE.Group();
-      // x,z same as node's current position, y = top of mesh
-      pivot.position.set(node.position.x, localTopY, node.position.z);
-
-      // Offset: mesh centre is now below the pivot
-      const offsetY = node.position.y - localTopY;
-      node.removeFromParent();
-      node.position.set(0, offsetY, 0);
-      // Reset the flip rotation we applied — it will be at rest pose
-      pivot.add(node);
-      model.add(pivot);
-      return pivot;
+    // Shift geometry origin to TOP of each limb mesh so rotation pivots at shoulder/hip.
+    // We translate the geometry vertices downward by half the mesh height,
+    // which moves the rotation origin from mesh-centre to mesh-top.
+    function shiftOriginToTop(node) {
+      node.traverse(child => {
+        if (!child.isMesh || !child.geometry) return;
+        child.geometry = child.geometry.clone();
+        const box = new THREE.Box3().setFromObject(child);
+        // Height of mesh in world space, converted to local space via scale
+        const localScale = child.getWorldScale(new THREE.Vector3());
+        const worldH = box.max.y - box.min.y;
+        const localH = worldH / (localScale.y || 1);
+        // Shift vertices down by half height so top is now at local origin
+        child.geometry.translate(0, -localH / 2, 0);
+        // Compensate node position so mesh stays in the same world position
+        child.position.y += localH / 2;
+      });
     }
 
-    const rPivot = makePivotAtTop(rH);
-    const lPivot = makePivotAtTop(lH);
+    // Fix LeftHand — it has negative scale (Blender mirror).
+    // Flip it 180° on Z to match RightHand orientation.
+    lH.rotation.z += Math.PI;
 
-    charLimbs = { rAG: rPivot, lAG: lPivot, lLG: lL, rLG: rL };
+    // Shift origins to top for all four limbs
+    shiftOriginToTop(rH);
+    shiftOriginToTop(lH);
+    shiftOriginToTop(lL);
+    shiftOriginToTop(rL);
+
+    charLimbs = { rAG: rH, lAG: lH, lLG: lL, rLG: rL };
   }
 
   // Hat — add directly to model root so it uses the same coord space as the GLB.
