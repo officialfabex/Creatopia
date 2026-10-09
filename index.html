@@ -466,6 +466,9 @@ function mountAvatarPreview(containerId){
       m.scale.setScalar(5/sz.y);
       const b2=new T.Box3().setFromObject(m),c=b2.getCenter(new T.Vector3());
       m.position.set(-c.x,-b2.min.y,-c.z);useModel(m);
+      // attach hat if equipped
+      const hatId=localStorage.getItem('creatopia_hat');
+      if(hatId){const hn=m.getObjectByName('Head');if(hn)new GLTFLoader().load('assets/customize/hats/'+hatId+'.glb',hg=>{if(!disposed){hg.scene.traverse(hc=>{if(hc.isMesh)hc.castShadow=true;});hn.add(hg.scene);}},null,()=>{});}
     },undefined,()=>fallback());
 
     renderer.domElement.addEventListener('mousedown',e=>{dragging=true;spinning=false;lastX=e.clientX});
@@ -475,7 +478,11 @@ function mountAvatarPreview(containerId){
 
   return{
     dispose(){disposed=true;cancelAnimationFrame(rafId);window.removeEventListener('mouseup',onUp);window.removeEventListener('mousemove',onMove);if(renderer){renderer.dispose();renderer.domElement.remove();renderer=null}},
-    update(c){cols={...c};paint()}
+    update(c){cols={...c};paint()},
+    equipHat(hatId){
+      // reload preview with new hat
+      const id=containerId;disposeActivePreview();activePreview=mountAvatarPreview(id);
+    }
   };
 }
 
@@ -518,6 +525,11 @@ function renderProfile(){
 const AV_TABS=[{key:'customize_tab_all',id:'all'},{key:'customize_tab_hats',id:'hats'},{key:'customize_tab_shirts',id:'shirts'},{key:'customize_tab_pants',id:'pants'},{key:'customize_tab_face',id:'face'},{key:'customize_tab_skin',id:'skin'}];
 let activeAvTab='all',activeSkinPart='head';
 
+// hat system
+const HATS=[{id:'Red Cap',label:'Red Cap'}];
+let equippedHat=localStorage.getItem('creatopia_hat')||null;
+function saveHat(id){equippedHat=id;id?localStorage.setItem('creatopia_hat',id):localStorage.removeItem('creatopia_hat')}
+
 function renderCustomize(){
   disposeActivePreview();
   content.innerHTML=`
@@ -536,6 +548,48 @@ function renderCustomize(){
 function fillAvBody(){
   const body=document.getElementById('av-body-content');
   if(!body)return;
+
+  if(activeAvTab==='hats'){
+    // None option + hat cards
+    const noneActive=!equippedHat;
+    body.innerHTML=`
+      <style>
+        .hat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
+        .hat-card{border-radius:12px;aspect-ratio:1;background:var(--card-bg);border:2px solid var(--card-bdr);
+          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+          cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:11px;
+          font-family:CHM,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:8px}
+        .hat-card:hover{border-color:rgba(255,255,255,.22);transform:scale(1.04)}
+        .hat-card.active{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.08)}
+        .hat-card svg{width:36px;height:36px;opacity:.4}
+        .hat-card.active svg{opacity:.9}
+      </style>
+      <div class="hat-grid">
+        <div class="hat-card${noneActive?' active':''}" data-hat="">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+          </svg>
+          <span style="position:relative;top:2px">${L('None','Brak')}</span>
+        </div>
+        ${HATS.map(h=>`
+          <div class="hat-card${equippedHat===h.id?' active':''}" data-hat="${h.id}">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/>
+            </svg>
+            <span style="position:relative;top:2px">${h.label}</span>
+          </div>`).join('')}
+      </div>`;
+    body.querySelectorAll('.hat-card').forEach(c=>c.addEventListener('click',()=>{
+      const id=c.dataset.hat||null;
+      saveHat(id);
+      body.querySelectorAll('.hat-card').forEach(x=>x.classList.toggle('active',(x.dataset.hat||null)===id));
+      // refresh preview
+      if(activePreview&&activePreview.equipHat) activePreview.equipHat(id);
+    }));
+    return;
+  }
+
   if(activeAvTab!=='skin'){
     body.innerHTML=`<div class="av-grid">${Array.from({length:12},()=>`<div class="av-item">?</div>`).join('')}</div>`;
     return;
