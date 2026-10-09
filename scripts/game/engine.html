@@ -6,675 +6,496 @@
 <title>Creatopia</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;
-  font-family:'Segoe UI',system-ui,sans-serif;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif;user-select:none}
 canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0}
-
-#topbar{
-  position:fixed;top:0;left:0;right:0;height:52px;
-  background:rgba(6,6,14,.82);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(255,255,255,.07);
-  display:flex;align-items:center;padding:0 18px;gap:10px;
-  z-index:100;
-}
-.tb-btn{
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  height:38px;padding:0 14px;border-radius:9px;cursor:pointer;
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
-  color:rgba(255,255,255,.8);font-size:12px;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;transition:background .15s,border-color .15s;
-}
-.tb-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.22);color:#fff}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(6,6,14,.82);
+  backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;padding:0 18px;gap:10px;z-index:100}
+.tb-btn{display:flex;align-items:center;justify-content:center;gap:7px;height:38px;
+  padding:0 14px;border-radius:9px;cursor:pointer;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.8);font-size:12px;
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:background .15s}
+.tb-btn:hover{background:rgba(255,255,255,.16);color:#fff}
 .tb-btn svg{width:16px;height:16px;pointer-events:none}
 .tb-btn.active{background:rgba(120,180,255,.18);border-color:rgba(120,180,255,.4);color:#a8d4ff}
-
-#mode-label{
-  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(255,255,255,.3);margin-left:4px;
-}
-
-#pause{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;
-  z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
-}
+#mode-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-left:4px}
+#pause{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
 #pause.open{opacity:1;pointer-events:auto}
-#pause-panel{
-  background:rgba(8,8,18,.97);border:1px solid rgba(255,255,255,.1);
-  border-radius:20px;padding:36px 32px;min-width:240px;
-  display:flex;flex-direction:column;gap:11px;
-  box-shadow:0 28px 72px rgba(0,0,0,.85);
-  transform:scale(.93) translateY(10px);
-  transition:transform .24s cubic-bezier(.16,1,.3,1);
-}
+#pause-panel{background:rgba(8,8,18,.97);border:1px solid rgba(255,255,255,.1);border-radius:20px;
+  padding:36px 32px;min-width:240px;display:flex;flex-direction:column;gap:11px;
+  box-shadow:0 28px 72px rgba(0,0,0,.85);transform:scale(.93) translateY(10px);
+  transition:transform .24s cubic-bezier(.16,1,.3,1)}
 #pause.open #pause-panel{transform:scale(1) translateY(0)}
-.pbtn{
-  display:flex;align-items:center;justify-content:center;gap:9px;
-  padding:13px 22px;border-radius:12px;cursor:pointer;
-  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);
-  color:#fff;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  transition:background .15s,border-color .15s;
-}
-.pbtn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.24)}
+.pbtn{display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 22px;
+  border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);
+  color:#fff;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;transition:background .15s}
+.pbtn:hover{background:rgba(255,255,255,.16)}
 .pbtn.exit{background:rgba(160,40,40,.22);border-color:rgba(220,70,70,.28);color:rgba(255,130,130,.9)}
-.pbtn.exit:hover{background:rgba(160,40,40,.4);border-color:rgba(220,70,70,.55);color:#fff}
+.pbtn.exit:hover{background:rgba(160,40,40,.4);color:#fff}
 .pbtn svg{width:16px;height:16px;opacity:.85;flex-shrink:0}
-
-/* studio overlay hint */
-#studio-hint{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  background:rgba(8,8,18,.88);border:1px solid rgba(255,255,255,.1);
-  border-radius:10px;padding:8px 18px;
-  font-size:12px;letter-spacing:.06em;color:rgba(255,255,255,.55);
-  pointer-events:none;z-index:90;display:none;white-space:nowrap;
-}
+#studio-hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:rgba(8,8,18,.88);border:1px solid rgba(255,255,255,.1);border-radius:10px;
+  padding:8px 18px;font-size:12px;color:rgba(255,255,255,.55);pointer-events:none;z-index:90;display:none;white-space:nowrap}
 #studio-hint.show{display:block}
 </style>
 </head>
 <body>
 
 <div id="topbar">
-  <!-- menu -->
   <button class="tb-btn" id="menu-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
     </svg>
   </button>
-
-  <!-- studio toggle -->
   <button class="tb-btn" id="studio-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l5.653-4.655m5.833-4.329a18.795 18.795 0 002.684-1.88c-.465-3.223-3.474-5.7-6.755-5.7C7.78 2.25 5.25 4.78 5.25 7.5c0 3.281 2.477 6.29 5.7 6.755a18.795 18.795 0 001.88-2.684"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l5.653-4.655m5.833-4.329a18.795 18.795 0 002.684-1.88c-.465-3.223-3.474-5.7-6.755-5.7C7.78 2.25 5.25 4.78 5.25 7.5c0 3.281 2.477 6.29 5.7 6.755a18.795 18.795 0 001.88-2.684"/>
     </svg>
     Studio
   </button>
-
   <span id="mode-label">Player</span>
 </div>
 
-<div id="studio-hint">Click to place block · Right-click drag to orbit · Scroll to zoom</div>
+<div id="studio-hint">Click to place block · Right-drag to orbit · Scroll to zoom</div>
 
 <div id="pause">
   <div id="pause-panel">
     <button class="pbtn" id="resume-btn">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
       </svg>
       Resume
     </button>
     <button class="pbtn exit" id="exit-btn">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
       </svg>
       Exit
     </button>
   </div>
 </div>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
-  }
-}
-</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.163.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.163.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { applyAnimations } from './animations.js';
 
-// ─── PHYSICS CONSTANTS (from blokus) ──────────────────────────
-const ROBLOX_GRAVITY    = 196.2;
-const ROBLOX_JUMP_POWER = 53.8;
-const ROBLOX_WALK_SPEED = 16;
-const TERMINAL_VELOCITY = -75;
+// ── constants ─────────────────────────────────────────────────
+const GRAVITY    = 196.2;
+const JUMP_POWER = 53.8;
+const WALK_SPEED = 16;
+const TERM_VEL   = -75;
+const AIRBORNE_T = 0.13;
+const MENU_URL   = '../../index.html#home';
 
-// ─── RENDERER ─────────────────────────────────────────────────
-const scene    = new THREE.Scene();
+// ── renderer / scene / camera ─────────────────────────────────
+const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB);
 scene.fog = new THREE.Fog(0x87CEEB, 80, 200);
 
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-if('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
+if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
-window.addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight;
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
 
-// ─── LIGHTING ─────────────────────────────────────────────────
+// ── lighting ──────────────────────────────────────────────────
 scene.add(new THREE.HemisphereLight(0xaee2ff, 0x55482f, 0.65));
 scene.add(new THREE.AmbientLight(0xffffff, 0.25));
-
 const dirLight = new THREE.DirectionalLight(0xfff2e0, 1.15);
-dirLight.position.set(20,40,20);
+dirLight.position.set(20, 40, 20);
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.set(1536,1536);
-Object.assign(dirLight.shadow.camera,{near:.5,far:350,left:-120,right:120,top:120,bottom:-120});
+dirLight.shadow.mapSize.set(1536, 1536);
+Object.assign(dirLight.shadow.camera, {near:.5,far:350,left:-120,right:120,top:120,bottom:-120});
 dirLight.shadow.bias = -0.0015;
 dirLight.shadow.normalBias = 0.02;
-scene.add(dirLight);
-scene.add(dirLight.target);
+scene.add(dirLight, dirLight.target);
 
-// ─── COLLISION ────────────────────────────────────────────────
-const collidersBoxes = [];
+// ── collision ─────────────────────────────────────────────────
+const colliders = [];
 
-function addCollider(box){
-  const c=box.getCenter(new THREE.Vector3());
-  const s=box.getSize(new THREE.Vector3());
-  collidersBoxes.push({
-    type:'box',box,
-    cx:c.x,cy:c.y,cz:c.z,r:s.length()/2,
-    hx:s.x/2,hy:s.y/2,hz:s.z/2,
-    ax:{x:1,y:0,z:0},ay:{x:0,y:1,z:0},az:{x:0,y:0,z:1}
+function addCollider(box) {
+  const c = box.getCenter(new THREE.Vector3());
+  const s = box.getSize(new THREE.Vector3());
+  colliders.push({
+    cx:c.x, cy:c.y, cz:c.z, r:s.length()/2,
+    hx:s.x/2, hy:s.y/2, hz:s.z/2,
+    ax:{x:1,y:0,z:0}, ay:{x:0,y:1,z:0}, az:{x:0,y:0,z:1}
   });
 }
 
-function testAABBvsOBB(minX,minY,minZ,maxX,maxY,maxZ,o){
-  const aCx=(minX+maxX)/2,aCy=(minY+maxY)/2,aCz=(minZ+maxZ)/2;
-  const aHx=(maxX-minX)/2,aHy=(maxY-minY)/2,aHz=(maxZ-minZ)/2;
+function testOBB(minX,minY,minZ,maxX,maxY,maxZ,o) {
+  const aCx=(minX+maxX)/2, aCy=(minY+maxY)/2, aCz=(minZ+maxZ)/2;
+  const aHx=(maxX-minX)/2, aHy=(maxY-minY)/2, aHz=(maxZ-minZ)/2;
   const e=1e-6;
-  const AR00=Math.abs(o.ax.x)+e,AR01=Math.abs(o.ay.x)+e,AR02=Math.abs(o.az.x)+e;
-  const AR10=Math.abs(o.ax.y)+e,AR11=Math.abs(o.ay.y)+e,AR12=Math.abs(o.az.y)+e;
-  const AR20=Math.abs(o.ax.z)+e,AR21=Math.abs(o.ay.z)+e,AR22=Math.abs(o.az.z)+e;
-  const tx=o.cx-aCx,ty=o.cy-aCy,tz=o.cz-aCz;
-  if(Math.abs(tx)>aHx+o.hx*AR00+o.hy*AR01+o.hz*AR02)return false;
-  if(Math.abs(ty)>aHy+o.hx*AR10+o.hy*AR11+o.hz*AR12)return false;
-  if(Math.abs(tz)>aHz+o.hx*AR20+o.hy*AR21+o.hz*AR22)return false;
-  const d0=tx*o.ax.x+ty*o.ax.y+tz*o.ax.z;
-  const d1=tx*o.ay.x+ty*o.ay.y+tz*o.ay.z;
-  const d2=tx*o.az.x+ty*o.az.y+tz*o.az.z;
-  if(Math.abs(d0)>o.hx+aHx*AR00+aHy*AR10+aHz*AR20)return false;
-  if(Math.abs(d1)>o.hy+aHx*AR01+aHy*AR11+aHz*AR21)return false;
-  if(Math.abs(d2)>o.hz+aHx*AR02+aHy*AR12+aHz*AR22)return false;
+  const tx=o.cx-aCx, ty=o.cy-aCy, tz=o.cz-aCz;
+  if(Math.abs(tx)>aHx+o.hx*(Math.abs(o.ax.x)+e)+o.hy*(Math.abs(o.ay.x)+e)+o.hz*(Math.abs(o.az.x)+e))return false;
+  if(Math.abs(ty)>aHy+o.hx*(Math.abs(o.ax.y)+e)+o.hy*(Math.abs(o.ay.y)+e)+o.hz*(Math.abs(o.az.y)+e))return false;
+  if(Math.abs(tz)>aHz+o.hx*(Math.abs(o.ax.z)+e)+o.hy*(Math.abs(o.ay.z)+e)+o.hz*(Math.abs(o.az.z)+e))return false;
   return true;
 }
 
-function checkCollision(testBox){
-  const bc=testBox.getCenter(new THREE.Vector3());
-  const bs=testBox.getSize(new THREE.Vector3());
-  const tr=bs.length()/2;
-  for(const c of collidersBoxes){
-    const dx=bc.x-c.cx,dy=bc.y-c.cy,dz=bc.z-c.cz;
-    if(dx*dx+dy*dy+dz*dz>(tr+c.r)*(tr+c.r))continue;
-    if(testAABBvsOBB(testBox.min.x,testBox.min.y,testBox.min.z,
-                    testBox.max.x,testBox.max.y,testBox.max.z,c))return true;
+function hitTest(box) {
+  const bc = box.getCenter(new THREE.Vector3());
+  const tr = box.getSize(new THREE.Vector3()).length() / 2;
+  for (const c of colliders) {
+    const dx=bc.x-c.cx, dy=bc.y-c.cy, dz=bc.z-c.cz;
+    if (dx*dx+dy*dy+dz*dz > (tr+c.r)*(tr+c.r)) continue;
+    if (testOBB(box.min.x,box.min.y,box.min.z, box.max.x,box.max.y,box.max.z, c)) return true;
   }
   return false;
 }
 
-// ─── MAP ──────────────────────────────────────────────────────
-const MAT_GRASS  = new THREE.MeshLambertMaterial({color:0x5ab552});
-const MAT_STONE  = new THREE.MeshLambertMaterial({color:0x9b9b9b});
-const MAT_WOOD   = new THREE.MeshLambertMaterial({color:0xa0522d});
-const MAT_BRICK  = new THREE.MeshLambertMaterial({color:0xb5651d});
+// ── map ───────────────────────────────────────────────────────
+const MATS = {
+  grass: new THREE.MeshLambertMaterial({color:0x5ab552}),
+  stone: new THREE.MeshLambertMaterial({color:0x9b9b9b}),
+  wood:  new THREE.MeshLambertMaterial({color:0xa0522d}),
+  brick: new THREE.MeshLambertMaterial({color:0xb5651d}),
+};
 
-function addBlock(x,y,z,w,h,d,mat){
-  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+function addBlock(x,y,z,w,h,d,mat) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
   mesh.position.set(x,y,z);
-  mesh.castShadow=mesh.receiveShadow=true;
+  mesh.castShadow = mesh.receiveShadow = true;
   scene.add(mesh);
   addCollider(new THREE.Box3().setFromObject(mesh));
   return mesh;
 }
 
-addBlock(0,-0.6,0,200,1.2,200,MAT_GRASS);
-[
-  [-12,2,-12,4,4,4,MAT_STONE],[-8,2,-12,4,4,4,MAT_STONE],[-12,6,-12,4,4,4,MAT_STONE],
-  [12,2,12,4,4,4,MAT_WOOD],[16,2,12,4,4,4,MAT_WOOD],[12,6,12,4,4,4,MAT_WOOD],
-  [-20,2,8,4,4,4,MAT_BRICK],[-16,2,8,4,4,4,MAT_BRICK],
-  [20,2,-8,4,4,4,MAT_STONE],[24,2,-8,4,4,4,MAT_STONE],
-  [-8,9,-8,12,1,12,MAT_STONE],[8,13,8,12,1,12,MAT_WOOD],
-  [-16,17,-4,8,1,8,MAT_BRICK],[0,21,0,8,1,8,MAT_STONE],
-].forEach(b=>addBlock(b[0],b[1],b[2],b[3],b[4],b[5],b[6]));
+addBlock(0,-0.6,0, 200,1.2,200, MATS.grass);
+[[-12,2,-12,4,4,4,'stone'],[-8,2,-12,4,4,4,'stone'],[-12,6,-12,4,4,4,'stone'],
+ [12,2,12,4,4,4,'wood'],[16,2,12,4,4,4,'wood'],[12,6,12,4,4,4,'wood'],
+ [-20,2,8,4,4,4,'brick'],[-16,2,8,4,4,4,'brick'],
+ [20,2,-8,4,4,4,'stone'],[24,2,-8,4,4,4,'stone'],
+ [-8,9,-8,12,1,12,'stone'],[8,13,8,12,1,12,'wood'],
+ [-16,17,-4,8,1,8,'brick'],[0,21,0,8,1,8,'stone'],
+].forEach(([x,y,z,w,h,d,m])=>addBlock(x,y,z,w,h,d,MATS[m]));
 
-// studio blocks array (placed at runtime)
-const studioBlocks = [];
-
-// ─── SKIN COLORS (shared with the menu via localStorage) ──────
-const PART_KEYS    = ['head','torso','arms','legs'];
+// ── skin coloring ─────────────────────────────────────────────
+const PART_KEYS = ['head','torso','arms','legs'];
 const DEFAULT_SKIN = '#FFCD9A';
+const skinMeshes = [];
 
-function loadSkin(){
-  const d={head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};
-  try{ Object.assign(d,JSON.parse(localStorage.getItem('creatopia_skin_parts')||'{}')); }catch(e){}
+function loadSkin() {
+  const d = {head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};
+  try { Object.assign(d, JSON.parse(localStorage.getItem('creatopia_skin_parts')||'{}')); } catch(e){}
   return d;
 }
 let skinColors = loadSkin();
-const skinMeshes = [];   // meshes that carry a vertex-color attribute
 
-function partFromName(n){
-  n=(n||'').toLowerCase().replace(/armature/g,'');
-  if(/head|face|hair|skull|neck/.test(n)) return 'head';
-  if(/arm|hand|shoulder|elbow|finger/.test(n)) return 'arms';
-  if(/leg|foot|feet|thigh|knee|shin|shoe/.test(n)) return 'legs';
-  if(/torso|chest|spine|trunk|pelvis/.test(n)) return 'torso';
+function partFromName(n) {
+  n = (n||'').toLowerCase().replace(/armature/g,'');
+  if (/head|face|skull|neck/.test(n)) return 'head';
+  if (/arm|hand|shoulder/.test(n))    return 'arms';
+  if (/leg|foot|thigh|knee/.test(n))  return 'legs';
+  if (/torso|chest|spine|pelvis/.test(n)) return 'torso';
   return null;
 }
 
-// gives every mesh under root a vertex-color attribute and assigns each vertex to a body part
-function prepareSkin(root){
+function prepareSkin(root) {
   scene.updateMatrixWorld(true);
-  const box=new THREE.Box3().setFromObject(root);
-  const H=(box.max.y-box.min.y)||1, cx=(box.min.x+box.max.x)/2;
-  const v=new THREE.Vector3();
-  root.traverse(m=>{
-    if(!m.isMesh) return;
-    m.geometry=m.geometry.clone();
-    const pos=m.geometry.attributes.position, n=pos.count;
-    m.geometry.setAttribute('color',new THREE.BufferAttribute(new Float32Array(n*3),3));
-    m.material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.85,metalness:0});
-    const named=m.userData.part||partFromName(m.name);
-    if(named){ m.userData.part=named; skinMeshes.push(m); return; }
-    const idx=new Uint8Array(n);
-    for(let i=0;i<n;i++){
-      v.fromBufferAttribute(pos,i).applyMatrix4(m.matrixWorld);
-      const hh=(v.y-box.min.y)/H, ax=Math.abs(v.x-cx)/H;
-      idx[i]= hh>0.78 ? 0 : hh<0.4 ? 3 : ax>0.21 ? 2 : 1;   // head / legs / arms / torso
+  const box = new THREE.Box3().setFromObject(root);
+  const H = (box.max.y - box.min.y) || 1;
+  const cx = (box.min.x + box.max.x) / 2;
+  const v = new THREE.Vector3();
+  root.traverse(m => {
+    if (!m.isMesh) return;
+    m.geometry = m.geometry.clone();
+    const pos = m.geometry.attributes.position, n = pos.count;
+    m.geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n*3), 3));
+    m.material = new THREE.MeshStandardMaterial({vertexColors:true, roughness:.85, metalness:0});
+    const named = m.userData.part || partFromName(m.name);
+    if (named) { m.userData.part = named; skinMeshes.push(m); return; }
+    const idx = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+      const hh = (v.y - box.min.y) / H, ax = Math.abs(v.x - cx) / H;
+      idx[i] = hh > 0.78 ? 0 : hh < 0.4 ? 3 : ax > 0.21 ? 2 : 1;
     }
-    m.userData.partIdx=idx;
+    m.userData.partIdx = idx;
     skinMeshes.push(m);
   });
   paintSkin();
 }
 
-function paintSkin(){
-  const cc={}; PART_KEYS.forEach(k=>cc[k]=new THREE.Color(skinColors[k]));
-  skinMeshes.forEach(m=>{
-    const attr=m.geometry.attributes.color, arr=attr.array;
-    const idx=m.userData.partIdx, fixed=m.userData.part;
-    for(let i=0;i<arr.length/3;i++){
-      const c=cc[fixed||PART_KEYS[idx[i]]];
+function paintSkin() {
+  const cc = {};
+  PART_KEYS.forEach(k => cc[k] = new THREE.Color(skinColors[k]));
+  skinMeshes.forEach(m => {
+    const attr = m.geometry.attributes.color, arr = attr.array;
+    const idx = m.userData.partIdx, fixed = m.userData.part;
+    for (let i = 0; i < arr.length/3; i++) {
+      const c = cc[fixed || PART_KEYS[idx[i]]];
       arr[i*3]=c.r; arr[i*3+1]=c.g; arr[i*3+2]=c.b;
     }
-    attr.needsUpdate=true;
+    attr.needsUpdate = true;
   });
 }
 
-// if the colors are changed in the menu tab while the game is open, update live
-window.addEventListener('storage',e=>{
-  if(e.key==='creatopia_skin_parts'){ skinColors=loadSkin(); paintSkin(); }
+window.addEventListener('storage', e => {
+  if (e.key === 'creatopia_skin_parts') { skinColors = loadSkin(); paintSkin(); }
 });
 
-// ─── PLAYER MODEL (GLB) ───────────────────────────────────────
+// ── player model ──────────────────────────────────────────────
 const playerGroup = new THREE.Group();
 scene.add(playerGroup);
-playerGroup.position.set(0,5,0);
+playerGroup.position.set(0, 5, 0);
 
-let modelLoaded = false;
-
-// Fallback boxes while the GLB loads (or if it fails)
-function buildFallbackChar(){
-  const g=new THREE.Group();
-  const mat=()=>new THREE.MeshStandardMaterial();
-  const box=(w,h,d,part,parent,px,py,pz)=>{
-    const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat());
-    mesh.userData.part=part;
-    mesh.position.set(px,py,pz); mesh.castShadow=true; parent.add(mesh); return mesh;
+function buildFallback() {
+  const g = new THREE.Group();
+  const b = (w,h,d,part,parent,px,py,pz) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial());
+    m.userData.part = part; m.position.set(px,py,pz); m.castShadow = true; parent.add(m); return m;
   };
-  box(2,2,1,'head',g,0,4.2,0);
-  box(2,2,1,'torso',g,0,2.5,0);
+  b(2,2,1,'head',g,0,4.2,0);
+  b(2,2,1,'torso',g,0,2.5,0);
   const lAG=new THREE.Group(); lAG.position.set(-1.5,3.5,0); g.add(lAG);
   const rAG=new THREE.Group(); rAG.position.set( 1.5,3.5,0); g.add(rAG);
   const lLG=new THREE.Group(); lLG.position.set(-0.55,1.5,0); g.add(lLG);
   const rLG=new THREE.Group(); rLG.position.set( 0.55,1.5,0); g.add(rLG);
-  [lAG,rAG].forEach(ag=>box(1,2,1,'arms',ag,0,-1,0));
-  [lLG,rLG].forEach(lg=>box(1,2,1,'legs',lg,0,-1,0));
-  return {g,lAG,rAG,lLG,rLG};
+  [lAG,rAG].forEach(ag => b(1,2,1,'arms',ag,0,-1,0));
+  [lLG,rLG].forEach(lg => b(1,2,1,'legs',lg,0,-1,0));
+  return {g, lAG, rAG, lLG, rLG};
 }
 
-let charLimbs = null;
-const fb = buildFallbackChar();
-const fallback = fb.g;
-playerGroup.add(fallback);
-charLimbs = {lAG:fb.lAG,rAG:fb.rAG,lLG:fb.lLG,rLG:fb.rLG};
-prepareSkin(fallback);
+const fb = buildFallback();
+playerGroup.add(fb.g);
+prepareSkin(fb.g);
 
-// Load real GLB
-const loader = new GLTFLoader();
-// Path is relative to this html file: ../../assets/models/
-loader.load('../../assets/models/CreatopiaBody.glb',
-  (gltf)=>{
-    playerGroup.remove(fallback);
-    skinMeshes.length=0;
-    const model = gltf.scene;
-    // Scale to match ~5 studs height
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const scale = 5 / size.y;
-    model.scale.setScalar(scale);
-    // Offset so feet are at y=0 of playerGroup
-    const box2 = new THREE.Box3().setFromObject(model);
-    model.position.y = -box2.min.y;
-    model.traverse(c=>{ if(c.isMesh){ c.castShadow=true; c.receiveShadow=true; } });
-    playerGroup.add(model);
-    modelLoaded = true;
+let charLimbs = {lAG:fb.lAG, rAG:fb.rAG, lLG:fb.lLG, rLG:fb.rLG};
 
-    // colour the body parts with the player's chosen skin colors
-    prepareSkin(model);
+new GLTFLoader().load('../../assets/models/CreatopiaBody.glb', gltf => {
+  playerGroup.remove(fb.g);
+  skinMeshes.length = 0;
+  const model = gltf.scene;
+  const sz = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
+  model.scale.setScalar(5 / sz.y);
+  model.position.y = -new THREE.Box3().setFromObject(model).min.y;
+  model.traverse(c => { if (c.isMesh) { c.castShadow = c.receiveShadow = true; } });
+  playerGroup.add(model);
+  prepareSkin(model);
+  const find = n => model.getObjectByName(n);
+  const lA = find('LeftArm')  || find('Left_Arm')  || find('leftArm');
+  const rA = find('RightArm') || find('Right_Arm') || find('rightArm');
+  const lL = find('LeftLeg')  || find('Left_Leg')  || find('leftLeg');
+  const rL = find('RightLeg') || find('Right_Leg') || find('rightLeg');
+  if (lA && rA && lL && rL) charLimbs = {lAG:lA, rAG:rA, lLG:lL, rLG:rL};
+}, null, err => console.warn('GLB failed, using fallback', err));
 
-    // Try to find limb groups by name for animation
-    const find = name => model.getObjectByName(name);
-    const lA = find('LeftArm')  || find('Left_Arm')  || find('leftArm');
-    const rA = find('RightArm') || find('Right_Arm') || find('rightArm');
-    const lL = find('LeftLeg')  || find('Left_Leg')  || find('leftLeg');
-    const rL = find('RightLeg') || find('Right_Leg') || find('rightLeg');
-    if(lA&&rA&&lL&&rL) charLimbs = {lAG:lA,rAG:rA,lLG:lL,rLG:rL};
-  },
-  null,
-  (err)=>{ console.warn('GLB load failed, using fallback',err); }
-);
+// ── player state ──────────────────────────────────────────────
+const pSize = new THREE.Vector3(2, 5, 1);
+const pBox  = new THREE.Box3();
+const updateBox = pos => pBox.setFromCenterAndSize(new THREE.Vector3(pos.x, pos.y+2.5, pos.z), pSize);
 
-// ─── PLAYER STATE ─────────────────────────────────────────────
-const playerSize = new THREE.Vector3(2,5,1);
-const playerBox  = new THREE.Box3();
-function updatePlayerBox(pos){
-  playerBox.setFromCenterAndSize(new THREE.Vector3(pos.x,pos.y+2.5,pos.z),playerSize);
-}
+let yVel=0, grounded=false, animTime=0, animState='idle', airTimer=0, highY=5, visOff=0;
 
-let yVelocity=0, isGrounded=false, wasGrounded=false;
-let animTime=0, animState='idle', airborneTimer=0;
-const AIRBORNE_DELAY=0.13;
-let highestY=playerGroup.position.y;
-let visualYOffset=0;
-
-// ─── CAMERA ───────────────────────────────────────────────────
-let camRadius=15, camTheta=Math.PI, camPhi=Math.PI/6;
-let isRightDown=false;
-
-window.addEventListener('mousedown',e=>{ if(e.button===2)isRightDown=true; });
-window.addEventListener('mouseup',  e=>{ if(e.button===2)isRightDown=false; });
-window.addEventListener('mousemove',e=>{
-  if(!isRightDown||isMenuOpen||studioMode)return;
-  camTheta-=e.movementX*0.008;
-  camPhi=Math.max(-Math.PI/2+0.1,Math.min(Math.PI/2-0.1,camPhi+e.movementY*0.008));
+// ── camera ────────────────────────────────────────────────────
+let camR=15, camT=Math.PI, camP=Math.PI/6, rightDown=false;
+window.addEventListener('mousedown', e => { if(e.button===2) rightDown=true; });
+window.addEventListener('mouseup',   e => { if(e.button===2) rightDown=false; });
+window.addEventListener('mousemove', e => {
+  if (!rightDown || isMenu || studioMode) return;
+  camT -= e.movementX * 0.008;
+  camP  = Math.max(-Math.PI/2+0.1, Math.min(Math.PI/2-0.1, camP + e.movementY*0.008));
 });
-window.addEventListener('wheel',e=>{
-  if(isMenuOpen)return;
-  camRadius=Math.max(5,Math.min(125,camRadius+e.deltaY*0.05));
+window.addEventListener('wheel', e => {
+  if (!isMenu) camR = Math.max(5, Math.min(125, camR + e.deltaY*0.05));
 });
-window.addEventListener('contextmenu',e=>e.preventDefault());
+window.addEventListener('contextmenu', e => e.preventDefault());
 
-// ─── INPUT ────────────────────────────────────────────────────
-const keys={w:false,a:false,s:false,d:false,' ':false};
-window.addEventListener('keydown',e=>{
-  const k=e.key.toLowerCase();
-  if(keys.hasOwnProperty(k))keys[k]=true;
-  if(e.key==='Escape') togglePause();
+// ── input ─────────────────────────────────────────────────────
+const keys = {w:0,a:0,s:0,d:0,' ':0};
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k in keys) keys[k] = 1;
+  if (e.key === 'Escape') toggleMenu();
 });
-window.addEventListener('keyup',e=>{
-  const k=e.key.toLowerCase();
-  if(keys.hasOwnProperty(k))keys[k]=false;
-});
+window.addEventListener('keyup', e => { const k=e.key.toLowerCase(); if(k in keys) keys[k]=0; });
 
-// ─── PAUSE / EXIT ─────────────────────────────────────────────
-let isMenuOpen=false;
-const pauseEl=document.getElementById('pause');
-function togglePause(){ setMenu(!isMenuOpen); }
-function setMenu(v){ isMenuOpen=v; pauseEl.classList.toggle('open',v); }
+// ── pause ─────────────────────────────────────────────────────
+let isMenu = false;
+const pauseEl = document.getElementById('pause');
+const toggleMenu = () => setMenu(!isMenu);
+const setMenu = v => { isMenu=v; pauseEl.classList.toggle('open',v); };
 
-// The game is opened in a new tab by the menu, so history.back() has nothing to go back to.
-// Close the tab; if the browser refuses (page opened directly), navigate to the menu instead.
-const MENU_URL='../../index.html#home';
-function exitGame(){
-  keys.w=keys.a=keys.s=keys.d=keys[' ']=false;
+document.getElementById('menu-btn')  .addEventListener('click', () => setMenu(true));
+document.getElementById('resume-btn').addEventListener('click', () => setMenu(false));
+document.getElementById('exit-btn')  .addEventListener('click', () => {
   window.close();
-  setTimeout(()=>{ if(!window.closed) location.href=MENU_URL; },150);
-}
+  setTimeout(() => { if (!window.closed) location.href = MENU_URL; }, 150);
+});
 
-document.getElementById('menu-btn')  .addEventListener('click',()=>setMenu(true));
-document.getElementById('resume-btn').addEventListener('click',()=>setMenu(false));
-document.getElementById('exit-btn')  .addEventListener('click',exitGame);
+// ── studio ────────────────────────────────────────────────────
+let studioMode=false, sTheta=Math.PI, sPhi=0.4, sDist=30, sRightDown=false;
+const sTgt = new THREE.Vector3(0,2,0);
+const ray  = new THREE.Raycaster();
+const sMat = new THREE.MeshLambertMaterial({color:0x6688cc});
 
-// ─── STUDIO MODE ──────────────────────────────────────────────
-let studioMode = false;
-const studioBtn  = document.getElementById('studio-btn');
-const modeLabel  = document.getElementById('mode-label');
-const studioHint = document.getElementById('studio-hint');
-
-// Studio camera (free orbit, not tied to player)
-let studioCamTheta=Math.PI, studioCamPhi=0.4, studioCamDist=30;
-let studioTarget = new THREE.Vector3(0,2,0);
-let isStudioRightDown=false;
-
-// Raycaster for placing blocks
-const raycaster = new THREE.Raycaster();
-const studioMat = new THREE.MeshLambertMaterial({color:0x6688cc});
-
-function toggleStudio(){
-  studioMode=!studioMode;
-  studioBtn.classList.toggle('active',studioMode);
-  modeLabel.textContent = studioMode ? 'Studio' : 'Player';
-  studioHint.classList.toggle('show',studioMode);
-  // Show/hide player
+document.getElementById('studio-btn').addEventListener('click', () => {
+  studioMode = !studioMode;
+  document.getElementById('studio-btn').classList.toggle('active', studioMode);
+  document.getElementById('mode-label').textContent = studioMode ? 'Studio' : 'Player';
+  document.getElementById('studio-hint').classList.toggle('show', studioMode);
   playerGroup.visible = !studioMode;
-}
-studioBtn.addEventListener('click',toggleStudio);
+});
 
-// Studio mouse
-window.addEventListener('mousedown',e=>{
-  if(!studioMode||isMenuOpen)return;
-  if(e.target.closest&&e.target.closest('#topbar'))return;   // don't place blocks when clicking the top bar
-  if(e.button===2){ isStudioRightDown=true; return; }
-  if(e.button===0){
-    // Place block where we click on the ground/existing blocks
-    const nx=(e.clientX/innerWidth)*2-1;
-    const ny=-(e.clientY/innerHeight)*2+1;
-    raycaster.setFromCamera(new THREE.Vector2(nx,ny),camera);
-    // intersect all existing meshes
-    const meshes=[];
-    scene.traverse(c=>{ if(c.isMesh) meshes.push(c); });
-    const hits=raycaster.intersectObjects(meshes,true);
-    if(hits.length>0){
-      const pt=hits[0].point.clone();
-      const normal=hits[0].face.normal.clone()
-        .transformDirection(hits[0].object.matrixWorld);
-      // Snap to grid
-      const BLOCK=4;
-      const bx=Math.round((pt.x+normal.x*BLOCK/2)/BLOCK)*BLOCK;
-      const by=Math.round((pt.y+normal.y*BLOCK/2)/BLOCK)*BLOCK;
-      const bz=Math.round((pt.z+normal.z*BLOCK/2)/BLOCK)*BLOCK;
-      const newBlock=new THREE.Mesh(new THREE.BoxGeometry(BLOCK,BLOCK,BLOCK),studioMat.clone());
-      newBlock.position.set(bx,by,bz);
-      newBlock.castShadow=newBlock.receiveShadow=true;
-      scene.add(newBlock);
-      studioBlocks.push(newBlock);
-      addCollider(new THREE.Box3().setFromObject(newBlock));
+window.addEventListener('mousedown', e => {
+  if (!studioMode || isMenu || e.target.closest?.('#topbar')) return;
+  if (e.button === 2) { sRightDown=true; return; }
+  if (e.button === 0) {
+    ray.setFromCamera(new THREE.Vector2((e.clientX/innerWidth)*2-1, -(e.clientY/innerHeight)*2+1), camera);
+    const meshes=[]; scene.traverse(c => { if(c.isMesh) meshes.push(c); });
+    const hit = ray.intersectObjects(meshes, true)[0];
+    if (hit) {
+      const B=4, n=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+      const p=hit.point;
+      const bx=Math.round((p.x+n.x*B/2)/B)*B, by=Math.round((p.y+n.y*B/2)/B)*B, bz=Math.round((p.z+n.z*B/2)/B)*B;
+      const nb=new THREE.Mesh(new THREE.BoxGeometry(B,B,B), sMat.clone());
+      nb.position.set(bx,by,bz); nb.castShadow=nb.receiveShadow=true;
+      scene.add(nb); addCollider(new THREE.Box3().setFromObject(nb));
     }
   }
 });
-window.addEventListener('mouseup',  e=>{ if(e.button===2)isStudioRightDown=false; });
-window.addEventListener('mousemove',e=>{
-  if(!studioMode||!isStudioRightDown||isMenuOpen)return;
-  studioCamTheta-=e.movementX*0.008;
-  studioCamPhi=Math.max(-Math.PI/2+0.05,Math.min(Math.PI/2-0.05,studioCamPhi+e.movementY*0.008));
-});
-window.addEventListener('wheel',e=>{
-  if(!studioMode||isMenuOpen)return;
-  studioCamDist=Math.max(4,Math.min(200,studioCamDist+e.deltaY*0.05));
+window.addEventListener('mouseup', e => { if(e.button===2) sRightDown=false; });
+window.addEventListener('mousemove', e => {
+  if (!studioMode||!sRightDown||isMenu) return;
+  sTheta -= e.movementX*0.008;
+  sPhi = Math.max(-Math.PI/2+0.05, Math.min(Math.PI/2-0.05, sPhi+e.movementY*0.008));
 });
 
-// ─── MOVE AXIS (blokus step-up) ───────────────────────────────
-function moveAxis(axis,amount){
-  const origY=playerGroup.position.y;
-  playerGroup.position[axis]+=amount;
-  updatePlayerBox(playerGroup.position);
-  if(checkCollision(playerBox)){
-    if(!isGrounded){
-      playerGroup.position.y=origY;
-      playerGroup.position[axis]-=amount;
-      updatePlayerBox(playerGroup.position);
-      return;
+// ── step-up / moveAxis ────────────────────────────────────────
+function moveAxis(axis, d) {
+  const oy = playerGroup.position.y;
+  playerGroup.position[axis] += d;
+  updateBox(playerGroup.position);
+  if (!hitTest(pBox)) return;
+  if (!grounded) { playerGroup.position.y=oy; playerGroup.position[axis]-=d; updateBox(playerGroup.position); return; }
+  playerGroup.position.y += 1.51; updateBox(playerGroup.position);
+  if (!hitTest(pBox)) {
+    let ok=false;
+    for (let i=0; i<=1.51; i+=0.1) {
+      playerGroup.position.y-=0.1; updateBox(playerGroup.position);
+      if (hitTest(pBox)) { playerGroup.position.y+=0.1; updateBox(playerGroup.position); ok=true; break; }
     }
-    playerGroup.position.y+=1.51;
-    updatePlayerBox(playerGroup.position);
-    if(!checkCollision(playerBox)){
-      let found=false;
-      for(let i=0;i<=1.51;i+=0.1){
-        playerGroup.position.y-=0.1;
-        updatePlayerBox(playerGroup.position);
-        if(checkCollision(playerBox)){playerGroup.position.y+=0.1;updatePlayerBox(playerGroup.position);found=true;break;}
-      }
-      if(found) visualYOffset-=(playerGroup.position.y-origY);
-      else{ playerGroup.position.y=origY; playerGroup.position[axis]-=amount; }
-    } else {
-      playerGroup.position.y=origY;
-      playerGroup.position[axis]-=amount;
-      updatePlayerBox(playerGroup.position);
-    }
-  }
+    if (ok) visOff -= playerGroup.position.y-oy;
+    else { playerGroup.position.y=oy; playerGroup.position[axis]-=d; }
+  } else { playerGroup.position.y=oy; playerGroup.position[axis]-=d; updateBox(playerGroup.position); }
 }
 
-// ─── ANIMATION ────────────────────────────────────────────────
-function applyAnimations(state,dt,t){
-  if(!charLimbs)return;
-  const{lAG,rAG,lLG,rLG}=charLimbs;
-  let lAx=0,rAx=0,lLx=0,rLx=0;
-  if(state==='jumping'){ lAx=rAx=-Math.PI*0.8; }
-  else if(state==='moving'){
-    const s=Math.sin(t)*0.8;
-    rAx=s;lAx=-s;lLx=-s;rLx=s;
-  }
-  const sp=12*dt;
-  lAG.rotation.x=THREE.MathUtils.lerp(lAG.rotation.x,lAx,sp);
-  rAG.rotation.x=THREE.MathUtils.lerp(rAG.rotation.x,rAx,sp);
-  lLG.rotation.x=THREE.MathUtils.lerp(lLG.rotation.x,lLx,sp);
-  rLG.rotation.x=THREE.MathUtils.lerp(rLG.rotation.x,rLx,sp);
-}
+// ── reusable vectors ──────────────────────────────────────────
+const vFwd   = new THREE.Vector3();
+const vRight = new THREE.Vector3();
+const vHead  = new THREE.Vector3();
+const vCam   = new THREE.Vector3();
+const vUp    = new THREE.Vector3(0,1,0);
+const qTgt   = new THREE.Quaternion();
+const vOff   = new THREE.Vector3(20,40,20);
 
-// ─── VECTORS ──────────────────────────────────────────────────
-const _moveDir  =new THREE.Vector3();
-const _camFwd   =new THREE.Vector3();
-const _camRight =new THREE.Vector3();
-const _headPos  =new THREE.Vector3();
-const _idealCam =new THREE.Vector3();
-const _upAxis   =new THREE.Vector3(0,1,0);
-const _targetQ  =new THREE.Quaternion();
-const _dirOff   =new THREE.Vector3(20,40,20);
+// ── game loop ─────────────────────────────────────────────────
+const clock = new THREE.Clock();
 
-// ─── MAIN LOOP ────────────────────────────────────────────────
-const clock=new THREE.Clock();
-
-function animate(){
+function animate() {
   requestAnimationFrame(animate);
-  const dt=Math.min(clock.getDelta(),0.05);
+  const dt = Math.min(clock.getDelta(), 0.05);
 
-  if(isMenuOpen){ renderer.render(scene,camera); return; }
+  if (isMenu) { renderer.render(scene,camera); return; }
 
-  if(studioMode){
-    // Free orbit camera around studioTarget
-    const cp=Math.cos(studioCamPhi),sp=Math.sin(studioCamPhi);
-    const ct=Math.cos(studioCamTheta),st=Math.sin(studioCamTheta);
+  if (studioMode) {
     camera.position.set(
-      studioTarget.x+studioCamDist*st*cp,
-      studioTarget.y+studioCamDist*sp,
-      studioTarget.z+studioCamDist*ct*cp
+      sTgt.x+sDist*Math.sin(sTheta)*Math.cos(sPhi),
+      sTgt.y+sDist*Math.sin(sPhi),
+      sTgt.z+sDist*Math.cos(sTheta)*Math.cos(sPhi)
     );
-    camera.lookAt(studioTarget);
+    camera.lookAt(sTgt);
     renderer.render(scene,camera);
     return;
   }
 
-  // ── Grounded probe ──
-  wasGrounded=isGrounded;
-  playerGroup.position.y-=0.1;
-  updatePlayerBox(playerGroup.position);
-  isGrounded=checkCollision(playerBox);
-  playerGroup.position.y+=0.1;
-  updatePlayerBox(playerGroup.position);
+  // ground probe
+  playerGroup.position.y -= 0.1; updateBox(playerGroup.position);
+  grounded = hitTest(pBox);
+  playerGroup.position.y += 0.1; updateBox(playerGroup.position);
 
-  // ── Gravity / jump ──
-  if(!isGrounded){
-    yVelocity+=(-ROBLOX_GRAVITY)*dt;
-    if(yVelocity<TERMINAL_VELOCITY)yVelocity=TERMINAL_VELOCITY;
-    if(playerGroup.position.y>highestY)highestY=playerGroup.position.y;
-    airborneTimer+=dt;
-    if(airborneTimer>AIRBORNE_DELAY)animState='jumping';
+  // gravity / jump
+  if (!grounded) {
+    yVel = Math.max(yVel - GRAVITY*dt, TERM_VEL);
+    highY = Math.max(highY, playerGroup.position.y);
+    airTimer += dt;
+    if (airTimer > AIRBORNE_T) animState = 'jumping';
   } else {
-    airborneTimer=0;
-    if(yVelocity<0)yVelocity=0;
-    if(keys[' ']){
-      yVelocity=ROBLOX_JUMP_POWER;
-      isGrounded=false;
-      highestY=playerGroup.position.y;
-      airborneTimer=AIRBORNE_DELAY+1;
-      animState='jumping';
-    }
+    airTimer = 0;
+    if (yVel < 0) yVel = 0;
+    if (keys[' ']) { yVel=JUMP_POWER; grounded=false; highY=playerGroup.position.y; airTimer=AIRBORNE_T+1; animState='jumping'; }
   }
 
-  // ── Vertical resolve ──
-  playerGroup.position.y+=yVelocity*dt;
-  updatePlayerBox(playerGroup.position);
-  if(checkCollision(playerBox)){
-    if(yVelocity<0){
-      for(let i=0;i<100;i++){playerGroup.position.y+=0.05;updatePlayerBox(playerGroup.position);if(!checkCollision(playerBox))break;}
-      isGrounded=true; highestY=playerGroup.position.y; yVelocity=0;
-    } else {
-      for(let i=0;i<100;i++){playerGroup.position.y-=0.05;updatePlayerBox(playerGroup.position);if(!checkCollision(playerBox))break;}
-      yVelocity=0;
-    }
+  // vertical resolve
+  playerGroup.position.y += yVel*dt; updateBox(playerGroup.position);
+  if (hitTest(pBox)) {
+    const dir = yVel < 0 ? 1 : -1;
+    for (let i=0;i<100;i++) { playerGroup.position.y+=dir*0.05; updateBox(playerGroup.position); if(!hitTest(pBox))break; }
+    if (yVel < 0) { grounded=true; highY=playerGroup.position.y; }
+    yVel = 0;
   }
-  if(playerGroup.position.y<-80){playerGroup.position.set(0,5,0);yVelocity=0;}
+  if (playerGroup.position.y < -80) { playerGroup.position.set(0,5,0); yVel=0; }
 
-  // ── Horizontal movement ──
-  _moveDir.set(0,0,0);
-  camera.getWorldDirection(_camFwd); _camFwd.y=0; _camFwd.normalize();
-  _camRight.crossVectors(_camFwd,_upAxis).negate().normalize();
-  let moving=false;
-  if(keys['w']){_moveDir.add(_camFwd);  moving=true;}
-  if(keys['s']){_moveDir.sub(_camFwd);  moving=true;}
-  if(keys['d']){_moveDir.sub(_camRight);moving=true;}
-  if(keys['a']){_moveDir.add(_camRight);moving=true;}
-  if(moving){
-    _moveDir.normalize();
-    moveAxis('x',_moveDir.x*ROBLOX_WALK_SPEED*dt);
-    moveAxis('z',_moveDir.z*ROBLOX_WALK_SPEED*dt);
-    _targetQ.setFromAxisAngle(_upAxis,Math.atan2(_moveDir.x,_moveDir.z));
-    playerGroup.quaternion.slerp(_targetQ,15*dt);
-    if(isGrounded)animState='moving';
-  } else {
-    if(isGrounded)animState='idle';
+  // horizontal movement
+  vFwd.set(0,0,0); camera.getWorldDirection(vFwd); vFwd.y=0; vFwd.normalize();
+  vRight.crossVectors(vFwd, vUp).negate().normalize();
+  const mv = new THREE.Vector3();
+  if (keys['w']) mv.add(vFwd);
+  if (keys['s']) mv.sub(vFwd);
+  if (keys['d']) mv.sub(vRight);
+  if (keys['a']) mv.add(vRight);
+  const moving = mv.lengthSq() > 0;
+  if (moving) {
+    mv.normalize();
+    moveAxis('x', mv.x*WALK_SPEED*dt);
+    moveAxis('z', mv.z*WALK_SPEED*dt);
+    qTgt.setFromAxisAngle(vUp, Math.atan2(mv.x, mv.z));
+    playerGroup.quaternion.slerp(qTgt, 15*dt);
+    if (grounded) animState = 'moving';
+  } else if (grounded) {
+    animState = 'idle';
   }
 
-  visualYOffset=THREE.MathUtils.lerp(visualYOffset,0,15*dt);
+  visOff = THREE.MathUtils.lerp(visOff, 0, 15*dt);
 
-  // ── Animation ──
-  if(animState==='moving')animTime+=dt*ROBLOX_WALK_SPEED*0.6;
-  else if(animState==='idle')animTime=0;
-  else animTime+=dt*5;
-  applyAnimations(animState,dt,animTime);
+  // animation timer
+  if      (animState==='moving')  animTime += dt * WALK_SPEED * 0.6;
+  else if (animState==='idle')    animTime  = 0;
+  else                            animTime += dt * 5;
 
-  // ── Camera (same formula as blokus) ──
-  _headPos.set(playerGroup.position.x,playerGroup.position.y+4.5,playerGroup.position.z);
-  _idealCam.set(
-    _headPos.x+camRadius*Math.sin(camTheta)*Math.cos(camPhi),
-    _headPos.y+camRadius*Math.sin(camPhi),
-    _headPos.z+camRadius*Math.cos(camTheta)*Math.cos(camPhi)
+  applyAnimations(charLimbs, animState, dt, animTime, moving);
+
+  // camera
+  vHead.set(playerGroup.position.x, playerGroup.position.y+4.5, playerGroup.position.z);
+  camera.position.set(
+    vHead.x + camR*Math.sin(camT)*Math.cos(camP),
+    vHead.y + camR*Math.sin(camP),
+    vHead.z + camR*Math.cos(camT)*Math.cos(camP)
   );
-  camera.position.copy(_idealCam);
-  camera.lookAt(_headPos);
+  camera.lookAt(vHead);
 
-  // Move dirLight with player
-  dirLight.position.copy(playerGroup.position).add(_dirOff);
+  dirLight.position.copy(playerGroup.position).add(vOff);
   dirLight.target.position.copy(playerGroup.position);
   dirLight.target.updateMatrixWorld();
 
-  renderer.render(scene,camera);
+  renderer.render(scene, camera);
 }
 animate();
 </script>
