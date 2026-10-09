@@ -1,75 +1,69 @@
 /**
  * animations.js
  *
- * Works with the CreatopiaBody.glb node structure:
- *   RightHand, LeftHand, LeftLeg, RightLeg
+ * Animates the CreatopiaBody.glb character.
+ * Expects charLimbs with pivot Groups properly placed at joints
+ * (shoulder for arms, hip for legs) — set up in engine.html.
  *
- * The nodes rotate around their own origins as exported from Blender.
- * LeftHand is mirrored (negative scale) so its rotation axes are inverted —
- * we negate X and Z for it so the motion looks symmetrical.
+ * LeftHand in the GLB has negative scale (Blender mirror).
+ * We detect this and negate rotations so motion is symmetric.
  *
  * Usage:
  *   import { applyAnimations } from './animations.js';
  *   applyAnimations(limbs, state, dt, time, isMoving);
- *
- *   limbs = { lAG, rAG, lLG, rLG }  (Three.js Object3D)
- *   state = 'idle' | 'moving' | 'jumping'
- *   dt    = delta time (seconds)
- *   time  = running timer you increment in your loop
- *   isMoving = boolean — whether player is pressing WASD (affects legs in air)
  */
 
 import * as THREE from 'https://unpkg.com/three@0.163.0/build/three.module.js';
 
-const lerp = THREE.MathUtils.lerp;
-const LERP  = 12;   // lerp speed — feels snappy but not instant
+const { lerp } = THREE.MathUtils;
+const SPEED = 10; // lerp speed
 
 export function applyAnimations(limbs, state, dt, time, isMoving = false) {
   if (!limbs) return;
   const { lAG, rAG, lLG, rLG } = limbs;
   if (!lAG || !rAG || !lLG || !rLG) return;
 
-  // LeftHand has negative scale (mirrored in Blender) so its local axes are
-  // flipped — negate target rotations for it to get symmetric motion.
-  const lMirror = lAG.scale.x < 0 ? -1 : 1;
+  // LeftHand has negative scale in Blender — its local X axis is flipped.
+  // Detect by checking if the first mesh child or the node itself has negative scale.x.
+  const lMirror = (lAG.scale && lAG.scale.x < 0) ? -1 : 1;
 
-  let rAx = 0, rAz = 0;   // right arm targets
-  let lAx = 0, lAz = 0;   // left  arm targets (will be adjusted for mirror)
-  let lLx = 0, rLx = 0;   // leg targets
+  // Target rotations (radians)
+  let rAx=0, lAx=0, rAz=0, lAz=0;
+  let rLx=0, lLx=0;
 
   if (state === 'moving') {
-    // Legs alternate forward/back; arms swing opposite to legs
-    const swing = Math.sin(time) * 0.65;
+    // Classic walk: legs swing forward/back, opposite arms mirror them
+    const swing = Math.sin(time) * 0.6;
     rLx =  swing;
     lLx = -swing;
-    rAx = -swing * 0.8;   // right arm opposite right leg
-    lAx =  swing * 0.8;   // left  arm opposite left  leg
+    rAx = -swing * 0.75;
+    lAx =  swing * 0.75;
 
   } else if (state === 'jumping') {
-    // Arms raise upward and spread slightly outward
-    rAx = -1.3;
-    rAz = -0.3;   // spread right  (+Z = inward for right arm, so -Z = outward)
-    lAx = -1.3;
-    lAz =  0.3;   // spread left   (will be negated below if mirrored)
+    // Arms rise upward and spread slightly outward to sides
+    rAx = -1.2;
+    rAz = -0.28;  // right arm spreads to the right (negative Z in right-arm local)
+    lAx = -1.2;
+    lAz =  0.28;  // left  arm spreads to the left
 
-    // Legs: keep stepping if moving in air, otherwise straight
+    // Legs keep walking rhythm if player is moving horizontally, else neutral
     if (isMoving) {
-      const swing = Math.sin(time) * 0.4;
+      const swing = Math.sin(time) * 0.35;
       rLx =  swing;
       lLx = -swing;
     }
   }
-  // idle: all targets stay 0 → limbs return to rest
+  // idle: all targets = 0, limbs smoothly return to rest pose
 
-  const s = LERP * dt;
+  const s = SPEED * dt;
 
   rAG.rotation.x = lerp(rAG.rotation.x,  rAx, s);
   rAG.rotation.z = lerp(rAG.rotation.z,  rAz, s);
 
-  // Apply mirror factor to left arm so motion is symmetric
+  // Apply lMirror so the mirrored left arm rotates symmetrically
   lAG.rotation.x = lerp(lAG.rotation.x,  lAx * lMirror, s);
   lAG.rotation.z = lerp(lAG.rotation.z,  lAz * lMirror, s);
 
-  lLG.rotation.x = lerp(lLG.rotation.x,  lLx, s);
   rLG.rotation.x = lerp(rLG.rotation.x,  rLx, s);
+  lLG.rotation.x = lerp(lLG.rotation.x,  lLx, s);
 }
