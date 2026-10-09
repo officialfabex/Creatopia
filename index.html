@@ -490,12 +490,77 @@ let activePreview=null;
 const disposeActivePreview=()=>{if(activePreview){activePreview.dispose();activePreview=null}};
 const mountPreview=id=>{disposeActivePreview();activePreview=mountAvatarPreview(id)};
 
+// Hat icon renderer — small isometric-ish view of just the hat
+function mountHatIcon(containerId, hatId){
+  const container=document.getElementById(containerId);
+  if(!container||!hatId)return;
+  let rafId=0,rend=null,disposed=false;
+  Promise.all([import('three'),import('three/addons/loaders/GLTFLoader.js')])
+  .then(([T,{GLTFLoader}])=>{
+    if(disposed)return;
+    const scene=new T.Scene();
+    scene.background=new T.Color(theme==='light'?0xdddde8:0x13131a);
+    const w=56,h=56;
+    const cam=new T.PerspectiveCamera(40,1,0.1,50);
+    // Isometric-ish: slightly above and to the side
+    cam.position.set(1.2,1.8,2.2);cam.lookAt(0,0.3,0);
+    rend=new T.WebGLRenderer({antialias:true});
+    rend.setPixelRatio(Math.min(devicePixelRatio,2));
+    rend.setSize(w,h);
+    rend.toneMapping=T.ACESFilmicToneMapping;rend.toneMappingExposure=1.1;
+    if('outputColorSpace' in rend)rend.outputColorSpace=T.SRGBColorSpace;
+    container.appendChild(rend.domElement);
+    scene.add(new T.HemisphereLight(0xffffff,0x444466,1.2));
+    const dl=new T.DirectionalLight(0xffffff,1.4);dl.position.set(2,4,3);scene.add(dl);
+    new GLTFLoader().load('assets/customize/hats/'+hatId+'.glb',gltf=>{
+      if(disposed)return;
+      const m=gltf.scene;
+      // Center and scale the hat to fit view
+      const box=new T.Box3().setFromObject(m);
+      const sz=box.getSize(new T.Vector3());
+      const sc=1/Math.max(sz.x,sz.y,sz.z);
+      m.scale.setScalar(sc);
+      const box2=new T.Box3().setFromObject(m);
+      const c=box2.getCenter(new T.Vector3());
+      m.position.sub(c);
+      scene.add(m);
+    },null,()=>{});
+    const loop=()=>{if(disposed)return;rafId=requestAnimationFrame(loop);rend.render(scene,cam)};
+    loop();
+  }).catch(()=>{});
+  // Store dispose ref on element
+  container._disposeHat=()=>{disposed=true;cancelAnimationFrame(rafId);if(rend){rend.dispose();rend.domElement.remove();rend=null;}};
+}
+
 const itemSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
 
 function renderProfile(){
   disposeActivePreview();
-  const wearing=[L('Hat','Czapka'),L('Shirt','Koszulka'),L('Pants','Spodnie'),L('Shoes','Buty'),L('Accessory','Akcesorium')];
+  const hatId=localStorage.getItem('creatopia_hat');
+  const wearingItems=[
+    ...(hatId?[{id:hatId,label:hatId,type:'hat'}]:[]),
+  ];
+
   content.innerHTML=`
+  <style>
+    /* square avatar frame */
+    .up-wearing-preview{width:100%;aspect-ratio:1/1 !important;overflow:hidden;
+      background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:16px;
+      display:flex;align-items:center;justify-content:center}
+    .up-wearing-preview canvas{display:block;width:100%!important;height:100%!important}
+    /* hat icon chip */
+    .up-hat-icon{width:56px;height:56px;border-radius:10px;overflow:hidden;flex-shrink:0;
+      background:var(--sur);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center}
+    .up-hat-icon canvas{display:block!important;width:56px!important;height:56px!important}
+    .up-wearing-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .up-show-all{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;color:var(--txt);
+      cursor:pointer;padding:5px 10px;border-radius:8px;background:var(--acc);border:1px solid var(--bdr);
+      transition:background .18s;white-space:nowrap}
+    .up-show-all:hover{background:rgba(255,255,255,.12)}
+    .up-hat-label{font-size:12px;letter-spacing:.04em;color:var(--dim);position:relative;top:1px;font-family:CHL,sans-serif}
+    /* about block same height as wearing */
+    .up-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+  </style>
   <div class="up-page">
     <div class="up-header">
       <div class="up-av-thumb" style="background:${skinColors.head}">${itemSvg}</div>
@@ -507,19 +572,29 @@ function renderProfile(){
       <div class="up-block">
         <div class="up-block-header"><span class="up-block-title">${L('Currently Wearing','Aktualnie noszone')}</span></div>
         <div class="up-wearing-preview" id="up-av-big"></div>
-        <div class="up-wearing-chips">
-          ${wearing.slice(0,3).map(n=>`<div class="up-chip"><span class="up-chip-ico">${itemSvg}</span><span class="up-chip-name">${n}</span></div>`).join('')}
-          <span class="up-chip-name" style="color:var(--dim)">+ ${wearing.length-3} ${L('more','więcej')}</span>
-          <button class="up-show-all">${L('Show All','Pokaż wszystko')}</button>
+        <div class="up-wearing-row">
+          ${hatId?`<div class="up-hat-icon" id="up-hat-icon-0"></div>
+            <span class="up-hat-label">${hatId}</span>`
+          :`<span class="up-hat-label" style="color:var(--dim)">${L('Nothing equipped','Nic nie założono')}</span>`}
+          ${wearingItems.length>3?`<button class="up-show-all">${L('Show All','Pokaż wszystko')}</button>`:''}
         </div>
       </div>
-      <div class="up-block">
-        <div class="up-block-header"><span class="up-block-title">${L('About','O mnie')}</span><button class="up-block-btn">${L('Edit','Edytuj')}</button></div>
-        <div class="up-about-body"></div>
+      <div class="up-block" style="min-height:260px">
+        <div class="up-block-header">
+          <span class="up-block-title">${L('About','O mnie')}</span>
+          <button class="up-block-btn">${L('Edit','Edytuj')}</button>
+        </div>
+        <div class="up-about-body" style="flex:1"></div>
       </div>
     </div>
   </div>`;
+
   mountPreview('up-av-big');
+
+  // Mount hat thumbnail preview (small isometric view)
+  if(hatId && document.getElementById('up-hat-icon-0')){
+    mountHatIcon('up-hat-icon-0', hatId);
+  }
 }
 
 const AV_TABS=[{key:'customize_tab_all',id:'all'},{key:'customize_tab_hats',id:'hats'},{key:'customize_tab_shirts',id:'shirts'},{key:'customize_tab_pants',id:'pants'},{key:'customize_tab_face',id:'face'},{key:'customize_tab_skin',id:'skin'}];
