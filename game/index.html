@@ -5,79 +5,32 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Creatopia</title>
 <style>
-@font-face{font-family:CHL;src:url('../../assets/fonts/ComicHelvetic_Light.otf')format('opentype')}
-@font-face{font-family:CHM;src:url('../../assets/fonts/ComicHelvetic_Medium.otf')format('opentype')}
+@font-face{font-family:CHL;src:url('../assets/fonts/ComicHelvetic_Light.otf')format('opentype')}
+@font-face{font-family:CHM;src:url('../assets/fonts/ComicHelvetic_Medium.otf')format('opentype')}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;
-  font-family:CHL,sans-serif;user-select:none}
-canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0}
-
-/* ── TOPBAR — minimal transparent bar ── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;height:46px;
-  background:rgba(0,0,0,.28);
-  display:flex;align-items:center;padding:0 14px;gap:8px;z-index:100;
-}
-#menu-btn{
-  display:flex;align-items:center;justify-content:center;
-  width:36px;height:36px;cursor:pointer;
-  background:none;border:none;color:rgba(255,255,255,.75);
-  transition:color .1s;
-}
+html,body{width:100%;height:100%;overflow:hidden;background:#87CEEB;font-family:CHL,sans-serif;user-select:none}
+canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0;z-index:0}
+#topbar{position:fixed;top:0;left:0;right:0;height:46px;background:rgba(0,0,0,.28);display:flex;align-items:center;padding:0 14px;gap:8px;z-index:100}
+#menu-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;cursor:pointer;background:none;border:none;color:rgba(255,255,255,.8);transition:color .1s}
 #menu-btn:hover{color:#fff}
 #menu-btn svg{width:20px;height:20px;pointer-events:none}
-
-#studio-btn{
-  display:flex;align-items:center;gap:6px;
-  padding:0 12px;height:30px;cursor:pointer;
-  background:rgba(255,255,255,.1);border:none;
-  color:rgba(255,255,255,.7);font-family:CHM,sans-serif;
-  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-  transition:background .12s,color .12s;
-}
+#studio-btn{display:flex;align-items:center;gap:6px;padding:0 12px;height:30px;cursor:pointer;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);font-family:CHM,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;transition:background .12s,color .12s}
 #studio-btn:hover{background:rgba(255,255,255,.18);color:#fff}
 #studio-btn.active{background:rgba(120,180,255,.22);color:#b8d8ff}
 #studio-btn svg{width:14px;height:14px;pointer-events:none}
-#mode-label{font-family:CHM,sans-serif;font-size:10px;letter-spacing:.1em;
-  text-transform:uppercase;color:rgba(255,255,255,.35);margin-left:2px}
-
-/* ── PAUSE OVERLAY ── */
-#pause{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.55);
-  display:flex;align-items:center;justify-content:center;
-  z-index:200;opacity:0;pointer-events:none;transition:opacity .15s;
-}
+#mode-label{font-family:CHM,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-left:2px}
+#pause{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .15s}
 #pause.open{opacity:1;pointer-events:auto}
-#pause-panel{
-  background:rgba(15,15,25,.88);
-  border:1px solid rgba(255,255,255,.1);
-  padding:28px 26px;min-width:200px;
-  display:flex;flex-direction:column;gap:8px;
-}
-.pbtn{
-  display:flex;align-items:center;justify-content:center;
-  padding:11px 20px;cursor:pointer;
-  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);
-  color:#fff;font-family:CHM,sans-serif;font-size:12px;
-  letter-spacing:.1em;text-transform:uppercase;transition:background .12s;
-}
+#pause-panel{background:rgba(15,15,25,.88);border:1px solid rgba(255,255,255,.1);padding:28px 26px;min-width:200px;display:flex;flex-direction:column;gap:8px}
+.pbtn{display:flex;align-items:center;justify-content:center;padding:11px 20px;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;font-family:CHM,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:background .12s}
 .pbtn:hover{background:rgba(255,255,255,.14)}
 .pbtn.exit{background:rgba(140,30,30,.25);border-color:rgba(200,60,60,.3);color:rgba(255,120,120,.9)}
 .pbtn.exit:hover{background:rgba(140,30,30,.42);color:#fff}
-
-/* studio hint */
-#studio-hint{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.5);padding:6px 16px;
-  font-family:CHL,sans-serif;font-size:11px;letter-spacing:.04em;
-  color:rgba(255,255,255,.5);pointer-events:none;z-index:90;display:none;white-space:nowrap;
-}
+#studio-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);padding:6px 16px;font-family:CHL,sans-serif;font-size:11px;color:rgba(255,255,255,.5);pointer-events:none;z-index:90;display:none;white-space:nowrap}
 #studio-hint.show{display:block}
 </style>
 </head>
 <body>
-
 <div id="topbar">
   <button id="menu-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -92,9 +45,7 @@ canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0}
   </button>
   <span id="mode-label">Player</span>
 </div>
-
 <div id="studio-hint">Click to place block · Right-drag orbit · Scroll zoom</div>
-
 <div id="pause">
   <div id="pause-panel">
     <button class="pbtn" id="resume-btn">Resume</button>
@@ -106,12 +57,12 @@ canvas{display:block;width:100vw;height:100vh;position:fixed;top:0;left:0}
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { applyAnimations } from './animations.js';
+import { applyAnimations } from '../scripts/game/animations.js';
 
-const GRAVITY=196.2, JUMP_POWER=53.8, WALK_SPEED=16, TERM_VEL=-75, AIRBORNE_T=0.13;
-const MENU_URL='../../index.html#home';
+const GRAVITY=196.2,JUMP_POWER=53.8,WALK_SPEED=16,TERM_VEL=-75,AIRBORNE_T=0.13;
+const MENU_URL='../index.html#home';
 
-// ── scene / renderer / camera ─────────────────────────────────
+// scene
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x87CEEB);
 scene.fog=new THREE.Fog(0x87CEEB,80,200);
@@ -127,7 +78,7 @@ if('outputColorSpace' in renderer)renderer.outputColorSpace=THREE.SRGBColorSpace
 document.body.appendChild(renderer.domElement);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 
-// ── lighting ──────────────────────────────────────────────────
+// lighting
 scene.add(new THREE.HemisphereLight(0xaee2ff,0x55482f,0.65));
 scene.add(new THREE.AmbientLight(0xffffff,0.25));
 const dirLight=new THREE.DirectionalLight(0xfff2e0,1.15);
@@ -137,7 +88,7 @@ Object.assign(dirLight.shadow.camera,{near:.5,far:350,left:-120,right:120,top:12
 dirLight.shadow.bias=-0.0015;dirLight.shadow.normalBias=0.02;
 scene.add(dirLight,dirLight.target);
 
-// ── collision ─────────────────────────────────────────────────
+// collision
 const colliders=[];
 function addCollider(box){
   const c=box.getCenter(new THREE.Vector3()),s=box.getSize(new THREE.Vector3());
@@ -162,7 +113,7 @@ function hitTest(box){
   return false;
 }
 
-// ── map ───────────────────────────────────────────────────────
+// map
 const MATS={
   grass:new THREE.MeshLambertMaterial({color:0x5ab552}),
   stone:new THREE.MeshLambertMaterial({color:0x9b9b9b}),
@@ -172,7 +123,7 @@ const MATS={
 function addBlock(x,y,z,w,h,d,mat){
   const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
   m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;scene.add(m);
-  addCollider(new THREE.Box3().setFromObject(m));return m;
+  addCollider(new THREE.Box3().setFromObject(m));
 }
 addBlock(0,-0.6,0,200,1.2,200,MATS.grass);
 [[-12,2,-12,4,4,4,'stone'],[-8,2,-12,4,4,4,'stone'],[-12,6,-12,4,4,4,'stone'],
@@ -183,9 +134,8 @@ addBlock(0,-0.6,0,200,1.2,200,MATS.grass);
  [-16,17,-4,8,1,8,'brick'],[0,21,0,8,1,8,'stone'],
 ].forEach(([x,y,z,w,h,d,m])=>addBlock(x,y,z,w,h,d,MATS[m]));
 
-// ── skin ──────────────────────────────────────────────────────
-const PART_KEYS=['head','torso','arms','legs'];
-const DEFAULT_SKIN='#FFCD9A';
+// skin
+const PART_KEYS=['head','torso','arms','legs'],DEFAULT_SKIN='#FFCD9A';
 const skinMeshes=[];
 function loadSkin(){
   const d={head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};
@@ -235,18 +185,14 @@ function paintSkin(){
 }
 window.addEventListener('storage',e=>{if(e.key==='creatopia_skin_parts'){skinColors=loadSkin();paintSkin();}});
 
-// ── player / model ────────────────────────────────────────────
+// player
 const playerGroup=new THREE.Group();
 scene.add(playerGroup);
 playerGroup.position.set(0,5,0);
 
-// fallback box character
 function buildFallback(){
   const g=new THREE.Group();
-  const b=(w,h,d,part,parent,px,py,pz)=>{
-    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial());
-    m.userData.part=part;m.position.set(px,py,pz);m.castShadow=true;parent.add(m);return m;
-  };
+  const b=(w,h,d,part,par,px,py,pz)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial());m.userData.part=part;m.position.set(px,py,pz);m.castShadow=true;par.add(m);return m};
   b(2,2,1,'head',g,0,4.2,0);b(2,2,1,'torso',g,0,2.5,0);
   const lAG=new THREE.Group();lAG.position.set(-1.5,3.5,0);g.add(lAG);
   const rAG=new THREE.Group();rAG.position.set(1.5,3.5,0);g.add(rAG);
@@ -257,71 +203,50 @@ function buildFallback(){
   return{g,lAG,rAG,lLG,rLG};
 }
 const fb=buildFallback();
-playerGroup.add(fb.g);prepareSkin(fb.g);
+playerGroup.add(fb.g);
+prepareSkin(fb.g);
 let charLimbs={lAG:fb.lAG,rAG:fb.rAG,lLG:fb.lLG,rLG:fb.rLG};
 
-// ── player state ──────────────────────────────────────────────new GLTFLoader().load('../../assets/models/CreatopiaBody.glb',gltf=>{
+new GLTFLoader().load('../assets/models/CreatopiaBody.glb',gltf=>{
   playerGroup.remove(fb.g);
   skinMeshes.length=0;
   const model=gltf.scene;
-
-  const rawBox=new THREE.Box3().setFromObject(model);
-  const sc=5/(rawBox.max.y-rawBox.min.y)||1;
-  model.scale.setScalar(sc);
-  const scaledBox=new THREE.Box3().setFromObject(model);
-  model.position.y=-scaledBox.min.y;
+  const rawH=(new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3())).y||1;
+  model.scale.setScalar(5/rawH);
+  model.position.y=-(new THREE.Box3().setFromObject(model).min.y);
   model.traverse(c=>{if(c.isMesh){c.castShadow=c.receiveShadow=true;}});
   playerGroup.add(model);
   prepareSkin(model);
   model.updateMatrixWorld(true);
 
-  const rH=model.getObjectByName('RightHand');
-  const lH=model.getObjectByName('LeftHand');
-  const lL=model.getObjectByName('LeftLeg');
-  const rL=model.getObjectByName('RightLeg');
-  const torsoNode=model.getObjectByName('Torso');
+  const rH=model.getObjectByName('RightHand'),lH=model.getObjectByName('LeftHand');
+  const lL=model.getObjectByName('LeftLeg'),rL=model.getObjectByName('RightLeg');
+  const torso=model.getObjectByName('Torso');
 
-  if(rH&&lH&&lL&&rL&&torsoNode){
-    // Get shoulder and hip Y from torso bounding box (already scaled + positioned)
-    const tb=new THREE.Box3().setFromObject(torsoNode);
-    const shoulderY=tb.max.y;  // top of torso = shoulder joint
-    const hipY=tb.min.y;       // bottom of torso = hip joint
-
-    // Wrap each limb in a pivot Group placed at the joint.
-    // The limb mesh is offset downward so its visual centre stays in place.
-    function wrapPivot(node, jointY) {
+  if(rH&&lH&&lL&&rL&&torso){
+    const tb=new THREE.Box3().setFromObject(torso);
+    const sy=tb.max.y,hy=tb.min.y;
+    function wrapPivot(node,jy){
       const pivot=new THREE.Group();
-      // pivot position = same x,z as the node, but Y = joint
-      const wx=node.position.x, wy=node.position.y, wz=node.position.z;
-      // In model-local space (model is a child of playerGroup but we work in scene coords)
-      // The node.parent is model.scene, so positions are model-local.
-      pivot.position.set(wx, jointY, wz);
-      // Mesh offset inside pivot: how far below the joint is the mesh centre
-      const offsetY = wy - jointY;
-      // Reparent node under pivot
+      pivot.position.set(node.position.x,jy,node.position.z);
+      const off=node.position.y-jy;
       node.parent.add(pivot);
-      node.position.set(0, offsetY, 0);
+      node.position.set(0,off,0);
       pivot.add(node);
       return pivot;
     }
-
-    charLimbs={
-      rAG: wrapPivot(rH, shoulderY),
-      lAG: wrapPivot(lH, shoulderY),
-      lLG: wrapPivot(lL, hipY),
-      rLG: wrapPivot(rL, hipY),
-    };
+    charLimbs={rAG:wrapPivot(rH,sy),lAG:wrapPivot(lH,sy),lLG:wrapPivot(lL,hy),rLG:wrapPivot(rL,hy)};
   } else {
     charLimbs={lAG:lH||fb.lAG,rAG:rH||fb.rAG,lLG:lL||fb.lLG,rLG:rL||fb.rLG};
   }
-},null,err=>console.warn('GLB failed',err));
+},null,err=>console.warn('GLB load failed:',err));
 
-// ── player state ──────────────────────────────────────────────
+// player state
 const pSize=new THREE.Vector3(2,5,1),pBox=new THREE.Box3();
 const updateBox=pos=>pBox.setFromCenterAndSize(new THREE.Vector3(pos.x,pos.y+2.5,pos.z),pSize);
-let yVel=0,grounded=false,animTime=0,animState='idle',airTimer=0,highY=5,visOff=0;
+let yVel=0,grounded=false,animTime=0,animState='idle',airTimer=0,visOff=0;
 
-// ── camera ────────────────────────────────────────────────────
+// camera
 let camR=15,camT=Math.PI,camP=Math.PI/6,rightDown=false;
 window.addEventListener('mousedown',e=>{if(e.button===2)rightDown=true;});
 window.addEventListener('mouseup',  e=>{if(e.button===2)rightDown=false;});
@@ -330,15 +255,15 @@ window.addEventListener('mousemove',e=>{
   camT-=e.movementX*0.008;
   camP=Math.max(-Math.PI/2+0.1,Math.min(Math.PI/2-0.1,camP+e.movementY*0.008));
 });
-window.addEventListener('wheel',e=>{if(!isMenu)camR=Math.max(5,Math.min(125,camR+e.deltaY*0.05));});
+window.addEventListener('wheel',e=>{if(!isMenu)camR=Math.max(5,Math.min(125,camR+e.deltaY*0.05));},{ passive:true });
 window.addEventListener('contextmenu',e=>e.preventDefault());
 
-// ── input ─────────────────────────────────────────────────────
+// input
 const keys={w:0,a:0,s:0,d:0,' ':0};
 window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k in keys)keys[k]=1;if(e.key==='Escape')toggleMenu();});
 window.addEventListener('keyup',  e=>{const k=e.key.toLowerCase();if(k in keys)keys[k]=0;});
 
-// ── pause ─────────────────────────────────────────────────────
+// pause
 let isMenu=false;
 const pauseEl=document.getElementById('pause');
 const toggleMenu=()=>setMenu(!isMenu);
@@ -347,7 +272,7 @@ document.getElementById('menu-btn')  .addEventListener('click',()=>setMenu(true)
 document.getElementById('resume-btn').addEventListener('click',()=>setMenu(false));
 document.getElementById('exit-btn')  .addEventListener('click',()=>{window.close();setTimeout(()=>{if(!window.closed)location.href=MENU_URL;},150);});
 
-// ── studio ────────────────────────────────────────────────────
+// studio
 let studioMode=false,sTheta=Math.PI,sPhi=0.4,sDist=30,sRightDown=false;
 const sTgt=new THREE.Vector3(0,2,0),ray=new THREE.Raycaster(),sMat=new THREE.MeshLambertMaterial({color:0x6688cc});
 document.getElementById('studio-btn').addEventListener('click',()=>{
@@ -366,10 +291,9 @@ window.addEventListener('mousedown',e=>{
     const hit=ray.intersectObjects(meshes,true)[0];
     if(hit){
       const B=4,n=hit.face.normal.clone().transformDirection(hit.object.matrixWorld),p=hit.point;
-      const bx=Math.round((p.x+n.x*B/2)/B)*B,by=Math.round((p.y+n.y*B/2)/B)*B,bz=Math.round((p.z+n.z*B/2)/B)*B;
       const nb=new THREE.Mesh(new THREE.BoxGeometry(B,B,B),sMat.clone());
-      nb.position.set(bx,by,bz);nb.castShadow=nb.receiveShadow=true;
-      scene.add(nb);addCollider(new THREE.Box3().setFromObject(nb));
+      nb.position.set(Math.round((p.x+n.x*B/2)/B)*B,Math.round((p.y+n.y*B/2)/B)*B,Math.round((p.z+n.z*B/2)/B)*B);
+      nb.castShadow=nb.receiveShadow=true;scene.add(nb);addCollider(new THREE.Box3().setFromObject(nb));
     }
   }
 });
@@ -380,7 +304,7 @@ window.addEventListener('mousemove',e=>{
   sPhi=Math.max(-Math.PI/2+0.05,Math.min(Math.PI/2-0.05,sPhi+e.movementY*0.008));
 });
 
-// ── moveAxis ──────────────────────────────────────────────────
+// moveAxis
 function moveAxis(axis,d){
   const oy=playerGroup.position.y;
   playerGroup.position[axis]+=d;updateBox(playerGroup.position);
@@ -389,20 +313,17 @@ function moveAxis(axis,d){
   playerGroup.position.y+=1.51;updateBox(playerGroup.position);
   if(!hitTest(pBox)){
     let ok=false;
-    for(let i=0;i<=1.51;i+=0.1){
-      playerGroup.position.y-=0.1;updateBox(playerGroup.position);
-      if(hitTest(pBox)){playerGroup.position.y+=0.1;updateBox(playerGroup.position);ok=true;break;}
-    }
+    for(let i=0;i<=1.51;i+=0.1){playerGroup.position.y-=0.1;updateBox(playerGroup.position);if(hitTest(pBox)){playerGroup.position.y+=0.1;updateBox(playerGroup.position);ok=true;break;}}
     if(ok)visOff-=(playerGroup.position.y-oy);
     else{playerGroup.position.y=oy;playerGroup.position[axis]-=d;}
   }else{playerGroup.position.y=oy;playerGroup.position[axis]-=d;updateBox(playerGroup.position);}
 }
 
-// ── vectors ───────────────────────────────────────────────────
+// vectors
 const vFwd=new THREE.Vector3(),vRight=new THREE.Vector3(),vHead=new THREE.Vector3();
 const vUp=new THREE.Vector3(0,1,0),qTgt=new THREE.Quaternion(),vOff=new THREE.Vector3(20,40,20);
 
-// ── loop ──────────────────────────────────────────────────────
+// loop
 const clock=new THREE.Clock();
 function animate(){
   requestAnimationFrame(animate);
@@ -412,33 +333,24 @@ function animate(){
     camera.position.set(sTgt.x+sDist*Math.sin(sTheta)*Math.cos(sPhi),sTgt.y+sDist*Math.sin(sPhi),sTgt.z+sDist*Math.cos(sTheta)*Math.cos(sPhi));
     camera.lookAt(sTgt);renderer.render(scene,camera);return;
   }
-
-  // ground probe
   playerGroup.position.y-=0.1;updateBox(playerGroup.position);
   grounded=hitTest(pBox);
   playerGroup.position.y+=0.1;updateBox(playerGroup.position);
-
-  // gravity / jump
   if(!grounded){
     yVel=Math.max(yVel-GRAVITY*dt,TERM_VEL);
-    highY=Math.max(highY,playerGroup.position.y);
     airTimer+=dt;if(airTimer>AIRBORNE_T)animState='jumping';
   }else{
     airTimer=0;if(yVel<0)yVel=0;
-    if(keys[' ']){yVel=JUMP_POWER;grounded=false;highY=playerGroup.position.y;airTimer=AIRBORNE_T+1;animState='jumping';}
+    if(keys[' ']){yVel=JUMP_POWER;grounded=false;airTimer=AIRBORNE_T+1;animState='jumping';}
   }
-
-  // vertical resolve
   playerGroup.position.y+=yVel*dt;updateBox(playerGroup.position);
   if(hitTest(pBox)){
     const dir=yVel<0?1:-1;
     for(let i=0;i<100;i++){playerGroup.position.y+=dir*0.05;updateBox(playerGroup.position);if(!hitTest(pBox))break;}
-    if(yVel<0){grounded=true;highY=playerGroup.position.y;}
+    if(yVel<0)grounded=true;
     yVel=0;
   }
   if(playerGroup.position.y<-80){playerGroup.position.set(0,5,0);yVel=0;}
-
-  // horizontal
   vFwd.set(0,0,0);camera.getWorldDirection(vFwd);vFwd.y=0;vFwd.normalize();
   vRight.crossVectors(vFwd,vUp).negate().normalize();
   const mv=new THREE.Vector3();
@@ -452,22 +364,14 @@ function animate(){
     playerGroup.quaternion.slerp(qTgt,15*dt);
     if(grounded)animState='moving';
   }else if(grounded){animState='idle';}
-
   visOff=THREE.MathUtils.lerp(visOff,0,15*dt);
   if(animState==='moving')animTime+=dt*WALK_SPEED*0.6;
   else if(animState==='idle')animTime=0;
   else animTime+=dt*5;
-
   applyAnimations(charLimbs,animState,dt,animTime,moving);
-
   vHead.set(playerGroup.position.x,playerGroup.position.y+4.5,playerGroup.position.z);
-  camera.position.set(
-    vHead.x+camR*Math.sin(camT)*Math.cos(camP),
-    vHead.y+camR*Math.sin(camP),
-    vHead.z+camR*Math.cos(camT)*Math.cos(camP)
-  );
+  camera.position.set(vHead.x+camR*Math.sin(camT)*Math.cos(camP),vHead.y+camR*Math.sin(camP),vHead.z+camR*Math.cos(camT)*Math.cos(camP));
   camera.lookAt(vHead);
-
   dirLight.position.copy(playerGroup.position).add(vOff);
   dirLight.target.position.copy(playerGroup.position);
   dirLight.target.updateMatrixWorld();
