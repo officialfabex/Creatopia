@@ -1,37 +1,46 @@
 /**
- * animations.js
+ * animations.js — animates CreatopiaBody.glb nodes directly.
  *
- * Animates CreatopiaBody.glb nodes directly — no pivot manipulation.
- * The model's default pose is preserved; we only add small rotational offsets.
+ * No pivot manipulation — we add rotational deltas on top of the GLB rest pose.
+ * Rest pose is captured once on first call and stored in userData.restRot.
  *
- * Node origins (from GLB):
- *   RightHand  — origin at mesh centre
- *   LeftHand   — origin at mesh centre, negative scale (Blender mirror)
- *   LeftLeg    — origin at mesh centre
- *   RightLeg   — origin at mesh centre
+ * LeftHand has negative scale.x (Blender mirror). Its local X is flipped,
+ * so a positive dX on RightHand means forward-swing; for LeftHand the same
+ * visual forward-swing requires a NEGATIVE dX (because axis is inverted).
+ * This is handled by lMirror = -1.
  *
- * Because origins are at mesh centres (not joints), we keep swing angles
- * small so the visual "detachment" is minimal. The motion still reads clearly
- * as walking/jumping without limbs flying away.
+ * Walk: arms alternate (right arm forward when left leg forward).
+ *   RightArm dX = +swing   ← forward
+ *   LeftArm  dX = -swing * lMirror = -swing * -1 = +swing  ← WRONG
  *
- * LeftHand has scale.x < 0 (mirrored in Blender).
- * Its local X axis points the opposite direction, so we negate rX for it.
+ * Wait — lMirror = -1 means we must ALSO flip the sign for left arm:
+ *   LeftArm target dX in visual space = +swing (same direction as right arm = T-pose break)
+ *   But we want opposite: LeftArm visual dX = -swing
+ *   In local space (flipped): dLax = -swing / lMirror = -swing / -1 = +swing  ← still wrong
+ *
+ * Correct way: think in VISUAL space, then convert to local space.
+ *   Visual: rAx_visual = +swing, lAx_visual = -swing  (arms alternate)
+ *   Local:  rAG.rotation.x += rAx_visual  (no flip needed for right)
+ *           lAG.rotation.x += lAx_visual * lMirror  (flip for mirrored left)
+ *   So:     lAG.rotation.x += (-swing) * (-1) = +swing  ← correct in local space = visually -swing
+ *
+ * tldr: set dLax = -swing (visual target), then multiply by lMirror when applying.
  */
 
 import * as THREE from 'https://unpkg.com/three@0.163.0/build/three.module.js';
 
 const { lerp } = THREE.MathUtils;
-const SPEED = 10;
+const SPEED = 10; // lerp speed
 
 export function applyAnimations(limbs, state, dt, time, isMoving = false) {
   if (!limbs) return;
   const { lAG, rAG, lLG, rLG } = limbs;
   if (!lAG || !rAG || !lLG || !rLG) return;
 
-  // Detect mirror on left hand — negative scale.x means X axis is flipped
+  // Detect mirrored left hand (Blender mirror → negative scale.x)
   const lMirror = (lAG.scale && lAG.scale.x < 0) ? -1 : 1;
 
-  // Store initial rotations on first call (the GLB rest pose)
+  // Capture rest pose once
   if (!rAG.userData.restRot) {
     rAG.userData.restRot = rAG.rotation.clone();
     lAG.userData.restRot = lAG.rotation.clone();
@@ -43,37 +52,43 @@ export function applyAnimations(limbs, state, dt, time, isMoving = false) {
   const llr = lLG.userData.restRot;
   const rlr = rLG.userData.restRot;
 
-  // Swing delta angles added on top of rest pose
-  let dRax=0, dLax=0, dLLx=0, dRLx=0;
-  let dRaz=0, dLaz=0;
+  // Visual-space delta rotations (what we WANT to see visually)
+  let vRax = 0, vLax = 0; // arm X (forward/back swing)
+  let vRaz = 0, vLaz = 0; // arm Z (spread for jump)
+  let vLLx = 0, vRLx = 0; // leg X
 
   if (state === 'moving') {
-    const sw = Math.sin(time) * 0.45;
-    dRax =  sw;
-    dLax = -sw * lMirror;
-    dRLx = -sw;
-    dLLx =  sw;
+    const sw = Math.sin(time) * 0.42;
+    // Right arm forward, left arm backward (alternate)
+    vRax = sw;
+    vLax = -sw; // visually opposite
+    // Legs alternate opposite to arms
+    vRLx = -sw;
+    vLLx = sw;
 
   } else if (state === 'jumping') {
-    // Arms raise up and spread
-    dRax = -0.9;
-    dRaz = -0.2;
-    dLax = -0.9 * lMirror;
-    dLaz =  0.2 * lMirror;
+    // Arms raise up (negative X = raise forward/up in most rigs)
+    vRax = -0.55;
+    vLax = -0.55;
+    // Arms spread slightly outward (Z axis)
+    vRaz = -0.22; // right arm spreads right
+    vLaz =  0.22; // left arm spreads left
 
     if (isMoving) {
-      const sw = Math.sin(time) * 0.3;
-      dRLx = -sw;
-      dLLx =  sw;
+      const sw = Math.sin(time) * 0.28;
+      vRLx = -sw;
+      vLLx =  sw;
     }
   }
+  // idle: all visual deltas = 0, lerp back to rest pose
 
   const s = SPEED * dt;
 
-  rAG.rotation.x = lerp(rAG.rotation.x, rr.x + dRax, s);
-  rAG.rotation.z = lerp(rAG.rotation.z, rr.z + dRaz, s);
-  lAG.rotation.x = lerp(lAG.rotation.x, lr.x + dLax, s);
-  lAG.rotation.z = lerp(lAG.rotation.z, lr.z + dLaz, s);
-  lLG.rotation.x = lerp(lLG.rotation.x, llr.x + dLLx, s);
-  rLG.rotation.x = lerp(rLG.rotation.x, rlr.x + dRLx, s);
+  // Apply: right arm direct, left arm with lMirror conversion
+  rAG.rotation.x = lerp(rAG.rotation.x, rr.x + vRax,            s);
+  rAG.rotation.z = lerp(rAG.rotation.z, rr.z + vRaz,            s);
+  lAG.rotation.x = lerp(lAG.rotation.x, lr.x + vLax * lMirror,  s);
+  lAG.rotation.z = lerp(lAG.rotation.z, lr.z + vLaz * lMirror,  s);
+  lLG.rotation.x = lerp(lLG.rotation.x, llr.x + vLLx,           s);
+  rLG.rotation.x = lerp(rLG.rotation.x, rlr.x + vRLx,           s);
 }
