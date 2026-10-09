@@ -318,7 +318,7 @@ function renderGame(g){
     </div>
   </div>`;
   document.getElementById('back-btn').addEventListener('click',()=>setTab('home'));
-  document.getElementById('play-btn').addEventListener('click',()=>window.open(`scripts/game/engine.html?id=${g.id}`,'_blank'));
+  document.getElementById('play-btn').addEventListener('click',()=>window.open(`/play/${g.id}`,'_blank'));
 }
 
 function renderCreate(){
