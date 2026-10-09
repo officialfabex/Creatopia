@@ -217,25 +217,74 @@ new GLTFLoader().load('../assets/models/CreatopiaBody.glb',gltf=>{
   model.traverse(c=>{if(c.isMesh){c.castShadow=c.receiveShadow=true;}});
   playerGroup.add(model);
   prepareSkin(model);
-  model.updateMatrixWorld(true);
+
+  // Force full matrix update so world positions are accurate after scale+translate
+  playerGroup.updateMatrixWorld(true);
 
   const rH=model.getObjectByName('RightHand'),lH=model.getObjectByName('LeftHand');
   const lL=model.getObjectByName('LeftLeg'),rL=model.getObjectByName('RightLeg');
   const torso=model.getObjectByName('Torso');
 
   if(rH&&lH&&lL&&rL&&torso){
+    // Shoulder = top of torso bounding box (world space, relative to playerGroup)
+    // Hip      = bottom of torso bounding box
+    // We compute in playerGroup local space by getting world positions and
+    // subtracting playerGroup world position.
+    const pgPos=new THREE.Vector3();
+    playerGroup.getWorldPosition(pgPos);
+
     const tb=new THREE.Box3().setFromObject(torso);
-    const sy=tb.max.y,hy=tb.min.y;
-    function wrapPivot(node,jy){
-      const pivot=new THREE.Group();
-      pivot.position.set(node.position.x,jy,node.position.z);
-      const off=node.position.y-jy;
-      node.parent.add(pivot);
-      node.position.set(0,off,0);
+    // tb is in world space; convert to playerGroup local Y
+    const shoulderY = tb.max.y - pgPos.y;
+    const hipY      = tb.min.y - pgPos.y;
+
+    // wrapPivot: works entirely in playerGroup local space.
+    // Gets world position of node, converts to playerGroup local,
+    // places pivot at (localX, jointY, localZ), offsets node inside pivot.
+    function wrapPivot(node, jointY) {
+      const worldPos = new THREE.Vector3();
+      node.getWorldPosition(worldPos);
+      // Convert to playerGroup local space
+      const localPos = playerGroup.worldToLocal(worldPos.clone());
+
+      const pivot = new THREE.Group();
+      pivot.position.set(localPos.x, jointY, localPos.z);
+
+      // node's offset from joint in Y
+      const offsetY = localPos.y - jointY;
+
+      // Reparent: detach from current parent, attach to playerGroup via pivot
+      // We need to preserve the node's visual world position.
+      // Since node is inside model (which is inside playerGroup),
+      // and we're moving it to be directly under playerGroup via pivot,
+      // we set node.position to (0, offsetY, 0) in pivot local space.
+      node.removeFromParent();
+      node.position.set(0, offsetY, 0);
+      node.rotation.set(0, 0, 0); // preserve original rotation from GLB
       pivot.add(node);
+      playerGroup.add(pivot);
       return pivot;
     }
-    charLimbs={rAG:wrapPivot(rH,sy),lAG:wrapPivot(lH,sy),lLG:wrapPivot(lL,hy),rLG:wrapPivot(rL,hy)};
+
+    // Load hat if equipped
+    const equippedHat = localStorage.getItem('creatopia_hat');
+    let hatMesh = null;
+    const headNode = model.getObjectByName('Head');
+
+    if(equippedHat && headNode) {
+      new GLTFLoader().load('../assets/customize/hats/'+equippedHat+'.glb', hgltf=>{
+        hatMesh = hgltf.scene;
+        hatMesh.traverse(c=>{if(c.isMesh)c.castShadow=true;});
+        headNode.add(hatMesh);
+      }, null, ()=>{});
+    }
+
+    charLimbs={
+      rAG: wrapPivot(rH, shoulderY),
+      lAG: wrapPivot(lH, shoulderY),
+      lLG: wrapPivot(lL, hipY),
+      rLG: wrapPivot(rL, hipY),
+    };
   } else {
     charLimbs={lAG:lH||fb.lAG,rAG:rH||fb.rAG,lLG:lL||fb.lLG,rLG:rL||fb.rLG};
   }
