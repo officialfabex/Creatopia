@@ -4,522 +4,220 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Creatopia Alpha</title>
-<script type="importmap">
-{"imports":{"three":"https://unpkg.com/three@0.163.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.163.0/examples/jsm/"}}
-</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.163.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.163.0/examples/jsm/"}}</script>
 <style>
 @font-face{font-family:CHL;src:url('assets/fonts/ComicHelvetic_Light.otf')format('opentype')}
 @font-face{font-family:CHM;src:url('assets/fonts/ComicHelvetic_Medium.otf')format('opentype')}
 *{box-sizing:border-box;margin:0;padding:0}
-
-:root{
-  --bg:#0a0a0f;--sur:#111118;--bdr:rgba(255,255,255,.07);
-  --dim:rgba(255,255,255,.3);--acc:rgba(255,255,255,.1);--txt:#c8c8d8;
-  --card-bg:#13131a;--card-bdr:rgba(255,255,255,.06);
-  --w:280px;--wc:76px;--th:70px;--r:15px;
-  --ease:.38s cubic-bezier(.16,1,.3,1);
-}
-html[data-theme="light"]{
-  --bg:#f0f0f5;--sur:#e4e4ec;--bdr:rgba(0,0,0,.09);
-  --dim:rgba(0,0,0,.4);--acc:rgba(0,0,0,.07);--txt:#1a1a2e;
-  --card-bg:#dddde8;--card-bdr:rgba(0,0,0,.08);
-}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
-  font-family:CHL,sans-serif;font-size:16px;letter-spacing:.04em;-webkit-font-smoothing:antialiased}
-
-.lbl,.m-title,.lt,.s-label,.s-desc,.lang-name,.theme-lbl,
-.welcome,.game-title,.game-author,
-.prof-name,.prof-joined,
-.cr-game-title,.cr-empty,
-.av-tab{position:relative;top:2px}
-
-.blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:.12;pointer-events:none;
-  animation:bf 22s ease-in-out infinite alternate}
+:root{--bg:#0a0a0f;--sur:#111118;--bdr:rgba(255,255,255,.07);--dim:rgba(255,255,255,.3);--acc:rgba(255,255,255,.1);--txt:#c8c8d8;--card-bg:#13131a;--card-bdr:rgba(255,255,255,.06);--w:280px;--wc:76px;--th:70px;--r:15px;--ease:.38s cubic-bezier(.16,1,.3,1)}
+html[data-theme="light"]{--bg:#f0f0f5;--sur:#e4e4ec;--bdr:rgba(0,0,0,.09);--dim:rgba(0,0,0,.4);--acc:rgba(0,0,0,.07);--txt:#1a1a2e;--card-bg:#dddde8;--card-bdr:rgba(0,0,0,.08)}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:CHL,sans-serif;font-size:16px;letter-spacing:.04em;-webkit-font-smoothing:antialiased}
+.lbl,.m-title,.lt,.s-label,.s-desc,.lang-name,.theme-lbl,.welcome,.game-title,.game-author,.prof-name,.prof-joined,.cr-game-title,.av-tab{position:relative;top:2px}
+.blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:.12;pointer-events:none;animation:bf 22s ease-in-out infinite alternate}
 html[data-theme="light"] .blob{opacity:.05}
 @keyframes bf{0%{transform:translate(0,0)scale(1)}50%{transform:translate(25px,-18px)scale(1.04)}to{transform:translate(-18px,18px)scale(.96)}}
-
 .app{display:flex;flex-direction:column;height:100vh;width:100vw;position:relative;z-index:1}
-
-/* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;height:var(--th);padding:0 28px;
-  background:var(--sur);border-bottom:1px solid var(--bdr);
-  flex-shrink:0;gap:18px;z-index:10}
-
-.t-logo{display:flex;align-items:center;justify-content:center;
-  width:var(--w);min-width:var(--w);flex-shrink:0}
+.topbar{display:flex;align-items:center;height:var(--th);padding:0 28px;background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0;gap:18px;z-index:10}
+.t-logo{display:flex;align-items:center;justify-content:center;width:var(--w);min-width:var(--w);flex-shrink:0}
 .t-logo img{max-height:40px;width:auto;object-fit:contain}
-.lt{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.14em;
-  color:var(--txt);text-transform:uppercase;white-space:nowrap;display:none}
-
+.lt{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.14em;color:var(--txt);text-transform:uppercase;white-space:nowrap;display:none}
 .t-right{flex:1;display:flex;align-items:center;gap:12px}
 .t-search{flex:1;max-width:380px;position:relative;display:flex;align-items:center}
 .si{position:absolute;left:13px;display:flex;align-items:center;pointer-events:none;color:var(--dim)}
 .si img,.si svg{width:16px;height:16px;opacity:.45}
 .si img{filter:invert(1)}
 html[data-theme="light"] .si img{filter:none}
-.t-search input{width:100%;padding:11px 12px 11px 38px;background:var(--acc);
-  border:1px solid var(--bdr);border-radius:var(--r);color:var(--txt);
-  font-family:CHL,sans-serif;font-size:14px;letter-spacing:.04em;outline:none;
-  transition:border-color .18s,background .18s}
+.t-search input{width:100%;padding:11px 12px 11px 38px;background:var(--acc);border:1px solid var(--bdr);border-radius:var(--r);color:var(--txt);font-family:CHL,sans-serif;font-size:14px;letter-spacing:.04em;outline:none;transition:border-color .18s,background .18s}
 .t-search input::placeholder{color:var(--dim)}
 .t-search input:focus{border-color:rgba(120,120,200,.45)}
 .cb{position:absolute;right:12px;display:none;align-items:center;cursor:pointer;color:var(--dim)}
 .cb:hover{color:var(--txt)}
 .cb.on{display:flex}
-
-/* ── ROW ── */
 .row{display:flex;flex:1;overflow:hidden}
-
-/* ── SIDEBAR ── */
-.sidebar{
-  width:var(--w);min-width:var(--w);
-  display:flex;flex-direction:column;
-  background:rgba(8,8,14,.6);
-  backdrop-filter:blur(30px) saturate(190%);
-  -webkit-backdrop-filter:blur(30px) saturate(190%);
-  border-right:1px solid var(--bdr);
-  overflow:hidden;flex-shrink:0;
-  transition:width var(--ease),min-width var(--ease);
-}
+.sidebar{width:var(--w);min-width:var(--w);display:flex;flex-direction:column;background:rgba(8,8,14,.6);backdrop-filter:blur(30px) saturate(190%);-webkit-backdrop-filter:blur(30px) saturate(190%);border-right:1px solid var(--bdr);overflow:hidden;flex-shrink:0;transition:width var(--ease),min-width var(--ease)}
 html[data-theme="light"] .sidebar{background:rgba(228,228,236,.7)}
 .app.col .sidebar{width:var(--wc);min-width:var(--wc)}
-
 .nl{flex:1;display:flex;flex-direction:column;gap:4px;padding:14px 10px;overflow:hidden}
-
-.ni{
-  display:flex;align-items:center;
-  padding:0;
-  border-radius:12px;cursor:pointer;
-  border:1px solid rgba(255,255,255,.06);
-  background:rgba(20,20,30,.4);
-  backdrop-filter:blur(20px);
-  width:100%;overflow:hidden;color:var(--dim);
-  transition:background .25s cubic-bezier(.16,1,.3,1),
-             border-color .25s cubic-bezier(.16,1,.3,1),
-             color .25s;
-}
+.ni{display:flex;align-items:center;padding:0;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,.06);background:rgba(20,20,30,.4);backdrop-filter:blur(20px);width:100%;overflow:hidden;color:var(--dim);transition:background .25s cubic-bezier(.16,1,.3,1),border-color .25s cubic-bezier(.16,1,.3,1),color .25s}
 html[data-theme="light"] .ni{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.06)}
 .ni:hover{background:rgba(35,35,50,.55);border-color:rgba(255,255,255,.15);color:var(--txt)}
 html[data-theme="light"] .ni:hover{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.12)}
 .ni.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);color:#fff}
 html[data-theme="light"] .ni.on{background:rgba(0,0,0,.1);border-color:rgba(0,0,0,.18);color:#111}
-
-.ni-inner{
-  display:flex;align-items:center;
-  width:100%;
-  padding:11px 14px 11px 14px;
-}
-.app.col .ni-inner{
-  padding:11px 0 11px 25px;
-}
-
-.ico{
-  flex-shrink:0;
-  width:24px;height:24px;
-  display:flex;align-items:center;justify-content:center;
-}
-.ico img,.ico svg{
-  width:24px;height:24px;filter:invert(1);opacity:.45;
-  display:block;transition:opacity .2s;
-}
+.ni-inner{display:flex;align-items:center;width:100%;padding:11px 14px}
+.app.col .ni-inner{padding:11px 0 11px 25px}
+.ico{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.ico img,.ico svg{width:24px;height:24px;filter:invert(1);opacity:.45;display:block;transition:opacity .2s}
 html[data-theme="light"] .ico img{filter:none;opacity:.5}
-.ni:hover .ico img,.ni:hover .ico svg,
-.ni.on   .ico img,.ni.on   .ico svg{opacity:1}
-
-.g{
-  width:13px;min-width:13px;flex-shrink:0;overflow:hidden;
-  transition:width var(--ease),min-width var(--ease),opacity var(--ease);
-}
+.ni:hover .ico img,.ni:hover .ico svg,.ni.on .ico img,.ni.on .ico svg{opacity:1}
+.g{width:13px;min-width:13px;flex-shrink:0;overflow:hidden;transition:width var(--ease),min-width var(--ease),opacity var(--ease)}
 .app.col .g{width:0;min-width:0;opacity:0}
-
-.lbl{
-  font-family:CHM,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
-  white-space:nowrap;overflow:hidden;max-width:200px;flex-shrink:0;
-  transition:max-width var(--ease),opacity var(--ease);
-}
+.lbl{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;max-width:200px;flex-shrink:0;transition:max-width var(--ease),opacity var(--ease)}
 .app.col .lbl{max-width:0;opacity:0}
-
 .nb{padding:8px 10px 14px;border-top:1px solid var(--bdr);flex-shrink:0;display:flex;justify-content:center}
-.tog{display:flex;align-items:center;justify-content:center;
-  width:46px;height:46px;border-radius:12px;cursor:pointer;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(20,20,30,.4);
-  backdrop-filter:blur(20px);
-  color:var(--dim);
-  transition:background .2s,border-color .2s,color .2s}
+.tog{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,.08);background:rgba(20,20,30,.4);backdrop-filter:blur(20px);color:var(--dim);transition:background .2s,border-color .2s,color .2s}
 .tog:hover{background:rgba(35,35,50,.6);border-color:rgba(255,255,255,.18);color:var(--txt)}
 html[data-theme="light"] .tog{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.08)}
 html[data-theme="light"] .tog:hover{background:rgba(0,0,0,.1)}
 .tog svg{opacity:.55;transition:opacity .2s,transform var(--ease)}
 .tog:hover svg{opacity:1}
 .app.col .tog svg{transform:rotate(180deg)}
-
-/* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 .m-top{padding:28px 36px 18px;flex-shrink:0}
-.m-title{font-family:CHM,sans-serif;font-size:26px;letter-spacing:.18em;
-  color:var(--txt);text-transform:uppercase;line-height:1}
-.welcome{font-family:CHL,sans-serif;font-size:15px;letter-spacing:.06em;
-  color:var(--dim);margin-top:8px;display:block}
+.m-title{font-family:CHM,sans-serif;font-size:26px;letter-spacing:.18em;color:var(--txt);text-transform:uppercase;line-height:1}
+.welcome{font-family:CHL,sans-serif;font-size:15px;letter-spacing:.06em;color:var(--dim);margin-top:8px;display:block}
 .m-body{flex:1;overflow:auto;padding:0 36px 36px}
-
-/* ── HOME GRID ── */
 .game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;padding-top:4px}
 .game-card{display:flex;flex-direction:column;gap:8px;cursor:pointer}
-.game-thumb{width:100%;aspect-ratio:4/3;border-radius:12px;
-  background:var(--card-bg);border:1px solid var(--card-bdr);
-  display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:28px;
-  overflow:hidden;transition:border-color .18s,transform .18s}
+.game-thumb{width:100%;aspect-ratio:4/3;border-radius:12px;background:var(--card-bg);border:1px solid var(--card-bdr);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:28px;overflow:hidden;transition:border-color .18s,transform .18s}
 .game-card:hover .game-thumb{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
 html[data-theme="light"] .game-card:hover .game-thumb{border-color:rgba(0,0,0,.2)}
-.game-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.06em;
-  color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.game-author{font-family:CHL,sans-serif;font-size:12px;letter-spacing:.04em;
-  color:var(--dim);display:block;margin-top:1px}
-
-/* ── GAME PAGE ── */
-.gpage{display:flex;flex-direction:column;gap:0;height:100%}
-.gpage-thumb{width:100%;max-width:560px;aspect-ratio:4/3;border-radius:16px;
-  background:var(--card-bg);border:1px solid var(--card-bdr);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--dim);font-size:40px;overflow:hidden;flex-shrink:0}
-.gpage-body{display:flex;gap:28px;margin-top:20px;align-items:flex-start}
+.game-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.06em;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.game-author{font-family:CHL,sans-serif;font-size:12px;letter-spacing:.04em;color:var(--dim);display:block;margin-top:1px}
+.gpage-body{display:flex;gap:28px;margin-top:4px;align-items:flex-start}
+.gpage-thumb{width:100%;max-width:560px;aspect-ratio:4/3;border-radius:16px;background:var(--card-bg);border:1px solid var(--card-bdr);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:40px;overflow:hidden;flex-shrink:0}
 .gpage-info{flex:1;min-width:0}
-.gpage-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--txt);display:block;line-height:1;position:relative;top:2px}
-.gpage-author{font-family:CHL,sans-serif;font-size:13px;color:var(--dim);
-  display:block;margin-top:8px;letter-spacing:.04em;position:relative;top:2px}
-.gpage-desc{font-family:CHL,sans-serif;font-size:14px;color:var(--dim);
-  margin-top:14px;line-height:1.6;letter-spacing:.04em;position:relative;top:2px}
-.gpage-play{display:flex;align-items:center;gap:10px;margin-top:20px}
-.play-btn{display:inline-flex;align-items:center;gap:10px;
-  padding:13px 28px;border-radius:var(--r);
-  background:rgba(120,130,255,.25);border:1px solid rgba(120,130,255,.4);
-  color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
-  text-transform:uppercase;cursor:pointer;
-  transition:background .18s,border-color .18s}
+.gpage-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt);display:block;line-height:1;position:relative;top:2px}
+.gpage-author,.gpage-desc{display:block;font-family:CHL,sans-serif;color:var(--dim);letter-spacing:.04em;position:relative;top:2px}
+.gpage-author{font-size:13px;margin-top:8px}
+.gpage-desc{font-size:14px;margin-top:14px;line-height:1.6}
+.gpage-play{display:flex;margin-top:20px}
+.play-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 28px;border-radius:var(--r);background:rgba(120,130,255,.25);border:1px solid rgba(120,130,255,.4);color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .18s,border-color .18s}
 .play-btn:hover{background:rgba(120,130,255,.4);border-color:rgba(120,130,255,.6)}
 .play-btn svg{width:18px;height:18px}
-.back-btn{display:inline-flex;align-items:center;gap:8px;
-  padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);
-  color:var(--dim);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;cursor:pointer;margin-bottom:16px;
-  transition:background .18s,color .18s}
+.back-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);color:var(--dim);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-bottom:16px;transition:background .18s,color .18s}
 .back-btn:hover{background:rgba(255,255,255,.12);color:var(--txt)}
 .back-btn svg{width:14px;height:14px}
-
-/* ── SETTINGS ── */
 .spage{max-width:680px;padding-top:4px;display:flex;flex-direction:column;gap:10px}
-
-.stabs{display:flex;gap:6px;margin-bottom:2px;flex-shrink:0}
-.stab{padding:8px 18px;border-radius:10px;cursor:pointer;
-  border:1px solid var(--bdr);background:var(--acc);
-  font-family:CHM,sans-serif;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--dim);transition:background .18s,border-color .18s,color .18s}
-.stab:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18);color:var(--txt)}
+.stabs{display:flex;gap:6px;margin-bottom:2px}
+.stab{padding:8px 18px;border-radius:10px;cursor:pointer;border:1px solid var(--bdr);background:var(--acc);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);transition:background .18s,border-color .18s,color .18s}
+.stab:hover{background:rgba(255,255,255,.12);color:var(--txt)}
 html[data-theme="light"] .stab:hover{background:rgba(0,0,0,.1)}
 .stab.active{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.26);color:#fff}
 html[data-theme="light"] .stab.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.22);color:#000}
 .stab-body{display:flex;flex-direction:column;gap:10px}
-
 .sblock{padding:22px;border-radius:var(--r);background:var(--card-bg);border:1px solid var(--card-bdr)}
-.s-label{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--txt);margin-bottom:5px;display:block}
+.s-label{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt);margin-bottom:5px;display:block}
 .s-desc{font-size:13px;color:var(--dim);margin-bottom:16px;display:block;letter-spacing:.04em}
 .lang-cards,.theme-cards,.music-cards{display:flex;gap:10px;flex-wrap:wrap}
-.lang-card,.theme-card,.music-card{display:flex;align-items:center;gap:12px;padding:12px 18px;
-  border-radius:var(--r);border:1px solid var(--bdr);background:var(--acc);
-  cursor:pointer;transition:background .18s,border-color .18s;user-select:none}
+.lang-card,.theme-card,.music-card{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:var(--r);border:1px solid var(--bdr);background:var(--acc);cursor:pointer;transition:background .18s,border-color .18s;user-select:none}
 .lang-card:hover,.theme-card:hover,.music-card:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.2)}
-html[data-theme="light"] .lang-card:hover,
-html[data-theme="light"] .theme-card:hover,
-html[data-theme="light"] .music-card:hover{background:rgba(0,0,0,.1)}
+html[data-theme="light"] .lang-card:hover,html[data-theme="light"] .theme-card:hover,html[data-theme="light"] .music-card:hover{background:rgba(0,0,0,.1)}
 .lang-card.active,.theme-card.active,.music-card.active{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)}
-html[data-theme="light"] .lang-card.active,
-html[data-theme="light"] .theme-card.active,
-html[data-theme="light"] .music-card.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25)}
-.lang-flag{width:28px;height:20px;border-radius:4px;object-fit:cover;flex-shrink:0;
-  border:1px solid rgba(255,255,255,.12)}
+html[data-theme="light"] .lang-card.active,html[data-theme="light"] .theme-card.active,html[data-theme="light"] .music-card.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25)}
+.lang-flag{width:28px;height:20px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,.12)}
 .lang-name,.theme-lbl,.music-lbl{font-family:CHM,sans-serif;font-size:13.5px;letter-spacing:.08em;color:var(--txt)}
 .theme-ico{width:22px;height:22px;flex-shrink:0;display:block;color:var(--txt);opacity:.85}
-
-/* credits */
 .credits-list{display:flex;flex-direction:column;gap:10px}
-.credit-item{padding:18px 20px;border-radius:var(--r);
-  background:var(--card-bg);border:1px solid var(--card-bdr)}
-.credit-source{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--dim);display:block;margin-bottom:5px;position:relative;top:2px}
-.credit-text{font-family:CHL,sans-serif;font-size:14px;color:var(--txt);
-  letter-spacing:.04em;line-height:1.5;display:block;position:relative;top:2px}
+.credit-item{padding:18px 20px;border-radius:var(--r);background:var(--card-bg);border:1px solid var(--card-bdr)}
+.credit-source{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:5px;position:relative;top:2px}
+.credit-text{font-family:CHL,sans-serif;font-size:14px;color:var(--txt);letter-spacing:.04em;line-height:1.5;display:block;position:relative;top:2px}
 .credit-link{color:rgba(150,160,255,.8);text-decoration:none}
 .credit-link:hover{text-decoration:underline}
-
-/* ── CREATE PAGE ── */
-.cr-page{max-width:760px;padding-top:4px;display:flex;flex-direction:column;gap:18px}
-.cr-new-btn{display:inline-flex;align-items:center;gap:10px;
-  padding:12px 22px;border-radius:var(--r);
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
-  color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.1em;
-  text-transform:uppercase;cursor:pointer;
-  transition:background .18s,border-color .18s;align-self:flex-start}
+.cr-page{max-width:820px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:20px;padding-top:4px}
+.cr-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--bdr)}
+.cr-heading{font-family:CHM,sans-serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt);position:relative;top:2px}
+.cr-new-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:var(--r);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .18s,border-color .18s}
 .cr-new-btn:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3)}
 html[data-theme="light"] .cr-new-btn{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.18);color:#111}
 html[data-theme="light"] .cr-new-btn:hover{background:rgba(0,0,0,.14)}
 .cr-new-btn svg{width:18px;height:18px;opacity:.8}
-
 .cr-list{display:flex;flex-direction:column;gap:10px}
-.cr-item{display:flex;align-items:center;gap:16px;
-  padding:14px;border-radius:var(--r);
-  background:var(--card-bg);border:1px solid var(--card-bdr);
-  transition:border-color .18s}
+.cr-item{display:flex;align-items:center;gap:16px;padding:14px;border-radius:var(--r);background:var(--card-bg);border:1px solid var(--card-bdr);transition:border-color .18s}
 .cr-item:hover{border-color:rgba(255,255,255,.16)}
 html[data-theme="light"] .cr-item:hover{border-color:rgba(0,0,0,.18)}
-.cr-thumb{width:96px;height:54px;border-radius:8px;flex-shrink:0;
-  background:var(--sur);border:1px solid var(--bdr);
-  display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:20px}
+.cr-thumb{width:96px;height:72px;border-radius:8px;flex-shrink:0;background:var(--sur);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:20px}
 .cr-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.cr-game-title{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.07em;
-  color:var(--txt);display:block}
-.cr-game-sub{font-family:CHL,sans-serif;font-size:12px;color:var(--dim);
-  letter-spacing:.04em;display:block;position:relative;top:2px}
+.cr-game-title{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.07em;color:var(--txt);display:block}
+.cr-game-sub{font-family:CHL,sans-serif;font-size:12px;color:var(--dim);letter-spacing:.04em;display:block;position:relative;top:2px}
 .cr-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.cr-btn{display:flex;align-items:center;gap:7px;
-  padding:8px 16px;border-radius:10px;
-  background:var(--acc);border:1px solid var(--bdr);
-  color:var(--txt);font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.09em;
-  text-transform:uppercase;cursor:pointer;
-  transition:background .18s,border-color .18s;white-space:nowrap}
-.cr-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
-html[data-theme="light"] .cr-btn:hover{background:rgba(0,0,0,.1)}
-.cr-icon-btn{display:flex;align-items:center;justify-content:center;
-  width:36px;height:36px;border-radius:10px;
-  background:var(--acc);border:1px solid var(--bdr);
-  color:var(--dim);cursor:pointer;
-  transition:background .18s,border-color .18s,color .18s}
-.cr-icon-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2);color:var(--txt)}
-html[data-theme="light"] .cr-icon-btn:hover{background:rgba(0,0,0,.1)}
+.cr-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);color:var(--txt);font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:background .18s;white-space:nowrap}
+.cr-btn:hover{background:rgba(255,255,255,.14)}
+.cr-icon-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);color:var(--dim);cursor:pointer;transition:background .18s,color .18s}
+.cr-icon-btn:hover{background:rgba(255,255,255,.14);color:var(--txt)}
 .cr-icon-btn svg{width:16px;height:16px}
-
-/* ── PROFILE PAGE ── */
-.prof-page{max-width:700px;padding-top:4px;display:flex;flex-direction:column;gap:14px}
-.prof-header{display:flex;align-items:center;gap:20px;padding:22px;
-  background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
-.prof-avatar{width:76px;height:76px;border-radius:50%;
-  background:var(--sur);border:2px solid var(--bdr);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--dim)}
-.prof-avatar svg{width:42px;height:42px;opacity:.4}
-.prof-info{flex:1;min-width:0}
-.prof-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.1em;
-  color:var(--txt);display:block;line-height:1}
-.prof-joined{font-size:12px;color:var(--dim);display:block;margin-top:6px;
-  letter-spacing:.04em;position:relative;top:2px}
-.prof-edit-btn{padding:9px 18px;border-radius:var(--r);
-  background:var(--acc);border:1px solid var(--bdr);
-  color:var(--txt);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;cursor:pointer;flex-shrink:0;
-  transition:background .18s,border-color .18s;position:relative;top:2px}
-.prof-edit-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
-html[data-theme="light"] .prof-edit-btn:hover{background:rgba(0,0,0,.1)}
-
-.prof-wearing{padding:22px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
-.prof-wearing-header{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--txt);display:block;margin-bottom:16px;position:relative;top:2px}
-.prof-wearing-body{display:flex;align-items:stretch;gap:18px}
-.prof-wearing-items{flex:1;display:flex;flex-direction:column;gap:8px}
-.prof-wearing-item{display:flex;align-items:center;gap:12px;
-  padding:10px 12px;border-radius:10px;
-  background:var(--sur);border:1px solid var(--bdr)}
-.prof-wearing-swatch{width:36px;height:36px;border-radius:8px;
-  background:var(--card-bg);border:1px solid var(--card-bdr);
-  display:flex;align-items:center;justify-content:center;color:var(--dim);flex-shrink:0}
-.prof-wearing-swatch svg{width:18px;height:18px;opacity:.4}
-.prof-wearing-name{font-family:CHL,sans-serif;font-size:13px;letter-spacing:.04em;
-  color:var(--dim);position:relative;top:2px}
-.prof-av-preview{flex:0 0 120px;display:flex;align-items:center;justify-content:center;
-  background:var(--sur);border:1px solid var(--bdr);border-radius:12px}
-.prof-av-preview svg{width:56px;height:56px;opacity:.2}
-
-/* ── AVATAR EDITOR ── */
-.av-wrap{display:flex;flex-direction:row;align-items:stretch;gap:18px;
-  height:calc(100vh - var(--th) - 88px)}
-
-.av-left{flex:0 0 270px;display:flex;flex-direction:column;align-items:center;gap:14px}
-.av-box{width:270px;height:360px;background:var(--card-bg);border:1px solid var(--card-bdr);
-  border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.av-placeholder{display:flex;flex-direction:column;align-items:center;gap:10px;
-  opacity:.3;padding:16px;text-align:center}
-.av-placeholder svg{width:72px;height:72px}
-.av-placeholder span{font-size:12px;letter-spacing:.06em;position:relative;top:2px}
-
-.av-right{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
-
-.av-tabs{display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0}
-.av-tab{flex:1;text-align:center;background:none;border:none;
-  color:var(--txt);font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.07em;
-  text-transform:uppercase;cursor:pointer;padding:11px 4px;
-  opacity:.4;transition:opacity .2s;white-space:nowrap}
-.av-tab.active{opacity:1;border-bottom:2px solid var(--txt)}
-
-.av-body{flex:1;overflow-y:auto;padding:16px 4px 8px}
-.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
-.av-item{border-radius:12px;aspect-ratio:1;
-  background:var(--card-bg);border:1px solid var(--card-bdr);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:26px}
-.av-item:hover{border-color:rgba(255,255,255,.22);transform:scale(1.04)}
-html[data-theme="light"] .av-item:hover{border-color:rgba(0,0,0,.18)}
-.av-item.active{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.06)}
-html[data-theme="light"] .av-item.active{border-color:rgba(0,0,0,.3)}
-
-/* ── v2 layout: centered pages ── */
-.cr-page{max-width:820px;margin:0 auto;width:100%;gap:20px}
-.cr-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding-bottom:16px;border-bottom:1px solid var(--bdr)}
-.cr-heading{font-family:CHM,sans-serif;font-size:15px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--txt);position:relative;top:2px}
-.cr-new-btn{align-self:auto}
-
 .up-page{display:flex;flex-direction:column;gap:16px;max-width:900px;margin:0 auto;width:100%}
-.up-header{display:flex;align-items:center;gap:18px;padding:18px 22px;
-  background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
-.up-av-thumb{width:56px;height:56px;border-radius:50%;border:2px solid var(--bdr);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.up-av-thumb svg{width:28px;height:28px;color:rgba(0,0,0,.35)}
-.up-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.08em;
-  color:var(--txt);flex:1;position:relative;top:2px}
-.up-friends{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.06em;
-  color:var(--dim);white-space:nowrap;position:relative;top:2px}
-.up-edit-btn{padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);
-  color:var(--txt);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;cursor:pointer;flex-shrink:0;transition:background .18s,border-color .18s}
-.up-edit-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
-html[data-theme="light"] .up-edit-btn:hover{background:rgba(0,0,0,.1)}
-.up-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
-.up-block{padding:20px;background:var(--card-bg);border:1px solid var(--card-bdr);
-  border-radius:var(--r);display:flex;flex-direction:column}
+.up-header{display:flex;align-items:center;gap:18px;padding:18px 22px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
+.up-av-thumb{width:56px;height:56px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.up-av-thumb svg{width:28px;height:28px;opacity:.35}
+.up-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.08em;color:var(--txt);flex:1;position:relative;top:2px}
+.up-friends{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.06em;color:var(--dim);white-space:nowrap;position:relative;top:2px}
+.up-edit-btn{padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);color:var(--txt);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;flex-shrink:0;transition:background .18s}
+.up-edit-btn:hover{background:rgba(255,255,255,.14)}
+.up-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.up-block{padding:20px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r);display:flex;flex-direction:column}
 .up-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.up-block-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--txt);position:relative;top:2px}
-.up-block-btn{padding:5px 12px;border-radius:8px;background:var(--acc);border:1px solid var(--bdr);
-  color:var(--dim);font-family:CHM,sans-serif;font-size:11px;letter-spacing:.08em;
-  text-transform:uppercase;cursor:pointer;transition:background .18s,color .18s}
+.up-block-title{font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt);position:relative;top:2px}
+.up-block-btn{padding:5px 12px;border-radius:8px;background:var(--acc);border:1px solid var(--bdr);color:var(--dim);font-family:CHM,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .18s,color .18s}
 .up-block-btn:hover{background:rgba(255,255,255,.12);color:var(--txt)}
 .up-about-body{flex:1;min-height:80px;font-size:13px;color:var(--dim);letter-spacing:.04em;line-height:1.6}
-.up-wearing-preview{width:100%;aspect-ratio:3/4;overflow:hidden;
-  background:var(--sur);border:1px solid var(--bdr);border-radius:12px;margin-bottom:16px;
-  display:flex;align-items:center;justify-content:center}
+.up-wearing-preview{width:100%;aspect-ratio:3/4;overflow:hidden;background:var(--sur);border:1px solid var(--bdr);border-radius:12px;margin-bottom:16px}
 .up-wearing-preview canvas,.av-box canvas{display:block;width:100%!important;height:100%!important}
 .up-wearing-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.up-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;
-  background:var(--sur);border:1px solid var(--bdr)}
+.up-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;background:var(--sur);border:1px solid var(--bdr)}
 .up-chip-ico svg{width:14px;height:14px;opacity:.5;display:block}
 .up-chip-name{font-size:12px;letter-spacing:.04em;color:var(--dim);position:relative;top:1px}
-.up-show-all{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;
-  color:var(--txt);cursor:pointer;padding:5px 10px;border-radius:8px;
-  background:var(--acc);border:1px solid var(--bdr);transition:background .18s;white-space:nowrap}
+.up-show-all{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;color:var(--txt);cursor:pointer;padding:5px 10px;border-radius:8px;background:var(--acc);border:1px solid var(--bdr);transition:background .18s;white-space:nowrap}
 .up-show-all:hover{background:rgba(255,255,255,.12)}
-
-.av-wrap{max-width:1000px;margin:0 auto;width:100%}
+.av-wrap{display:flex;flex-direction:row;align-items:stretch;gap:18px;height:calc(100vh - var(--th) - 88px);max-width:1000px;margin:0 auto;width:100%}
+.av-left{flex:0 0 270px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.av-box{width:270px;height:360px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r);overflow:hidden}
+.av-right{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.av-tabs{display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.av-tab{flex:1;text-align:center;background:none;border:none;color:var(--txt);font-family:CHM,sans-serif;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;padding:11px 4px;opacity:.4;transition:opacity .2s;white-space:nowrap}
+.av-tab.active{opacity:1;border-bottom:2px solid var(--txt)}
+.av-body{flex:1;overflow-y:auto;padding:16px 4px 8px}
+.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
+.av-item{border-radius:12px;aspect-ratio:1;background:var(--card-bg);border:1px solid var(--card-bdr);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:26px}
+.av-item:hover{border-color:rgba(255,255,255,.22);transform:scale(1.04)}
+.av-item.active{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.06)}
 .av-part-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.av-part{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;cursor:pointer;
-  border:1px solid var(--bdr);background:var(--acc);color:var(--dim);
-  font-family:CHM,sans-serif;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
-  transition:background .18s,border-color .18s,color .18s}
+.av-part{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;cursor:pointer;border:1px solid var(--bdr);background:var(--acc);color:var(--dim);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.09em;text-transform:uppercase;transition:background .18s,color .18s}
 .av-part:hover{background:rgba(255,255,255,.12);color:var(--txt)}
-html[data-theme="light"] .av-part:hover{background:rgba(0,0,0,.1)}
 .av-part.active{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}
-html[data-theme="light"] .av-part.active{background:rgba(0,0,0,.12);border-color:rgba(0,0,0,.25);color:#000}
 .av-part span{position:relative;top:1px}
 .av-part-dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(128,128,128,.5);flex-shrink:0}
-.av-skin-label{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--dim);display:block;margin-bottom:12px;position:relative;top:2px}
+.av-skin-label{font-family:CHM,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:12px;position:relative;top:2px}
 .av-skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:10px;max-width:520px}
-.av-skin-swatch{aspect-ratio:1;border-radius:50%;cursor:pointer;
-  border:2px solid rgba(128,128,128,.35);transition:transform .15s,border-color .15s}
+.av-skin-swatch{aspect-ratio:1;border-radius:50%;cursor:pointer;border:2px solid rgba(128,128,128,.35);transition:transform .15s,border-color .15s}
 .av-skin-swatch:hover{transform:scale(1.1)}
 .av-skin-swatch.active{border-color:var(--txt);transform:scale(1.1);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--txt)}
 </style>
 </head>
 <body>
-
-<!-- background music — autoplay, loop, low volume -->
 <audio id="bgm" src="assets/audio/music/enchanted tiki 86.mp3" loop preload="auto" style="display:none"></audio>
-
 <div class="blob" style="width:560px;height:560px;background:#1e293b;top:-120px;left:220px"></div>
 <div class="blob" style="width:600px;height:600px;background:#1e1b4b;bottom:-80px;right:-40px;animation-delay:-9s"></div>
 
 <div class="app" id="app">
-
-  <!-- TOPBAR -->
   <header class="topbar">
     <div class="t-logo">
-      <img src="assets/images/logos/Creatopia Alpha V2.png" alt="Creatopia Alpha"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <img src="assets/images/logos/Creatopia Alpha V2.png" alt="Creatopia Alpha" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
       <span class="lt" style="display:none">Creatopia</span>
     </div>
     <div class="t-right">
       <div class="t-search">
-        <div class="si">
-          <img src="assets/icons/search_icon.svg" alt=""
-               onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'">
-        </div>
+        <div class="si"><img src="assets/icons/search_icon.svg" alt="" onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'"></div>
         <input id="search" type="text" autocomplete="off" data-i18n-ph="search_placeholder" placeholder="Search...">
-        <span class="cb" id="cb">
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </span>
+        <span class="cb" id="cb"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></span>
       </div>
     </div>
   </header>
 
   <div class="row">
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <nav class="nl" id="nav">
-
-        <button class="ni on" data-tab="home">
-          <div class="ni-inner"><span class="ico"><img src="assets/icons/home_icon.svg" alt=""
-            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75&quot;/></svg>'">
-          </span><span class="g"></span><span class="lbl" data-i18n="nav_home">Home</span></div>
-        </button>
-
-        <button class="ni" data-tab="create">
-          <div class="ni-inner"><span class="ico"><img src="assets/icons/create_icon.svg" alt=""
-            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z&quot;/></svg>'">
-          </span><span class="g"></span><span class="lbl" data-i18n="nav_create">Create</span></div>
-        </button>
-
-        <button class="ni" data-tab="customize">
-          <div class="ni-inner"><span class="ico"><img src="assets/icons/customize_icon.svg" alt=""
-            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5M13.5 12h6.75m-6.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12H9&quot;/></svg>'">
-          </span><span class="g"></span><span class="lbl" data-i18n="nav_customize">Customize</span></div>
-        </button>
-
-        <button class="ni" data-tab="profile">
-          <div class="ni-inner"><span class="ico"><img src="assets/icons/profile_icon.svg" alt=""
-            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z&quot;/></svg>'">
-          </span><span class="g"></span><span class="lbl" data-i18n="nav_profile">Users</span></div>
-        </button>
-
-        <button class="ni" data-tab="settings">
-          <div class="ni-inner"><span class="ico"><img src="assets/icons/settings_icon.svg" alt=""
-            onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 12a3 3 0 11-6 0 3 3 0 016 0z&quot;/></svg>'">
-          </span><span class="g"></span><span class="lbl" data-i18n="nav_settings">Settings</span></div>
-        </button>
-
+        <button class="ni on" data-tab="home"><div class="ni-inner"><span class="ico"><img src="assets/icons/home_icon.svg" alt="" onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75&quot;/></svg>'"></span><span class="g"></span><span class="lbl" data-i18n="nav_home">Home</span></div></button>
+        <button class="ni" data-tab="create"><div class="ni-inner"><span class="ico"><img src="assets/icons/create_icon.svg" alt="" onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z&quot;/></svg>'"></span><span class="g"></span><span class="lbl" data-i18n="nav_create">Create</span></div></button>
+        <button class="ni" data-tab="customize"><div class="ni-inner"><span class="ico"><img src="assets/icons/customize_icon.svg" alt="" onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5M13.5 12h6.75m-6.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12H9&quot;/></svg>'"></span><span class="g"></span><span class="lbl" data-i18n="nav_customize">Customize</span></div></button>
+        <button class="ni" data-tab="profile"><div class="ni-inner"><span class="ico"><img src="assets/icons/profile_icon.svg" alt="" onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z&quot;/></svg>'"></span><span class="g"></span><span class="lbl" data-i18n="nav_profile">Users</span></div></button>
+        <button class="ni" data-tab="settings"><div class="ni-inner"><span class="ico"><img src="assets/icons/settings_icon.svg" alt="" onerror="this.outerHTML='<svg fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z&quot;/><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M15 12a3 3 0 11-6 0 3 3 0 016 0z&quot;/></svg>'"></span><span class="g"></span><span class="lbl" data-i18n="nav_settings">Settings</span></div></button>
       </nav>
       <div class="nb">
-        <button class="tog" id="tog" aria-label="Toggle navigation">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
+        <button class="tog" id="tog"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
       </div>
     </aside>
 
-    <!-- MAIN -->
     <div class="main">
       <div class="m-top">
         <h1 class="m-title" id="title">HOME</h1>
@@ -527,95 +225,60 @@ html[data-theme="light"] .av-part.active{background:rgba(0,0,0,.12);border-color
       </div>
       <div class="m-body" id="content"></div>
     </div>
-
   </div>
 </div>
 
 <script>
-// ── Music ─────────────────────────────────────────────────────
-const bgm = document.getElementById('bgm');
-let musicOn = localStorage.getItem('creatopia_music') !== 'off';
-bgm.volume = 0.35;
+const bgm=document.getElementById('bgm');
+let musicOn=localStorage.getItem('creatopia_music')!=='off';
+bgm.volume=0.35;
+function applyMusic(v){musicOn=v;localStorage.setItem('creatopia_music',v?'on':'off');v?bgm.play().catch(()=>{}):bgm.pause();if(document.querySelector('.ni.on')?.dataset.tab==='settings')renderSettings()}
+document.addEventListener('click',function p(){if(musicOn)bgm.play().catch(()=>{});document.removeEventListener('click',p)},{once:true});
 
-function applyMusic(val) {
-  musicOn = val;
-  localStorage.setItem('creatopia_music', val ? 'on' : 'off');
-  if (val) bgm.play().catch(()=>{});
-  else bgm.pause();
-  if (document.querySelector('.ni.on')?.dataset.tab === 'settings') renderSettings();
-}
-
-// try autoplay on first interaction if blocked initially
-document.addEventListener('click', function tryPlay() {
-  if (musicOn) bgm.play().catch(()=>{});
-  document.removeEventListener('click', tryPlay);
-}, {once: true});
-
-// ── i18n ──────────────────────────────────────────────────────
-let S={}, lang=localStorage.getItem('creatopia_lang')||'en';
-
+let S={},lang=localStorage.getItem('creatopia_lang')||'en';
 async function loadLang(code){
   try{
-    let r = await fetch('/language/'+code+'.json');
-    if(!r.ok) r = await fetch('language/'+code+'.json');
+    let r=await fetch('/language/'+code+'.json');
+    if(!r.ok)r=await fetch('language/'+code+'.json');
     if(!r.ok)throw 0;
-    S=await r.json(); lang=code;
+    S=await r.json();lang=code;
     localStorage.setItem('creatopia_lang',code);
     document.documentElement.lang=code;
     applyLang();
   }catch(e){console.warn('lang fail:',code)}
 }
-function t(k){return S[k]||k}
+const t=k=>S[k]||k;
+const L=(en,pl)=>lang==='pl'?pl:en;
 function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.dataset.i18nPh));
-  const active=document.querySelector('.ni.on');
-  if(active) titleEl.textContent=t('nav_'+active.dataset.tab).toUpperCase();
-  const tab=active?.dataset.tab;
-  if(tab==='settings') renderSettings();
-  if(tab==='customize') renderCustomize();
-  if(tab==='profile') renderProfile();
-  if(tab==='create') renderCreate();
+  const a=document.querySelector('.ni.on');
+  if(a)titleEl.textContent=t('nav_'+a.dataset.tab).toUpperCase();
+  const tab=a?.dataset.tab;
+  if(tab==='settings')renderSettings();
+  if(tab==='customize')renderCustomize();
+  if(tab==='profile')renderProfile();
+  if(tab==='create')renderCreate();
 }
 
-// ── Theme ─────────────────────────────────────────────────────
 let theme=localStorage.getItem('creatopia_theme')||'dark';
-function applyTheme(val){
-  theme=val;
-  document.documentElement.setAttribute('data-theme',val);
-  localStorage.setItem('creatopia_theme',val);
-  if(document.querySelector('.ni.on')?.dataset.tab==='settings') renderSettings();
-}
+function applyTheme(v){theme=v;document.documentElement.setAttribute('data-theme',v);localStorage.setItem('creatopia_theme',v);if(document.querySelector('.ni.on')?.dataset.tab==='settings')renderSettings()}
 
-// ── DOM ───────────────────────────────────────────────────────
-const app=document.getElementById('app');
-const tog=document.getElementById('tog');
-const searchEl=document.getElementById('search');
-const cbEl=document.getElementById('cb');
-const titleEl=document.getElementById('title');
-const welcomeEl=document.getElementById('welcome');
-const content=document.getElementById('content');
-const items=document.querySelectorAll('.ni[data-tab]');
-const TABS=['home','create','customize','profile','settings'];
+const app=document.getElementById('app'),tog=document.getElementById('tog'),
+      searchEl=document.getElementById('search'),cbEl=document.getElementById('cb'),
+      titleEl=document.getElementById('title'),welcomeEl=document.getElementById('welcome'),
+      content=document.getElementById('content'),items=document.querySelectorAll('.ni[data-tab]'),
+      TABS=['home','create','customize','profile','settings'];
 
-// ── Hash routing ──────────────────────────────────────────────
-function getHashTab(){
-  const h=location.hash.replace('#','').toLowerCase();
-  return TABS.includes(h)?h:'home';
-}
+const getHashTab=()=>{const h=location.hash.replace('#','').toLowerCase();return TABS.includes(h)?h:'home'};
 
-function setTab(tab, push=true){
+function setTab(tab,push=true){
   disposeActivePreview();
   items.forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   titleEl.textContent=t('nav_'+tab).toUpperCase();
   welcomeEl.style.display=tab==='home'?'block':'none';
-  if(push) location.hash=tab;
-  if(tab==='home')       renderHome();
-  else if(tab==='create')       renderCreate();
-  else if(tab==='customize')    renderCustomize();
-  else if(tab==='profile')      renderProfile();
-  else if(tab==='settings')     renderSettings();
-  else content.innerHTML='';
+  if(push)location.hash=tab;
+  ({home:renderHome,create:renderCreate,customize:renderCustomize,profile:renderProfile,settings:renderSettings}[tab]||function(){content.innerHTML=''})();
 }
 items.forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 window.addEventListener('hashchange',()=>setTab(getHashTab(),false));
@@ -625,15 +288,9 @@ searchEl.addEventListener('input',()=>{
   cbEl.classList.toggle('on',q.length>0);
   items.forEach(b=>b.style.display=b.dataset.tab.includes(q)?'flex':'none');
 });
-cbEl.addEventListener('click',()=>{
-  searchEl.value='';cbEl.classList.remove('on');
-  items.forEach(b=>b.style.display='flex');
-});
+cbEl.addEventListener('click',()=>{searchEl.value='';cbEl.classList.remove('on');items.forEach(b=>b.style.display='flex')});
 
-// ── Home ──────────────────────────────────────────────────────
-const GAMES=[
-  {id:1, title:'Testing Game', author:'Developer', desc:'A test game for Creatopia. Work in progress.'}
-];
+const GAMES=[{id:1,title:'Testing Game',author:'Developer',desc:'A test game for Creatopia. Work in progress.'}];
 
 function renderHome(){
   content.innerHTML=`<div class="game-grid">${GAMES.map(g=>`
@@ -642,20 +299,13 @@ function renderHome(){
       <span class="game-title">${g.title}</span>
       <span class="game-author">${g.author}</span>
     </div>`).join('')}</div>`;
-  content.querySelectorAll('.game-card').forEach(c=>{
-    c.addEventListener('click',()=>renderGame(GAMES.find(x=>x.id===+c.dataset.gid)));
-  });
+  content.querySelectorAll('.game-card').forEach(c=>c.addEventListener('click',()=>renderGame(GAMES.find(x=>x.id===+c.dataset.gid))));
 }
 
 function renderGame(g){
   welcomeEl.style.display='none';
   content.innerHTML=`
-  <button class="back-btn" id="back-btn">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
-    </svg>
-    Back
-  </button>
+  <button class="back-btn" id="back-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>Back</button>
   <div class="gpage-body">
     <div class="gpage-thumb">?</div>
     <div class="gpage-info">
@@ -663,35 +313,20 @@ function renderGame(g){
       <span class="gpage-author">by ${g.author}</span>
       <span class="gpage-desc">${g.desc}</span>
       <div class="gpage-play">
-        <button class="play-btn" id="play-btn">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
-          </svg>
-          Play
-        </button>
+        <button class="play-btn" id="play-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>Play</button>
       </div>
     </div>
   </div>`;
   document.getElementById('back-btn').addEventListener('click',()=>setTab('home'));
-  document.getElementById('play-btn').addEventListener('click',()=>{
-    window.open('scripts/game/engine.html','_blank');
-  });
+  document.getElementById('play-btn').addEventListener('click',()=>window.open('scripts/game/engine.html','_blank'));
 }
-
-// ── Create ────────────────────────────────────────────────────
-const L=(en,pl)=>lang==='pl'?pl:en;
 
 function renderCreate(){
   content.innerHTML=`
   <div class="cr-page">
     <div class="cr-toolbar">
       <span class="cr-heading">${L('Your games','Twoje gry')}</span>
-      <button class="cr-new-btn" id="cr-new">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-        </svg>
-        ${L('Create new game','Stwórz nową grę')}
-      </button>
+      <button class="cr-new-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>${L('Create new game','Stwórz nową grę')}</button>
     </div>
     <div class="cr-list">
       <div class="cr-item">
@@ -701,292 +336,158 @@ function renderCreate(){
           <span class="cr-game-sub">${L('Last edited today','Ostatnio edytowano dzisiaj')}</span>
         </div>
         <div class="cr-actions">
-          <button class="cr-btn">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/>
-            </svg>
-            ${L('Edit','Edytuj')}
-          </button>
-          <button class="cr-icon-btn" title="${L('Options','Opcje')}">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-            </svg>
-          </button>
+          <button class="cr-btn"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/></svg>${L('Edit','Edytuj')}</button>
+          <button class="cr-icon-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg></button>
         </div>
       </div>
     </div>
   </div>`;
 }
 
-// ── Settings ──────────────────────────────────────────────────
 const LANGS=[{code:'en',label:'English',flag:'assets/images/en.png'},{code:'pl',label:'Polski',flag:'assets/images/pl.png'}];
-let settingsTab = 'general';
-
+let settingsTab='general';
 function renderSettings(){
-  const moonSvg=`<svg class="theme-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6a9.718 9.718 0 01.002-3.752 9.75 9.75 0 1013.5 12.754z"/></svg>`;
-  const sunSvg=`<svg class="theme-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>`;
-  const musicOnSvg=`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z"/></svg>`;
+  const moon=`<svg class="theme-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6a9.718 9.718 0 01.002-3.752 9.75 9.75 0 1013.5 12.754z"/></svg>`;
+  const sun=`<svg class="theme-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>`;
+  const musOn=`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z"/></svg>`;
+  const musOff=`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.531V19.94a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.506-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/></svg>`;
 
-  const generalHtml=`
+  const gen=`
     <div class="sblock">
-      <span class="s-label">${t('settings_language_label')}</span>
-      <span class="s-desc">${t('settings_language_desc')}</span>
-      <div class="lang-cards">
-        ${LANGS.map(l=>`
-          <div class="lang-card${lang===l.code?' active':''}" data-lang="${l.code}">
-            <img class="lang-flag" src="${l.flag}" alt="${l.label}" onerror="this.style.display='none'">
-            <span class="lang-name">${l.label}</span>
-          </div>`).join('')}
-      </div>
+      <span class="s-label">${t('settings_language_label')}</span><span class="s-desc">${t('settings_language_desc')}</span>
+      <div class="lang-cards">${LANGS.map(l=>`<div class="lang-card${lang===l.code?' active':''}" data-lang="${l.code}"><img class="lang-flag" src="${l.flag}" alt="${l.label}" onerror="this.style.display='none'"><span class="lang-name">${l.label}</span></div>`).join('')}</div>
     </div>
     <div class="sblock">
-      <span class="s-label">${t('settings_theme_label')}</span>
-      <span class="s-desc">${t('settings_theme_desc')}</span>
+      <span class="s-label">${t('settings_theme_label')}</span><span class="s-desc">${t('settings_theme_desc')}</span>
       <div class="theme-cards">
-        <div class="theme-card${theme==='dark'?' active':''}" data-tv="dark">${moonSvg}<span class="theme-lbl">${t('settings_theme_dark')}</span></div>
-        <div class="theme-card${theme==='light'?' active':''}" data-tv="light">${sunSvg}<span class="theme-lbl">${t('settings_theme_light')}</span></div>
+        <div class="theme-card${theme==='dark'?' active':''}" data-tv="dark">${moon}<span class="theme-lbl">${t('settings_theme_dark')}</span></div>
+        <div class="theme-card${theme==='light'?' active':''}" data-tv="light">${sun}<span class="theme-lbl">${t('settings_theme_light')}</span></div>
       </div>
     </div>
     <div class="sblock">
-      <span class="s-label">${t('settings_music_label')}</span>
-      <span class="s-desc">${t('settings_music_desc')}</span>
+      <span class="s-label">${t('settings_music_label')}</span><span class="s-desc">${t('settings_music_desc')}</span>
       <div class="music-cards">
-        <div class="music-card${musicOn?' active':''}" data-mv="on">${musicOnSvg}<span class="music-lbl">${t('settings_music_on')}</span></div>
-        <div class="music-card${!musicOn?' active':''}" data-mv="off">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.531V19.94a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.506-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/></svg>
-          <span class="music-lbl">${t('settings_music_off')}</span>
-        </div>
+        <div class="music-card${musicOn?' active':''}" data-mv="on">${musOn}<span class="music-lbl">${t('settings_music_on')}</span></div>
+        <div class="music-card${!musicOn?' active':''}" data-mv="off">${musOff}<span class="music-lbl">${t('settings_music_off')}</span></div>
       </div>
     </div>`;
-
-  const creditsHtml=`
-    <div class="credits-list">
-      <div class="credit-item">
-        <span class="credit-source">${t('credits_icons_label')}</span>
-        <span class="credit-text">${t('credits_icons_text')} — <a class="credit-link" href="https://www.svgrepo.com" target="_blank" rel="noopener">svgrepo.com</a></span>
-      </div>
-      <div class="credit-item">
-        <span class="credit-source">${t('credits_music_label')}</span>
-        <span class="credit-text">${t('credits_music_text')} — <a class="credit-link" href="https://opengameart.org" target="_blank" rel="noopener">opengameart.org</a></span>
-      </div>
-    </div>`;
-
-  content.innerHTML=`
-  <div class="spage">
-    <div class="stabs">
-      <button class="stab${settingsTab==='general'?' active':''}" data-st="general">Settings</button>
-      <button class="stab${settingsTab==='credits'?' active':''}" data-st="credits">${t('settings_credits_tab')}</button>
-    </div>
-    <div class="stab-body">
-      ${settingsTab==='general' ? generalHtml : creditsHtml}
-    </div>
+  const cred=`<div class="credits-list">
+    <div class="credit-item"><span class="credit-source">${t('credits_icons_label')}</span><span class="credit-text">${t('credits_icons_text')} — <a class="credit-link" href="https://www.svgrepo.com" target="_blank" rel="noopener">svgrepo.com</a></span></div>
+    <div class="credit-item"><span class="credit-source">${t('credits_music_label')}</span><span class="credit-text">${t('credits_music_text')} — <a class="credit-link" href="https://opengameart.org" target="_blank" rel="noopener">opengameart.org</a></span></div>
   </div>`;
 
-  content.querySelectorAll('.stab').forEach(b=>b.addEventListener('click',()=>{settingsTab=b.dataset.st;renderSettings();}));
+  content.innerHTML=`<div class="spage"><div class="stabs"><button class="stab${settingsTab==='general'?' active':''}" data-st="general">Settings</button><button class="stab${settingsTab==='credits'?' active':''}" data-st="credits">${t('settings_credits_tab')}</button></div><div class="stab-body">${settingsTab==='general'?gen:cred}</div></div>`;
+  content.querySelectorAll('.stab').forEach(b=>b.addEventListener('click',()=>{settingsTab=b.dataset.st;renderSettings()}));
   content.querySelectorAll('.lang-card').forEach(c=>c.addEventListener('click',()=>loadLang(c.dataset.lang)));
   content.querySelectorAll('.theme-card').forEach(c=>c.addEventListener('click',()=>applyTheme(c.dataset.tv)));
   content.querySelectorAll('.music-card').forEach(c=>c.addEventListener('click',()=>applyMusic(c.dataset.mv==='on')));
 }
 
-// ── Skin colors (20 rainbow + white, grey, dark grey, black) ──
-function hslHex(h,s,l){
-  s/=100; l/=100;
-  const k=n=>(n+h/30)%12, a=s*Math.min(l,1-l);
-  const f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
-  return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('').toUpperCase();
-}
-const SKIN_COLORS=[
-  ...Array.from({length:20},(_,i)=>hslHex(Math.round(i*285/19),85,52)),
-  '#FFFFFF','#9A9AA5','#4A4A55','#000000'
-];
-
+function hslHex(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return'#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('').toUpperCase()}
+const SKIN_COLORS=[...Array.from({length:20},(_,i)=>hslHex(Math.round(i*285/19),85,52)),'#FFFFFF','#9A9AA5','#4A4A55','#000000'];
 const PART_KEYS=['head','torso','arms','legs'];
-const PART_LABELS={
-  all:  {en:'All',  pl:'Całość'},
-  head: {en:'Head', pl:'Głowa'},
-  torso:{en:'Torso',pl:'Tułów'},
-  arms: {en:'Arms', pl:'Ręce'},
-  legs: {en:'Legs', pl:'Nogi'}
-};
+const PART_LABELS={all:{en:'All',pl:'Całość'},head:{en:'Head',pl:'Głowa'},torso:{en:'Torso',pl:'Tułów'},arms:{en:'Arms',pl:'Ręce'},legs:{en:'Legs',pl:'Nogi'}};
 const DEFAULT_SKIN='#FFCD9A';
-let skinColors=(()=>{
-  const d={head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};
-  try{Object.assign(d,JSON.parse(localStorage.getItem('creatopia_skin_parts')||'{}'));}catch(e){}
-  return d;
-})();
-function saveSkin(){try{localStorage.setItem('creatopia_skin_parts',JSON.stringify(skinColors));}catch(e){}}
+let skinColors=(()=>{const d={head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};try{Object.assign(d,JSON.parse(localStorage.getItem('creatopia_skin_parts')||'{}'))}catch(e){}return d})();
+const saveSkin=()=>{try{localStorage.setItem('creatopia_skin_parts',JSON.stringify(skinColors))}catch(e){}};
 
-// ── Avatar preview (Three.js) ─────────────────────────────────
-// Returns {dispose, update(colors)}
 function mountAvatarPreview(containerId){
   const container=document.getElementById(containerId);
   const noop={dispose(){},update(){}};
-  if(!container) return noop;
-
-  const w=container.clientWidth||270, h=container.clientHeight||360;
-  let rafId=0, renderer=null, disposed=false, model=null, pivot=null, T=null;
-  let cols={...skinColors};
-  let dragging=false, spinning=true, lastX=0;
-
+  if(!container)return noop;
+  const w=container.clientWidth||270,h=container.clientHeight||360;
+  let rafId=0,renderer=null,disposed=false,model=null,pivot=null,T=null;
+  let cols={...skinColors},dragging=false,spinning=true,lastX=0;
   const onUp=()=>{dragging=false};
-  const onMove=e=>{
-    if(!dragging||!pivot) return;
-    pivot.rotation.y+=(e.clientX-lastX)*0.012;
-    lastX=e.clientX;
-  };
+  const onMove=e=>{if(!dragging||!pivot)return;pivot.rotation.y+=(e.clientX-lastX)*0.012;lastX=e.clientX};
   window.addEventListener('mouseup',onUp);
   window.addEventListener('mousemove',onMove);
 
+  function partFromName(n){n=(n||'').toLowerCase().replace(/armature/g,'');if(/head|face|hair|skull|neck/.test(n))return'head';if(/arm|hand|shoulder|elbow|finger/.test(n))return'arms';if(/leg|foot|feet|thigh|knee|shin|shoe/.test(n))return'legs';if(/torso|chest|spine|trunk|pelvis/.test(n))return'torso';return null}
+
   function paint(){
-    if(!model||!T) return;
-    const cc={}; PART_KEYS.forEach(k=>cc[k]=new T.Color(cols[k]));
+    if(!model||!T)return;
+    const cc={};PART_KEYS.forEach(k=>cc[k]=new T.Color(cols[k]));
     model.traverse(m=>{
-      if(!m.isMesh||!m.geometry.attributes.color) return;
-      const attr=m.geometry.attributes.color, arr=attr.array;
-      const idx=m.userData.partIdx, fixed=m.userData.part;
-      for(let i=0;i<arr.length/3;i++){
-        const c=cc[fixed||PART_KEYS[idx[i]]];
-        arr[i*3]=c.r; arr[i*3+1]=c.g; arr[i*3+2]=c.b;
-      }
+      if(!m.isMesh||!m.geometry.attributes.color)return;
+      const attr=m.geometry.attributes.color,arr=attr.array,idx=m.userData.partIdx,fixed=m.userData.part;
+      for(let i=0;i<arr.length/3;i++){const c=cc[fixed||PART_KEYS[idx[i]]];arr[i*3]=c.r;arr[i*3+1]=c.g;arr[i*3+2]=c.b}
       attr.needsUpdate=true;
     });
   }
 
-  function partFromName(n){
-    n=(n||'').toLowerCase().replace(/armature/g,'');
-    if(/head|face|hair|skull|neck/.test(n)) return 'head';
-    if(/arm|hand|shoulder|elbow|finger/.test(n)) return 'arms';
-    if(/leg|foot|feet|thigh|knee|shin|shoe/.test(n)) return 'legs';
-    if(/torso|chest|spine|trunk|pelvis/.test(n)) return 'torso';
-    return null;
-  }
-
-  // gives every mesh a vertex-color attribute and assigns each vertex to a body part
   function prepare(){
     model.updateMatrixWorld(true);
-    const box=new T.Box3().setFromObject(model);
-    const H=(box.max.y-box.min.y)||1, cx=(box.min.x+box.max.x)/2;
-    const v=new T.Vector3();
+    const box=new T.Box3().setFromObject(model),H=(box.max.y-box.min.y)||1,cx=(box.min.x+box.max.x)/2,v=new T.Vector3();
     model.traverse(m=>{
-      if(!m.isMesh) return;
+      if(!m.isMesh)return;
       m.geometry=m.geometry.clone();
-      const pos=m.geometry.attributes.position, n=pos.count;
+      const pos=m.geometry.attributes.position,n=pos.count;
       m.geometry.setAttribute('color',new T.BufferAttribute(new Float32Array(n*3),3));
       m.material=new T.MeshStandardMaterial({vertexColors:true,roughness:.85,metalness:0});
       const named=m.userData.part||partFromName(m.name);
-      if(named){ m.userData.part=named; return; }
+      if(named){m.userData.part=named;return}
       const idx=new Uint8Array(n);
-      for(let i=0;i<n;i++){
-        v.fromBufferAttribute(pos,i).applyMatrix4(m.matrixWorld);
-        const hh=(v.y-box.min.y)/H, ax=Math.abs(v.x-cx)/H;
-        idx[i]= hh>0.78 ? 0 : hh<0.4 ? 3 : ax>0.21 ? 2 : 1;   // head / legs / arms / torso
-      }
+      for(let i=0;i<n;i++){v.fromBufferAttribute(pos,i).applyMatrix4(m.matrixWorld);const hh=(v.y-box.min.y)/H,ax=Math.abs(v.x-cx)/H;idx[i]=hh>0.78?0:hh<0.4?3:ax>0.21?2:1}
       m.userData.partIdx=idx;
     });
     paint();
   }
 
-  Promise.all([
-    import('three'),
-    import('three/addons/loaders/GLTFLoader.js')
-  ]).then(([THREE,{GLTFLoader}])=>{
-    if(disposed) return;
-    T=THREE;
-
+  Promise.all([import('three'),import('three/addons/loaders/GLTFLoader.js')]).then(([THREE,{GLTFLoader}])=>{
+    if(disposed)return;T=THREE;
     const scene=new T.Scene();
     scene.background=new T.Color(theme==='light'?0xdddde8:0x13131a);
     const cam=new T.PerspectiveCamera(45,w/h,0.1,100);
-    cam.position.set(0,3.2,10.5);
-    cam.lookAt(0,2.6,0);
-
+    cam.position.set(0,3.2,10.5);cam.lookAt(0,2.6,0);
     renderer=new T.WebGLRenderer({antialias:true});
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.setSize(w,h);
-    renderer.toneMapping=T.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.1;
-    if('outputColorSpace' in renderer) renderer.outputColorSpace=T.SRGBColorSpace;
+    renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+    if('outputColorSpace' in renderer)renderer.outputColorSpace=T.SRGBColorSpace;
     container.appendChild(renderer.domElement);
-
     scene.add(new T.HemisphereLight(0xffffff,0x666677,1.0));
-    const dl=new T.DirectionalLight(0xffffff,1.6); dl.position.set(3,8,6); scene.add(dl);
-    const dl2=new T.DirectionalLight(0xffffff,0.6); dl2.position.set(-4,3,-5); scene.add(dl2);
+    const dl=new T.DirectionalLight(0xffffff,1.6);dl.position.set(3,8,6);scene.add(dl);
+    const dl2=new T.DirectionalLight(0xffffff,0.6);dl2.position.set(-4,3,-5);scene.add(dl2);
+    pivot=new T.Group();scene.add(pivot);
 
-    pivot=new T.Group(); scene.add(pivot);
-
-    function useModel(obj){
-      if(disposed) return;
-      model=obj; pivot.add(model); prepare();
-    }
+    function useModel(obj){if(disposed)return;model=obj;pivot.add(model);prepare()}
     function fallback(){
       const g=new T.Group();
-      const mk=(bw,bh,bd,part,x,y,z)=>{
-        const me=new T.Mesh(new T.BoxGeometry(bw,bh,bd),new T.MeshStandardMaterial());
-        me.userData.part=part; me.position.set(x,y,z); g.add(me);
-      };
-      mk(1.3,1.3,1.3,'head',0,4.5,0);
-      mk(2,2,1,'torso',0,3,0);
-      mk(1,2,1,'arms',-1.5,3,0);
-      mk(1,2,1,'arms', 1.5,3,0);
-      mk(1,2,1,'legs',-0.5,1,0);
-      mk(1,2,1,'legs', 0.5,1,0);
+      const mk=(bw,bh,bd,part,x,y,z)=>{const me=new T.Mesh(new T.BoxGeometry(bw,bh,bd),new T.MeshStandardMaterial());me.userData.part=part;me.position.set(x,y,z);g.add(me)};
+      mk(1.3,1.3,1.3,'head',0,4.5,0);mk(2,2,1,'torso',0,3,0);
+      mk(1,2,1,'arms',-1.5,3,0);mk(1,2,1,'arms',1.5,3,0);
+      mk(1,2,1,'legs',-0.5,1,0);mk(1,2,1,'legs',0.5,1,0);
       useModel(g);
     }
-
     new GLTFLoader().load('assets/models/CreatopiaBody.glb',gltf=>{
-      if(disposed) return;
-      const m=gltf.scene;
-      const b=new T.Box3().setFromObject(m);
-      const sz=b.getSize(new T.Vector3());
+      if(disposed)return;
+      const m=gltf.scene,b=new T.Box3().setFromObject(m),sz=b.getSize(new T.Vector3());
       m.scale.setScalar(5/sz.y);
-      const b2=new T.Box3().setFromObject(m);
-      const c=b2.getCenter(new T.Vector3());
-      m.position.set(-c.x,-b2.min.y,-c.z);
-      useModel(m);
+      const b2=new T.Box3().setFromObject(m),c=b2.getCenter(new T.Vector3());
+      m.position.set(-c.x,-b2.min.y,-c.z);useModel(m);
     },undefined,()=>fallback());
 
-    renderer.domElement.addEventListener('mousedown',e=>{dragging=true;spinning=false;lastX=e.clientX;});
-
-    const loop=()=>{
-      if(disposed) return;
-      rafId=requestAnimationFrame(loop);
-      if(spinning&&pivot) pivot.rotation.y+=0.008;
-      renderer.render(scene,cam);
-    };
+    renderer.domElement.addEventListener('mousedown',e=>{dragging=true;spinning=false;lastX=e.clientX});
+    const loop=()=>{if(disposed)return;rafId=requestAnimationFrame(loop);if(spinning&&pivot)pivot.rotation.y+=0.008;renderer.render(scene,cam)};
     loop();
-  }).catch(err=>{
-    console.warn('3D preview failed:',err);
-    if(!disposed) container.innerHTML=`<div class="av-placeholder">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
-      <span>${L('3D preview unavailable','Podgląd 3D niedostępny')}</span></div>`;
-  });
+  }).catch(()=>{if(!disposed)container.innerHTML=`<div style="display:flex;height:100%;align-items:center;justify-content:center;opacity:.3;flex-direction:column;gap:8px"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg></div>`});
 
-  return {
-    dispose(){
-      disposed=true;
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('mouseup',onUp);
-      window.removeEventListener('mousemove',onMove);
-      if(renderer){ renderer.dispose(); renderer.domElement.remove(); renderer=null; }
-    },
-    update(c){ cols={...c}; paint(); }
+  return{
+    dispose(){disposed=true;cancelAnimationFrame(rafId);window.removeEventListener('mouseup',onUp);window.removeEventListener('mousemove',onMove);if(renderer){renderer.dispose();renderer.domElement.remove();renderer=null}},
+    update(c){cols={...c};paint()}
   };
 }
 
 let activePreview=null;
-function disposeActivePreview(){
-  if(activePreview){ activePreview.dispose(); activePreview=null; }
-}
-function mountPreview(id){
-  disposeActivePreview();
-  activePreview=mountAvatarPreview(id);
-}
+const disposeActivePreview=()=>{if(activePreview){activePreview.dispose();activePreview=null}};
+const mountPreview=id=>{disposeActivePreview();activePreview=mountAvatarPreview(id)};
 
-// ── Profile / Users ───────────────────────────────────────────
+const itemSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
+
 function renderProfile(){
   disposeActivePreview();
-  const itemSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
   const wearing=[L('Hat','Czapka'),L('Shirt','Koszulka'),L('Pants','Spodnie'),L('Shoes','Buty'),L('Accessory','Akcesorium')];
-
   content.innerHTML=`
   <div class="up-page">
     <div class="up-header">
@@ -997,124 +498,65 @@ function renderProfile(){
     </div>
     <div class="up-cols">
       <div class="up-block">
-        <div class="up-block-header">
-          <span class="up-block-title">${L('Currently Wearing','Aktualnie noszone')}</span>
-        </div>
+        <div class="up-block-header"><span class="up-block-title">${L('Currently Wearing','Aktualnie noszone')}</span></div>
         <div class="up-wearing-preview" id="up-av-big"></div>
         <div class="up-wearing-chips">
-          ${wearing.slice(0,3).map(n=>`
-            <div class="up-chip">
-              <span class="up-chip-ico">${itemSvg}</span>
-              <span class="up-chip-name">${n}</span>
-            </div>`).join('')}
+          ${wearing.slice(0,3).map(n=>`<div class="up-chip"><span class="up-chip-ico">${itemSvg}</span><span class="up-chip-name">${n}</span></div>`).join('')}
           <span class="up-chip-name" style="color:var(--dim)">+ ${wearing.length-3} ${L('more','więcej')}</span>
           <button class="up-show-all">${L('Show All','Pokaż wszystko')}</button>
         </div>
       </div>
       <div class="up-block">
-        <div class="up-block-header">
-          <span class="up-block-title">${L('About','O mnie')}</span>
-          <button class="up-block-btn">${L('Edit','Edytuj')}</button>
-        </div>
+        <div class="up-block-header"><span class="up-block-title">${L('About','O mnie')}</span><button class="up-block-btn">${L('Edit','Edytuj')}</button></div>
         <div class="up-about-body"></div>
       </div>
     </div>
   </div>`;
-
   mountPreview('up-av-big');
 }
 
-// ── Customize ─────────────────────────────────────────────────
-const AV_TABS=[
-  {key:'customize_tab_all',    id:'all'},
-  {key:'customize_tab_hats',   id:'hats'},
-  {key:'customize_tab_shirts', id:'shirts'},
-  {key:'customize_tab_pants',  id:'pants'},
-  {key:'customize_tab_face',   id:'face'},
-  {key:'customize_tab_skin',   id:'skin'},
-];
-let activeAvTab='all';
-let activeSkinPart='head';
+const AV_TABS=[{key:'customize_tab_all',id:'all'},{key:'customize_tab_hats',id:'hats'},{key:'customize_tab_shirts',id:'shirts'},{key:'customize_tab_pants',id:'pants'},{key:'customize_tab_face',id:'face'},{key:'customize_tab_skin',id:'skin'}];
+let activeAvTab='all',activeSkinPart='head';
 
 function renderCustomize(){
   disposeActivePreview();
-
   content.innerHTML=`
   <div class="av-wrap">
-    <div class="av-left">
-      <div class="av-box" id="av-preview-box"></div>
-    </div>
+    <div class="av-left"><div class="av-box" id="av-preview-box"></div></div>
     <div class="av-right">
-      <div class="av-tabs">
-        ${AV_TABS.map(tb=>`
-          <button class="av-tab${activeAvTab===tb.id?' active':''}" data-avt="${tb.id}">
-            ${t(tb.key)}
-          </button>`).join('')}
-      </div>
+      <div class="av-tabs">${AV_TABS.map(tb=>`<button class="av-tab${activeAvTab===tb.id?' active':''}" data-avt="${tb.id}">${t(tb.key)}</button>`).join('')}</div>
       <div class="av-body" id="av-body-content"></div>
     </div>
   </div>`;
-
   mountPreview('av-preview-box');
   fillAvBody();
-
-  content.querySelectorAll('.av-tab').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      activeAvTab=btn.dataset.avt;
-      content.querySelectorAll('.av-tab').forEach(b=>b.classList.toggle('active',b===btn));
-      fillAvBody();
-    });
-  });
+  content.querySelectorAll('.av-tab').forEach(btn=>btn.addEventListener('click',()=>{activeAvTab=btn.dataset.avt;content.querySelectorAll('.av-tab').forEach(b=>b.classList.toggle('active',b===btn));fillAvBody()}));
 }
 
 function fillAvBody(){
   const body=document.getElementById('av-body-content');
-  if(!body) return;
-
+  if(!body)return;
   if(activeAvTab!=='skin'){
     body.innerHTML=`<div class="av-grid">${Array.from({length:12},()=>`<div class="av-item">?</div>`).join('')}</div>`;
     return;
   }
-
   const parts=['all',...PART_KEYS];
-  const cur=activeSkinPart==='all'
-    ? (PART_KEYS.every(k=>skinColors[k]===skinColors.head)?skinColors.head:null)
-    : skinColors[activeSkinPart];
-
+  const cur=activeSkinPart==='all'?(PART_KEYS.every(k=>skinColors[k]===skinColors.head)?skinColors.head:null):skinColors[activeSkinPart];
   body.innerHTML=`
-    <div class="av-part-row">
-      ${parts.map(p=>`
-        <button class="av-part${p===activeSkinPart?' active':''}" data-part="${p}">
-          ${p!=='all'?`<span class="av-part-dot" style="background:${skinColors[p]}"></span>`:''}
-          <span>${L(PART_LABELS[p].en,PART_LABELS[p].pl)}</span>
-        </button>`).join('')}
-    </div>
+    <div class="av-part-row">${parts.map(p=>`<button class="av-part${p===activeSkinPart?' active':''}" data-part="${p}">${p!=='all'?`<span class="av-part-dot" style="background:${skinColors[p]}"></span>`:''}<span>${L(PART_LABELS[p].en,PART_LABELS[p].pl)}</span></button>`).join('')}</div>
     <span class="av-skin-label">${S['customize_skin_color']||L('Skin color','Kolor skóry')}</span>
-    <div class="av-skin-grid">
-      ${SKIN_COLORS.map(c=>`
-        <div class="av-skin-swatch${cur&&cur.toUpperCase()===c?' active':''}" data-sc="${c}" style="background:${c}"></div>`).join('')}
-    </div>`;
-
-  body.querySelectorAll('.av-part').forEach(b=>b.addEventListener('click',()=>{
-    activeSkinPart=b.dataset.part;
-    fillAvBody();
-  }));
+    <div class="av-skin-grid">${SKIN_COLORS.map(c=>`<div class="av-skin-swatch${cur&&cur.toUpperCase()===c?' active':''}" data-sc="${c}" style="background:${c}"></div>`).join('')}</div>`;
+  body.querySelectorAll('.av-part').forEach(b=>b.addEventListener('click',()=>{activeSkinPart=b.dataset.part;fillAvBody()}));
   body.querySelectorAll('.av-skin-swatch').forEach(sw=>sw.addEventListener('click',()=>{
     const c=sw.dataset.sc;
-    if(activeSkinPart==='all') PART_KEYS.forEach(k=>skinColors[k]=c);
+    if(activeSkinPart==='all')PART_KEYS.forEach(k=>skinColors[k]=c);
     else skinColors[activeSkinPart]=c;
-    saveSkin();
-    if(activePreview) activePreview.update(skinColors);
-    fillAvBody();
+    saveSkin();if(activePreview)activePreview.update(skinColors);fillAvBody();
   }));
 }
 
-// ── Init ──────────────────────────────────────────────────────
 applyTheme(theme);
-loadLang(lang).then(()=>{
-  setTab(getHashTab(), false);
-  if(musicOn) bgm.play().catch(()=>{});
-});
+loadLang(lang).then(()=>{setTab(getHashTab(),false);if(musicOn)bgm.play().catch(()=>{})});
 </script>
 </body>
 </html>
