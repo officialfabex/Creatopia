@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -468,7 +468,7 @@ function mountAvatarPreview(containerId){
       m.position.set(-c.x,-b2.min.y,-c.z);useModel(m);
       // attach hat if equipped
       const hatId=localStorage.getItem('creatopia_hat');
-      if(hatId){const hn=m.getObjectByName('Head');if(hn)new GLTFLoader().load('assets/customize/hats/'+hatId+'.glb',hg=>{if(!disposed){hg.scene.traverse(hc=>{if(hc.isMesh)hc.castShadow=true;});hn.add(hg.scene);}},null,()=>{});}
+      if(hatId){new GLTFLoader().load('assets/customize/hats/'+hatId+'.glb',hg=>{if(!disposed){hg.scene.traverse(hc=>{if(hc.isMesh)hc.castShadow=true;});m.add(hg.scene);}},null,()=>{});}
     },undefined,()=>fallback());
 
     renderer.domElement.addEventListener('mousedown',e=>{dragging=true;spinning=false;lastX=e.clientX});
@@ -614,3 +614,4 @@ loadLang(lang).then(()=>{setTab(getHashTab(),false);if(musicOn)bgm.play().catch(
 </script>
 </body>
 </html>
+
