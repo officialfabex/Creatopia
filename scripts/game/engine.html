@@ -246,38 +246,104 @@ addBlock(0,-0.6,0,200,1.2,200,MAT_GRASS);
 // studio blocks array (placed at runtime)
 const studioBlocks = [];
 
+// ─── SKIN COLORS (shared with the menu via localStorage) ──────
+const PART_KEYS    = ['head','torso','arms','legs'];
+const DEFAULT_SKIN = '#FFCD9A';
+
+function loadSkin(){
+  const d={head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};
+  try{ Object.assign(d,JSON.parse(localStorage.getItem('creatopia_skin_parts')||'{}')); }catch(e){}
+  return d;
+}
+let skinColors = loadSkin();
+const skinMeshes = [];   // meshes that carry a vertex-color attribute
+
+function partFromName(n){
+  n=(n||'').toLowerCase().replace(/armature/g,'');
+  if(/head|face|hair|skull|neck/.test(n)) return 'head';
+  if(/arm|hand|shoulder|elbow|finger/.test(n)) return 'arms';
+  if(/leg|foot|feet|thigh|knee|shin|shoe/.test(n)) return 'legs';
+  if(/torso|chest|spine|trunk|pelvis/.test(n)) return 'torso';
+  return null;
+}
+
+// gives every mesh under root a vertex-color attribute and assigns each vertex to a body part
+function prepareSkin(root){
+  scene.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(root);
+  const H=(box.max.y-box.min.y)||1, cx=(box.min.x+box.max.x)/2;
+  const v=new THREE.Vector3();
+  root.traverse(m=>{
+    if(!m.isMesh) return;
+    m.geometry=m.geometry.clone();
+    const pos=m.geometry.attributes.position, n=pos.count;
+    m.geometry.setAttribute('color',new THREE.BufferAttribute(new Float32Array(n*3),3));
+    m.material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.85,metalness:0});
+    const named=m.userData.part||partFromName(m.name);
+    if(named){ m.userData.part=named; skinMeshes.push(m); return; }
+    const idx=new Uint8Array(n);
+    for(let i=0;i<n;i++){
+      v.fromBufferAttribute(pos,i).applyMatrix4(m.matrixWorld);
+      const hh=(v.y-box.min.y)/H, ax=Math.abs(v.x-cx)/H;
+      idx[i]= hh>0.78 ? 0 : hh<0.4 ? 3 : ax>0.21 ? 2 : 1;   // head / legs / arms / torso
+    }
+    m.userData.partIdx=idx;
+    skinMeshes.push(m);
+  });
+  paintSkin();
+}
+
+function paintSkin(){
+  const cc={}; PART_KEYS.forEach(k=>cc[k]=new THREE.Color(skinColors[k]));
+  skinMeshes.forEach(m=>{
+    const attr=m.geometry.attributes.color, arr=attr.array;
+    const idx=m.userData.partIdx, fixed=m.userData.part;
+    for(let i=0;i<arr.length/3;i++){
+      const c=cc[fixed||PART_KEYS[idx[i]]];
+      arr[i*3]=c.r; arr[i*3+1]=c.g; arr[i*3+2]=c.b;
+    }
+    attr.needsUpdate=true;
+  });
+}
+
+// if the colors are changed in the menu tab while the game is open, update live
+window.addEventListener('storage',e=>{
+  if(e.key==='creatopia_skin_parts'){ skinColors=loadSkin(); paintSkin(); }
+});
+
 // ─── PLAYER MODEL (GLB) ───────────────────────────────────────
 const playerGroup = new THREE.Group();
 scene.add(playerGroup);
 playerGroup.position.set(0,5,0);
 
-// Fallback boxes while GLB loads
 let modelLoaded = false;
-const MAT_SKIN  = new THREE.MeshLambertMaterial({color:0xffcd9a});
-const MAT_SHIRT = new THREE.MeshLambertMaterial({color:0x1f78d1});
-const MAT_PANTS = new THREE.MeshLambertMaterial({color:0x1a2540});
 
+// Fallback boxes while the GLB loads (or if it fails)
 function buildFallbackChar(){
   const g=new THREE.Group();
-  const b=(w,h,d,m,px,py,pz)=>{
-    const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
-    mesh.position.set(px,py,pz); mesh.castShadow=true; g.add(mesh); return mesh;
+  const mat=()=>new THREE.MeshStandardMaterial();
+  const box=(w,h,d,part,parent,px,py,pz)=>{
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat());
+    mesh.userData.part=part;
+    mesh.position.set(px,py,pz); mesh.castShadow=true; parent.add(mesh); return mesh;
   };
-  b(2,2,1,MAT_SKIN,0,4.2,0);   // head
-  b(2,2,1,MAT_SHIRT,0,2.5,0);  // torso
+  box(2,2,1,'head',g,0,4.2,0);
+  box(2,2,1,'torso',g,0,2.5,0);
   const lAG=new THREE.Group(); lAG.position.set(-1.5,3.5,0); g.add(lAG);
   const rAG=new THREE.Group(); rAG.position.set( 1.5,3.5,0); g.add(rAG);
   const lLG=new THREE.Group(); lLG.position.set(-0.55,1.5,0); g.add(lLG);
   const rLG=new THREE.Group(); rLG.position.set( 0.55,1.5,0); g.add(rLG);
-  [lAG,rAG].forEach(ag=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),MAT_SHIRT);m.position.y=-1;m.castShadow=true;ag.add(m);});
-  [lLG,rLG].forEach(lg=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1,2,1),MAT_PANTS);m.position.y=-1;m.castShadow=true;lg.add(m);});
+  [lAG,rAG].forEach(ag=>box(1,2,1,'arms',ag,0,-1,0));
+  [lLG,rLG].forEach(lg=>box(1,2,1,'legs',lg,0,-1,0));
   return {g,lAG,rAG,lLG,rLG};
 }
 
 let charLimbs = null;
-let {g:fallback,lAG,rAG,lLG,rLG} = buildFallbackChar();
+const fb = buildFallbackChar();
+const fallback = fb.g;
 playerGroup.add(fallback);
-charLimbs = {lAG,rAG,lLG,rLG};
+charLimbs = {lAG:fb.lAG,rAG:fb.rAG,lLG:fb.lLG,rLG:fb.rLG};
+prepareSkin(fallback);
 
 // Load real GLB
 const loader = new GLTFLoader();
@@ -285,6 +351,7 @@ const loader = new GLTFLoader();
 loader.load('../../assets/models/CreatopiaBody.glb',
   (gltf)=>{
     playerGroup.remove(fallback);
+    skinMeshes.length=0;
     const model = gltf.scene;
     // Scale to match ~5 studs height
     const box = new THREE.Box3().setFromObject(model);
@@ -297,6 +364,9 @@ loader.load('../../assets/models/CreatopiaBody.glb',
     model.traverse(c=>{ if(c.isMesh){ c.castShadow=true; c.receiveShadow=true; } });
     playerGroup.add(model);
     modelLoaded = true;
+
+    // colour the body parts with the player's chosen skin colors
+    prepareSkin(model);
 
     // Try to find limb groups by name for animation
     const find = name => model.getObjectByName(name);
@@ -352,14 +422,24 @@ window.addEventListener('keyup',e=>{
   if(keys.hasOwnProperty(k))keys[k]=false;
 });
 
-// ─── PAUSE ────────────────────────────────────────────────────
+// ─── PAUSE / EXIT ─────────────────────────────────────────────
 let isMenuOpen=false;
 const pauseEl=document.getElementById('pause');
 function togglePause(){ setMenu(!isMenuOpen); }
 function setMenu(v){ isMenuOpen=v; pauseEl.classList.toggle('open',v); }
+
+// The game is opened in a new tab by the menu, so history.back() has nothing to go back to.
+// Close the tab; if the browser refuses (page opened directly), navigate to the menu instead.
+const MENU_URL='../../index.html#home';
+function exitGame(){
+  keys.w=keys.a=keys.s=keys.d=keys[' ']=false;
+  window.close();
+  setTimeout(()=>{ if(!window.closed) location.href=MENU_URL; },150);
+}
+
 document.getElementById('menu-btn')  .addEventListener('click',()=>setMenu(true));
 document.getElementById('resume-btn').addEventListener('click',()=>setMenu(false));
-document.getElementById('exit-btn')  .addEventListener('click',()=>history.back());
+document.getElementById('exit-btn')  .addEventListener('click',exitGame);
 
 // ─── STUDIO MODE ──────────────────────────────────────────────
 let studioMode = false;
@@ -389,6 +469,7 @@ studioBtn.addEventListener('click',toggleStudio);
 // Studio mouse
 window.addEventListener('mousedown',e=>{
   if(!studioMode||isMenuOpen)return;
+  if(e.target.closest&&e.target.closest('#topbar'))return;   // don't place blocks when clicking the top bar
   if(e.button===2){ isStudioRightDown=true; return; }
   if(e.button===0){
     // Place block where we click on the ground/existing blocks
@@ -397,7 +478,7 @@ window.addEventListener('mousedown',e=>{
     raycaster.setFromCamera(new THREE.Vector2(nx,ny),camera);
     // intersect all existing meshes
     const meshes=[];
-    scene.traverse(c=>{ if(c.isMesh&&c!==playerGroup) meshes.push(c); });
+    scene.traverse(c=>{ if(c.isMesh) meshes.push(c); });
     const hits=raycaster.intersectObjects(meshes,true);
     if(hits.length>0){
       const pt=hits[0].point.clone();
