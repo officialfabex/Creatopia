@@ -298,13 +298,22 @@ new GLTFLoader().load('../assets/models/CreatopiaBody.glb',gltf=>{
 
   // Hat — add directly to model root so it uses the same coord space as the GLB.
   // The GLB already has the hat positioned correctly relative to the character.
-  const hatId=localStorage.getItem('creatopia_hat');
-  if(hatId){
+  // up to 2 hats (creatopia_hats = JSON array; falls back to the old single creatopia_hat key)
+  const hatIds=(()=>{
+    let a=[];
+    try{
+      const raw=localStorage.getItem('creatopia_hats');
+      if(raw!==null){const p=JSON.parse(raw);if(Array.isArray(p))a=p;}
+      else{const o=localStorage.getItem('creatopia_hat');if(o)a=[o];}
+    }catch(e){}
+    return a.filter(x=>typeof x==='string'&&x).slice(0,2);
+  })();
+  hatIds.forEach(hatId=>{
     new GLTFLoader().load('../assets/customize/hats/'+hatId+'.glb',hgltf=>{
       hgltf.scene.traverse(c=>{if(c.isMesh)c.castShadow=true;});
       model.add(hgltf.scene);
     },null,err=>console.warn('hat load failed',err));
-  }
+  });
 },null,err=>console.warn('GLB load failed:',err));
 
 // player state
