@@ -223,38 +223,22 @@ new GLTFLoader().load('../assets/models/CreatopiaBody.glb',gltf=>{
   const lL=model.getObjectByName('LeftLeg'), rL=model.getObjectByName('RightLeg');
 
   if(rH&&lH&&lL&&rL){
-    model.updateMatrixWorld(true);
-
-    // Shift geometry origin to TOP of each limb mesh so rotation pivots at shoulder/hip.
-    // We translate the geometry vertices downward by half the mesh height,
-    // which moves the rotation origin from mesh-centre to mesh-top.
-    function shiftOriginToTop(node) {
-      node.traverse(child => {
-        if (!child.isMesh || !child.geometry) return;
-        child.geometry = child.geometry.clone();
-        const box = new THREE.Box3().setFromObject(child);
-        // Height of mesh in world space, converted to local space via scale
-        const localScale = child.getWorldScale(new THREE.Vector3());
-        const worldH = box.max.y - box.min.y;
-        const localH = worldH / (localScale.y || 1);
-        // Shift vertices down by half height so top is now at local origin
-        child.geometry.translate(0, -localH / 2, 0);
-        // Compensate node position so mesh stays in the same world position
-        child.position.y += localH / 2;
-      });
-    }
-
-    // Fix LeftHand — it has negative scale (Blender mirror).
-    // IMPORTANT: shift origin BEFORE the Z flip, otherwise the Y direction is wrong.
-    shiftOriginToTop(rH);
-    shiftOriginToTop(lH);  // do this BEFORE rotation.z flip
-    shiftOriginToTop(lL);
-    shiftOriginToTop(rL);
-
-    // Flip LeftHand 180° on Z AFTER origin shift so it matches RightHand orientation
-    lH.rotation.z += Math.PI;
-
-    charLimbs = { rAG: rH, lAG: lH, lLG: lL, rLG: rL };
+    // Rotate every limb around its own top (shoulder / hip), not around the node origin.
+    // Same rule for all four limbs, so left and right swing identically even if the GLB
+    // origins differ. If an origin already sits at the joint this changes nothing.
+    playerGroup.updateMatrixWorld(true);
+    const wrapPivot=node=>{
+      const parent=node.parent,box=new THREE.Box3().setFromObject(node);
+      if(!parent||box.isEmpty())return node;
+      const wp=new THREE.Vector3();node.getWorldPosition(wp);
+      const joint=parent.worldToLocal(new THREE.Vector3(wp.x,box.max.y,wp.z));
+      const pivot=new THREE.Group();
+      pivot.position.copy(joint);
+      node.position.sub(joint);
+      parent.add(pivot);pivot.add(node);
+      return pivot;
+    };
+    charLimbs = { rAG: wrapPivot(rH), lAG: wrapPivot(lH), lLG: wrapPivot(lL), rLG: wrapPivot(rL) };
   }
 
   // Hat — add directly to model root so it uses the same coord space as the GLB.
