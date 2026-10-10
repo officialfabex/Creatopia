@@ -13,6 +13,11 @@
 html[data-tone="light"]{--side:rgba(228,228,236,.7);--bg:#f0f0f5;--sur:#e4e4ec;--bdr:rgba(0,0,0,.09);--dim:rgba(0,0,0,.4);--acc:rgba(0,0,0,.07);--txt:#1a1a2e;--card-bg:#dddde8;--card-bdr:rgba(0,0,0,.08)}
 html[data-theme="darkium"]{--bg:#000;--sur:#040406;--bdr:rgba(255,255,255,.06);--dim:rgba(255,255,255,.28);--acc:rgba(255,255,255,.07);--txt:#b4b4c0;--card-bg:#08080b;--card-bdr:rgba(255,255,255,.05);--side:rgba(0,0,0,.72)}
 html[data-theme="light-beach"]{--side:rgba(205,230,244,.72);--bg:#e6f3fa;--sur:#d3e8f3;--bdr:rgba(10,60,100,.12);--dim:rgba(10,50,90,.45);--acc:rgba(20,110,170,.09);--txt:#12324a;--card-bg:#cbe4f1;--card-bdr:rgba(10,60,100,.1)}
+html[data-theme="creatopic"]{--side:rgba(236,246,255,.72);--bg:#f2f8fe;--sur:#e9f3fd;--bdr:rgba(58,123,191,.16);--dim:rgba(58,123,191,.62);--acc:rgba(58,123,191,.09);--txt:#3a7bbf;--card-bg:#e2effb;--card-bdr:rgba(58,123,191,.14)}
+html[data-theme="creatopic"],html[data-theme="creatopic"] body{background:linear-gradient(160deg,#ffffff 0%,#edf6ff 55%,#dcedfc 100%)}
+html[data-theme="creatopic"] .main{background:transparent}
+html[data-theme="creatopic"] .ni.on,html[data-theme="creatopic"] .stab.active,html[data-theme="creatopic"] .cr-new-btn{color:var(--txt)}
+html[data-theme="coder"]{--side:rgba(10,28,58,.7);--bg:#0a1a33;--sur:#0f2548;--bdr:rgba(150,190,255,.15);--dim:rgba(190,215,255,.48);--acc:rgba(150,190,255,.12);--txt:#d6e4ff;--card-bg:#14305a;--card-bdr:rgba(150,190,255,.14)}
 html[data-theme="darkium"] .blob{opacity:.05}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:CHL,sans-serif;font-size:16px;letter-spacing:.04em;-webkit-font-smoothing:antialiased}
 .lbl,.m-title,.lt,.s-label,.s-desc,.lang-name,.theme-lbl,.welcome,.game-title,.game-author,.prof-name,.prof-joined,.cr-game-title,.av-tab{position:relative;top:2px}
@@ -84,9 +89,10 @@ html[data-tone="light"] .game-card:hover .game-thumb{border-color:rgba(0,0,0,.2)
 .gpage-author{font-size:13px;margin-top:8px}
 .gpage-desc{font-size:14px;margin-top:14px;line-height:1.6}
 .gpage-play{display:flex;margin-top:20px}
-.play-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 28px;border-radius:var(--r);background:rgba(120,130,255,.25);border:1px solid rgba(120,130,255,.4);color:#fff;font-family:CHM,sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .18s,border-color .18s}
-.play-btn:hover{background:rgba(120,130,255,.4);border-color:rgba(120,130,255,.6)}
-.play-btn svg{width:18px;height:18px}
+.play-btn{display:inline-flex;align-items:center;gap:12px;padding:15px 38px;border-radius:var(--r);background:linear-gradient(180deg,#34d46b 0%,#16a34a 100%);border:1px solid #15803d;color:#fff;font-family:CHM,sans-serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 20px rgba(22,163,74,.45),inset 0 1px 0 rgba(255,255,255,.35);text-shadow:0 1px 2px rgba(0,0,0,.35);transition:transform .15s,filter .15s,box-shadow .15s}
+.play-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 9px 26px rgba(22,163,74,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+.play-btn:active{transform:translateY(0);filter:brightness(.96)}
+.play-btn svg{width:20px;height:20px}
 .back-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);color:var(--dim);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-bottom:16px;transition:background .18s,color .18s}
 .back-btn:hover{background:rgba(255,255,255,.12);color:var(--txt)}
 .back-btn svg{width:14px;height:14px}
@@ -275,7 +281,7 @@ function applyLang(){
   if(tab==='create')renderCreate();
 }
 
-const THEMES={dark:{tone:'dark',bg:0x2a2a3a,key:'settings_theme_dark',icon:'moon'},light:{tone:'light',bg:0xdddde8,key:'settings_theme_light',icon:'sun'},darkium:{tone:'dark',bg:0x08080b,key:'settings_theme_darkium'},'light-beach':{tone:'light',bg:0xcbe4f1,key:'settings_theme_lightbeach'}};
+const THEMES={dark:{tone:'dark',bg:0x2a2a3a,key:'settings_theme_dark',icon:'moon'},light:{tone:'light',bg:0xdddde8,key:'settings_theme_light',icon:'sun'},darkium:{tone:'dark',bg:0x08080b,key:'settings_theme_darkium'},'light-beach':{tone:'light',bg:0xcbe4f1,key:'settings_theme_lightbeach'},creatopic:{tone:'light',bg:0xe2effb,key:'settings_theme_creatopic'},coder:{tone:'dark',bg:0x14305a,key:'settings_theme_coder'}};
 let theme=localStorage.getItem('creatopia_theme')||'dark';
 if(!THEMES[theme])theme='dark';
 const sceneBg=()=>THEMES[theme].bg;
@@ -592,7 +598,7 @@ function mountHatIcon(containerId, hatId, opts={}){
     cam.position.set(1.2,0.85,2.2);cam.lookAt(0,-0.05,0);   // lowered in Y only (same view direction)
     rend=new T.WebGLRenderer({antialias:true,alpha:clear});
     rend.setPixelRatio(Math.min(devicePixelRatio,2));
-    rend.setSize(w,h);
+    rend.setSize(w,h,!opts.fit);
     rend.toneMapping=T.ACESFilmicToneMapping;rend.toneMappingExposure=1.1;
     if('outputColorSpace' in rend)rend.outputColorSpace=T.SRGBColorSpace;
     container.appendChild(rend.domElement);
@@ -604,7 +610,7 @@ function mountHatIcon(containerId, hatId, opts={}){
       // Center and scale the hat to fit view
       const box=new T.Box3().setFromObject(m);
       const sz=box.getSize(new T.Vector3());
-      const sc=1/Math.max(sz.x,sz.y,sz.z);
+      const sc=(opts.scale||1)/Math.max(sz.x,sz.y,sz.z);
       m.scale.setScalar(sc);
       const box2=new T.Box3().setFromObject(m);
       const c=box2.getCenter(new T.Vector3());
@@ -723,18 +729,16 @@ function renderCustomize(){
 }
 
 const CARD_CSS=`<style>
-        .hat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
-        .hat-card{border-radius:12px;aspect-ratio:1;background:var(--card-bg);border:2px solid var(--card-bdr);
-          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-          cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:11px;
-          font-family:CHM,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:8px;text-align:center}
-        .hat-card:hover{border-color:rgba(255,255,255,.22);transform:scale(1.04)}
-        .hat-card.active{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.08)}
-        .hat-card svg{width:36px;height:36px;opacity:.4}
-        .hat-card.active svg{opacity:.9}
-        .hat-ico{width:64px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-        .hat-ico canvas{display:block}
-        .face-thumb{width:64px;height:64px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr)}
+        .hat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px}
+        .hat-card{display:flex;flex-direction:column;gap:7px;cursor:pointer;color:var(--dim);font-family:CHM,sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:center;user-select:none}
+        .hat-tile{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--card-bg);border:2px solid var(--card-bdr);transition:border-color .18s,transform .18s}
+        .hat-card:hover .hat-tile{border-color:var(--dim);transform:scale(1.03)}
+        .hat-card.active .hat-tile{border-color:var(--txt)}
+        .hat-card.active{color:var(--txt)}
+        .hat-name{position:relative;top:2px;display:block;line-height:1.2}
+        .hat-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+        .hat-ico canvas{display:block;width:100%!important;height:100%!important}
+        .face-thumb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
         .face-thumb img{width:100%;height:100%;object-fit:contain;display:block}
       </style>`;
 
@@ -744,26 +748,17 @@ function fillAvBody(){
   disposeHatIcons();
 
   if(activeAvTab==='hats'){
-    // None option + hat cards
-    const noneActive=!equippedHat;
-    body.innerHTML=`
-      ${CARD_CSS}
-      <div class="hat-grid">
-        <div class="hat-card${noneActive?' active':''}" data-hat="">
-          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-          </svg>
-          <span style="position:relative;top:2px">${L('None','Brak')}</span>
-        </div>
-        ${HATS.map((h,i)=>`
-          <div class="hat-card${equippedHat===h.id?' active':''}" data-hat="${h.id}">
-            <div class="hat-ico" id="hat-ico-${i}"></div>
-            <span style="position:relative;top:2px">${h.label}</span>
-          </div>`).join('')}
+    body.innerHTML=`${CARD_CSS}
+      <div class="hat-grid">${HATS.map((h,i)=>`
+        <div class="hat-card${equippedHat===h.id?' active':''}" data-hat="${h.id}">
+          <div class="hat-tile"><div class="hat-ico" id="hat-ico-${i}"></div></div>
+          <span class="hat-name">${h.label}</span>
+        </div>`).join('')}
       </div>`;
-    HATS.forEach((h,i)=>mountHatIcon('hat-ico-'+i,h.id,{size:64,transparent:true,once:true}));
+    HATS.forEach((h,i)=>mountHatIcon('hat-ico-'+i,h.id,{size:192,transparent:true,once:true,fit:true,scale:1.5}));
     body.querySelectorAll('.hat-card').forEach(c=>c.addEventListener('click',()=>{
-      const id=c.dataset.hat||null;
+      let id=c.dataset.hat||null;
+      if(id===equippedHat)id=null;   // click the worn hat again = take it off
       saveHat(id);
       body.querySelectorAll('.hat-card').forEach(x=>x.classList.toggle('active',(x.dataset.hat||null)===id));
       // refresh preview
@@ -776,8 +771,8 @@ function fillAvBody(){
     body.innerHTML=`${CARD_CSS}
       <div class="hat-grid">${FACES.map(f=>`
         <div class="hat-card${equippedFace===f.id?' active':''}" data-face="${f.id}">
-          <div class="face-thumb" style="background:${skinColors.head}"><img src="${FACE_DIR}${f.id}" alt="${f.label}"></div>
-          <span style="position:relative;top:2px">${f.label}</span>
+          <div class="hat-tile"><div class="face-thumb" style="background:${skinColors.head}"><img src="${FACE_DIR}${f.id}" alt="${f.label}"></div></div>
+          <span class="hat-name">${f.label}</span>
         </div>`).join('')}
       </div>`;
     body.querySelectorAll('.hat-card').forEach(c=>c.addEventListener('click',()=>{
