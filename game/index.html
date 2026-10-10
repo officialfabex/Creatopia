@@ -185,12 +185,14 @@ function paintSkin(){
 }
 window.addEventListener('storage',e=>{
   if(e.key==='creatopia_skin_parts'){skinColors=loadSkin();paintSkin();}
-  if(e.key==='creatopia_face')applyFace(e.newValue||DEFAULT_FACE);
+  if(e.key==='creatopia_face')applyFace(FACE_ALIASES[e.newValue]||e.newValue||DEFAULT_FACE);
 });
 
 // face: front-only cap of a slightly larger sphere on the ball head, UV-mapped planar
 const FACE_DIR='../assets/customize/faces/',DEFAULT_FACE='deafult_face.png',FACE_CAP=58*Math.PI/180;
-let faceMesh=null,faceMat=null,faceFile=localStorage.getItem('creatopia_face')||DEFAULT_FACE;
+const FACE_ALIASES={'smile_face.png':'happy_face.png'};   // old saves after the Smile -> Happy rename
+function getFace(){const f=localStorage.getItem('creatopia_face')||DEFAULT_FACE;return FACE_ALIASES[f]||f;}
+let faceMesh=null,faceMat=null,faceFile=getFace();
 function applyFace(file){
   faceFile=file;
   if(!faceMesh)return;
