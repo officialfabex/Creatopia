@@ -474,12 +474,12 @@ function mountAvatarPreview(containerId){
     if(hb.isEmpty())return;
     const size=hb.getSize(new T.Vector3()),r=Math.max(size.x,size.z)/2,c=hb.getCenter(new T.Vector3());
     c.y=hb.max.y-r;                       // ball head: top of bbox minus radius = sphere centre
-    // front = from where the hands are: left = RightHand -> LeftHand, forward = left x up
+    // front from the hands: left axis = LeftHand -> RightHand (verified on this model), forward = left x up
     const up=new T.Vector3(0,1,0),left=new T.Vector3(1,0,0);
     const lh=model.getObjectByName('LeftHand'),rh=model.getObjectByName('RightHand');
     if(lh&&rh){
       const a=model.worldToLocal(lh.getWorldPosition(new T.Vector3())),b=model.worldToLocal(rh.getWorldPosition(new T.Vector3()));
-      const d=new T.Vector3(a.x-b.x,0,a.z-b.z);if(d.lengthSq()>1e-8)left.copy(d.normalize());
+      const d=new T.Vector3(b.x-a.x,0,b.z-a.z);if(d.lengthSq()>1e-8)left.copy(d.normalize());   // this model: the front is where RightHand->LeftHand points the other way (face was showing on the back)
     }
     const fwd=new T.Vector3().crossVectors(left,up);
     const R=r*1.012,K=Math.sin(FACE_CAP),cosCap=Math.cos(FACE_CAP);
@@ -589,7 +589,7 @@ function mountHatIcon(containerId, hatId, opts={}){
     const w=size,h=size;
     const cam=new T.PerspectiveCamera(40,1,0.1,50);
     // Isometric-ish: slightly above and to the side
-    cam.position.set(1.2,1.15,2.2);cam.lookAt(0,0.25,0);
+    cam.position.set(1.2,0.85,2.2);cam.lookAt(0,-0.05,0);   // lowered in Y only (same view direction)
     rend=new T.WebGLRenderer({antialias:true,alpha:clear});
     rend.setPixelRatio(Math.min(devicePixelRatio,2));
     rend.setSize(w,h);
