@@ -290,7 +290,7 @@ const app=document.getElementById('app'),tog=document.getElementById('tog'),
 const getHashTab=()=>{const h=location.hash.replace('#','').toLowerCase();return TABS.includes(h)?h:'home'};
 
 function setTab(tab,push=true){
-  disposeActivePreview();
+  disposeActivePreview();disposeHatIcons();
   items.forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   titleEl.textContent=t('nav_'+tab).toUpperCase();
   welcomeEl.style.display=tab==='home'?'block':'none';
@@ -448,6 +448,57 @@ function mountAvatarPreview(containerId){
     });
   }
 
+  // ── face: a front-only cap of a slightly larger sphere, UV-mapped planar (face image on the front of the ball head)
+  const FACE_CAP=58*Math.PI/180;
+  let faceMesh=null,faceMat=null,faceFile=localStorage.getItem('creatopia_face')||DEFAULT_FACE;
+  function applyFace(file){
+    faceFile=file;
+    if(!faceMesh||!T)return;
+    if(!file){faceMesh.visible=false;return}
+    new T.TextureLoader().load(FACE_DIR+file,tex=>{
+      if(disposed||faceFile!==file)return;
+      tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;
+      if(faceMat.map)faceMat.map.dispose();
+      faceMat.map=tex;faceMat.needsUpdate=true;faceMesh.visible=true;
+    },undefined,()=>{if(faceFile===file)faceMesh.visible=false});
+  }
+  function buildFace(){
+    const inv=new T.Matrix4().copy(model.matrixWorld).invert(),v=new T.Vector3(),hb=new T.Box3();
+    model.traverse(m=>{
+      if(!m.isMesh)return;
+      const named=m.userData.part,pi=m.userData.partIdx;
+      if(named&&named!=='head')return;
+      const rel=new T.Matrix4().multiplyMatrices(inv,m.matrixWorld),pos=m.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){if(!named&&(!pi||pi[i]!==0))continue;hb.expandByPoint(v.fromBufferAttribute(pos,i).applyMatrix4(rel))}
+    });
+    if(hb.isEmpty())return;
+    const size=hb.getSize(new T.Vector3()),r=Math.max(size.x,size.z)/2,c=hb.getCenter(new T.Vector3());
+    c.y=hb.max.y-r;                       // ball head: top of bbox minus radius = sphere centre
+    // front = from where the hands are: left = RightHand -> LeftHand, forward = left x up
+    const up=new T.Vector3(0,1,0),left=new T.Vector3(1,0,0);
+    const lh=model.getObjectByName('LeftHand'),rh=model.getObjectByName('RightHand');
+    if(lh&&rh){
+      const a=model.worldToLocal(lh.getWorldPosition(new T.Vector3())),b=model.worldToLocal(rh.getWorldPosition(new T.Vector3()));
+      const d=new T.Vector3(a.x-b.x,0,a.z-b.z);if(d.lengthSq()>1e-8)left.copy(d.normalize());
+    }
+    const fwd=new T.Vector3().crossVectors(left,up);
+    const R=r*1.012,K=Math.sin(FACE_CAP),cosCap=Math.cos(FACE_CAP);
+    const g=new T.SphereGeometry(R,64,48),p=g.attributes.position,uv=g.attributes.uv,front=[];
+    const d=new T.Vector3();
+    for(let i=0;i<p.count;i++){
+      d.fromBufferAttribute(p,i).divideScalar(R);
+      uv.setXY(i,0.5+d.dot(left)/(2*K),0.5+d.dot(up)/(2*K));   // u grows towards the character's left = viewer's right
+      front.push(d.dot(fwd)>=cosCap);
+    }
+    const ix=g.index.array,keep=[];
+    for(let t=0;t<ix.length;t+=3)if(front[ix[t]]&&front[ix[t+1]]&&front[ix[t+2]])keep.push(ix[t],ix[t+1],ix[t+2]);
+    g.setIndex(keep);
+    faceMat=new T.MeshStandardMaterial({transparent:true,roughness:.85,metalness:0,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+    faceMesh=new T.Mesh(g,faceMat);faceMesh.position.copy(c);faceMesh.renderOrder=1;faceMesh.visible=false;
+    model.add(faceMesh);
+    applyFace(faceFile);
+  }
+
   function prepare(){
     model.updateMatrixWorld(true);
     const box=new T.Box3().setFromObject(model),H=(box.max.y-box.min.y)||1,cx=(box.min.x+box.max.x)/2,v=new T.Vector3();
@@ -464,6 +515,7 @@ function mountAvatarPreview(containerId){
       m.userData.partIdx=idx;
     });
     paint();
+    buildFace();
   }
 
   Promise.all([import('three'),import('three/addons/loaders/GLTFLoader.js')]).then(([THREE,{GLTFLoader}])=>{
@@ -509,8 +561,9 @@ function mountAvatarPreview(containerId){
   }).catch(()=>{if(!disposed)container.innerHTML=`<div style="display:flex;height:100%;align-items:center;justify-content:center;opacity:.3;flex-direction:column;gap:8px"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg></div>`});
 
   return{
-    dispose(){disposed=true;cancelAnimationFrame(rafId);window.removeEventListener('mouseup',onUp);window.removeEventListener('mousemove',onMove);if(renderer){renderer.dispose();renderer.domElement.remove();renderer=null}},
+    dispose(){disposed=true;if(faceMat&&faceMat.map)faceMat.map.dispose();cancelAnimationFrame(rafId);window.removeEventListener('mouseup',onUp);window.removeEventListener('mousemove',onMove);if(renderer){renderer.dispose();renderer.domElement.remove();renderer=null}},
     update(c){cols={...c};paint()},
+    setFace(file){applyFace(file)},
     equipHat(hatId){
       // reload preview with new hat
       const id=containerId;disposeActivePreview();activePreview=mountAvatarPreview(id);
@@ -523,7 +576,8 @@ const disposeActivePreview=()=>{if(activePreview){activePreview.dispose();active
 const mountPreview=id=>{disposeActivePreview();activePreview=mountAvatarPreview(id)};
 
 // Hat icon renderer — small isometric-ish view of just the hat
-function mountHatIcon(containerId, hatId){
+function mountHatIcon(containerId, hatId, opts={}){
+  const size=opts.size||56,once=!!opts.once,clear=!!opts.transparent;
   const container=document.getElementById(containerId);
   if(!container||!hatId)return;
   let rafId=0,rend=null,disposed=false;
@@ -531,12 +585,12 @@ function mountHatIcon(containerId, hatId){
   .then(([T,{GLTFLoader}])=>{
     if(disposed)return;
     const scene=new T.Scene();
-    scene.background=new T.Color(sceneBg());
-    const w=56,h=56;
+    if(!clear)scene.background=new T.Color(sceneBg());
+    const w=size,h=size;
     const cam=new T.PerspectiveCamera(40,1,0.1,50);
     // Isometric-ish: slightly above and to the side
-    cam.position.set(1.2,1.8,2.2);cam.lookAt(0,0.3,0);
-    rend=new T.WebGLRenderer({antialias:true});
+    cam.position.set(1.2,1.15,2.2);cam.lookAt(0,0.25,0);
+    rend=new T.WebGLRenderer({antialias:true,alpha:clear});
     rend.setPixelRatio(Math.min(devicePixelRatio,2));
     rend.setSize(w,h);
     rend.toneMapping=T.ACESFilmicToneMapping;rend.toneMappingExposure=1.1;
@@ -556,18 +610,20 @@ function mountHatIcon(containerId, hatId){
       const c=box2.getCenter(new T.Vector3());
       m.position.sub(c);
       scene.add(m);
-    },null,()=>{});
-    const loop=()=>{if(disposed)return;rafId=requestAnimationFrame(loop);rend.render(scene,cam)};
-    loop();
+      if(once)rend.render(scene,cam);
+    },null,()=>{if(disposed)return;if(rend)rend.domElement.remove();container.innerHTML=`<span style="display:block;width:28px;height:28px;opacity:.45">${itemSvg.replace('<svg','<svg width="28" height="28"')}</span>`});
+    if(!once){const loop=()=>{if(disposed)return;rafId=requestAnimationFrame(loop);rend.render(scene,cam)};loop();}
   }).catch(()=>{});
   // Store dispose ref on element
   container._disposeHat=()=>{disposed=true;cancelAnimationFrame(rafId);if(rend){rend.dispose();rend.domElement.remove();rend=null;}};
 }
 
+const disposeHatIcons=()=>document.querySelectorAll('.up-hat-icon,.hat-ico').forEach(e=>{if(e._disposeHat){e._disposeHat();e._disposeHat=null}});
+
 const itemSvg=`<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>`;
 
 function renderProfile(){
-  disposeActivePreview();
+  disposeActivePreview();disposeHatIcons();
   const hatId=localStorage.getItem('creatopia_hat');
   const wearingItems=[
     ...(hatId?[{id:hatId,label:hatId,type:'hat'}]:[]),
@@ -638,11 +694,21 @@ const HATS=[
   {id:'Party Hat',  label:'Party Hat'},
   {id:'Headphones', label:'Headphones'},
 ];
+// face system (images live in assets/customize/Faces/)
+const FACE_DIR='assets/customize/Faces/';
+const FACES=[
+  {id:'deafult_face.png',    label:'Deafult Face'},
+  {id:'smile_face.png',      label:'Smile Face'},
+  {id:'markerface_face.png', label:'Markerface'},
+];
+const DEFAULT_FACE=FACES[0].id;
+let equippedFace=localStorage.getItem('creatopia_face')||DEFAULT_FACE;
+function saveFace(id){equippedFace=id;try{localStorage.setItem('creatopia_face',id)}catch(e){}}
 let equippedHat=localStorage.getItem('creatopia_hat')||null;
 function saveHat(id){equippedHat=id;id?localStorage.setItem('creatopia_hat',id):localStorage.removeItem('creatopia_hat')}
 
 function renderCustomize(){
-  disposeActivePreview();
+  disposeActivePreview();disposeHatIcons();
   content.innerHTML=`
   <div class="av-wrap">
     <div class="av-left"><div class="av-box" id="av-preview-box"></div></div>
@@ -656,25 +722,32 @@ function renderCustomize(){
   content.querySelectorAll('.av-tab').forEach(btn=>btn.addEventListener('click',()=>{activeAvTab=btn.dataset.avt;content.querySelectorAll('.av-tab').forEach(b=>b.classList.toggle('active',b===btn));fillAvBody()}));
 }
 
+const CARD_CSS=`<style>
+        .hat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
+        .hat-card{border-radius:12px;aspect-ratio:1;background:var(--card-bg);border:2px solid var(--card-bdr);
+          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+          cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:11px;
+          font-family:CHM,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:8px;text-align:center}
+        .hat-card:hover{border-color:rgba(255,255,255,.22);transform:scale(1.04)}
+        .hat-card.active{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.08)}
+        .hat-card svg{width:36px;height:36px;opacity:.4}
+        .hat-card.active svg{opacity:.9}
+        .hat-ico{width:64px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+        .hat-ico canvas{display:block}
+        .face-thumb{width:64px;height:64px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr)}
+        .face-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+      </style>`;
+
 function fillAvBody(){
   const body=document.getElementById('av-body-content');
   if(!body)return;
+  disposeHatIcons();
 
   if(activeAvTab==='hats'){
     // None option + hat cards
     const noneActive=!equippedHat;
     body.innerHTML=`
-      <style>
-        .hat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px}
-        .hat-card{border-radius:12px;aspect-ratio:1;background:var(--card-bg);border:2px solid var(--card-bdr);
-          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-          cursor:pointer;transition:border-color .18s,transform .18s;color:var(--dim);font-size:11px;
-          font-family:CHM,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:8px}
-        .hat-card:hover{border-color:rgba(255,255,255,.22);transform:scale(1.04)}
-        .hat-card.active{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.08)}
-        .hat-card svg{width:36px;height:36px;opacity:.4}
-        .hat-card.active svg{opacity:.9}
-      </style>
+      ${CARD_CSS}
       <div class="hat-grid">
         <div class="hat-card${noneActive?' active':''}" data-hat="">
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -682,21 +755,36 @@ function fillAvBody(){
           </svg>
           <span style="position:relative;top:2px">${L('None','Brak')}</span>
         </div>
-        ${HATS.map(h=>`
+        ${HATS.map((h,i)=>`
           <div class="hat-card${equippedHat===h.id?' active':''}" data-hat="${h.id}">
-            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/>
-            </svg>
+            <div class="hat-ico" id="hat-ico-${i}"></div>
             <span style="position:relative;top:2px">${h.label}</span>
           </div>`).join('')}
       </div>`;
+    HATS.forEach((h,i)=>mountHatIcon('hat-ico-'+i,h.id,{size:64,transparent:true,once:true}));
     body.querySelectorAll('.hat-card').forEach(c=>c.addEventListener('click',()=>{
       const id=c.dataset.hat||null;
       saveHat(id);
       body.querySelectorAll('.hat-card').forEach(x=>x.classList.toggle('active',(x.dataset.hat||null)===id));
       // refresh preview
       if(activePreview&&activePreview.equipHat) activePreview.equipHat(id);
+    }));
+    return;
+  }
+
+  if(activeAvTab==='face'){
+    body.innerHTML=`${CARD_CSS}
+      <div class="hat-grid">${FACES.map(f=>`
+        <div class="hat-card${equippedFace===f.id?' active':''}" data-face="${f.id}">
+          <div class="face-thumb" style="background:${skinColors.head}"><img src="${FACE_DIR}${f.id}" alt="${f.label}"></div>
+          <span style="position:relative;top:2px">${f.label}</span>
+        </div>`).join('')}
+      </div>`;
+    body.querySelectorAll('.hat-card').forEach(c=>c.addEventListener('click',()=>{
+      const id=c.dataset.face;
+      saveFace(id);
+      body.querySelectorAll('.hat-card').forEach(x=>x.classList.toggle('active',x.dataset.face===id));
+      if(activePreview&&activePreview.setFace)activePreview.setFace(id);
     }));
     return;
   }
