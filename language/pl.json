@@ -2,7 +2,7 @@
   "nav_home":       "Główna",
   "nav_create":     "Twórz",
   "nav_customize":  "Dostosuj",
-  "nav_profile":    "Profil",
+  "nav_profile":    "Użytkownicy",
   "nav_settings":   "Ustawienia",
 
   "search_placeholder": "Szukaj...",
@@ -14,6 +14,10 @@
   "settings_theme_desc":     "Przełącz między trybem ciemnym a jasnym.",
   "settings_theme_dark":     "Ciemny",
   "settings_theme_light":    "Jasny",
+  "settings_theme_darkium": "Darkium",
+  "settings_theme_lightbeach": "Light Beach",
+  "settings_theme_all":     "Wszystkie motywy",
+  "settings_theme_close":   "Zamknij",
   "settings_music_label":    "Muzyka",
   "settings_music_desc":     "Włącz lub wyłącz muzykę w tle.",
   "settings_music_on":       "Włączona",
@@ -31,6 +35,7 @@
   "customize_tab_pants":     "Spodnie",
   "customize_tab_face":      "Twarz",
   "customize_tab_skin":      "Kolor",
+  "customize_skin_color":    "Wybierz kolor skóry",
 
   "profile_username":        "Użytkownik",
   "profile_joined":          "Dołączono",
