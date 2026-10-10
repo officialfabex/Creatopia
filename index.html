@@ -159,11 +159,11 @@ html[data-tone="light"] .cr-item:hover{border-color:rgba(0,0,0,.18)}
 .cr-icon-btn:hover{background:rgba(255,255,255,.14);color:var(--txt)}
 .cr-icon-btn svg{width:16px;height:16px}
 .up-page{display:flex;flex-direction:column;gap:16px;max-width:900px;margin:0 auto;width:100%}
-.up-header{display:flex;align-items:center;gap:18px;padding:18px 22px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r)}
-.up-av-thumb{width:56px;height:56px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-.up-av-thumb svg{width:28px;height:28px;opacity:.35}
-.up-name{font-family:CHM,sans-serif;font-size:22px;letter-spacing:.08em;color:var(--txt);flex:1;position:relative;top:2px}
-.up-friends{font-family:CHM,sans-serif;font-size:14px;letter-spacing:.06em;color:var(--dim);white-space:nowrap;position:relative;top:2px}
+.up-header{display:flex;align-items:center;gap:22px;height:112px;padding:0 28px 0 14px;background:var(--card-bg);border:1px solid var(--card-bdr);border-radius:var(--r);overflow:hidden}
+.up-av-bust{width:124px;height:112px;flex-shrink:0;align-self:flex-end}
+.up-av-bust canvas{display:block;width:100%!important;height:100%!important}
+.up-name{font-family:CHM,sans-serif;font-size:36px;letter-spacing:.08em;color:var(--txt);flex:1;position:relative;top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-friends{font-family:CHM,sans-serif;font-size:17px;letter-spacing:.06em;color:var(--dim);white-space:nowrap;position:relative;top:2px}
 .up-edit-btn{padding:8px 16px;border-radius:10px;background:var(--acc);border:1px solid var(--bdr);color:var(--txt);font-family:CHM,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;flex-shrink:0;transition:background .18s}
 .up-edit-btn:hover{background:rgba(255,255,255,.14)}
 .up-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
@@ -433,13 +433,13 @@ const DEFAULT_SKIN='#FFCD9A';
 let skinColors=(()=>{const d={head:DEFAULT_SKIN,torso:DEFAULT_SKIN,arms:DEFAULT_SKIN,legs:DEFAULT_SKIN};try{Object.assign(d,JSON.parse(localStorage.getItem('creatopia_skin_parts')||'{}'))}catch(e){}return d})();
 const saveSkin=()=>{try{localStorage.setItem('creatopia_skin_parts',JSON.stringify(skinColors))}catch(e){}};
 
-function mountAvatarPreview(containerId){
+function mountAvatarPreview(containerId,opts={}){
   const container=document.getElementById(containerId);
   const noop={dispose(){},update(){}};
   if(!container)return noop;
   const w=container.clientWidth||270,h=container.clientHeight||360;
   let rafId=0,renderer=null,disposed=false,model=null,pivot=null,T=null;
-  let cols={...skinColors},dragging=false,spinning=true,lastX=0;
+  let cols={...skinColors},dragging=false,spinning=!opts.bust,lastX=0;
   const onUp=()=>{dragging=false};
   const onMove=e=>{if(!dragging||!pivot)return;pivot.rotation.y+=(e.clientX-lastX)*0.012;lastX=e.clientX};
   window.addEventListener('mouseup',onUp);
@@ -460,7 +460,7 @@ function mountAvatarPreview(containerId){
 
   // ── face: a front-only cap of a slightly larger sphere, UV-mapped planar (face image on the front of the ball head)
   const FACE_CAP=58*Math.PI/180;
-  let faceMesh=null,faceMat=null,faceFile=localStorage.getItem('creatopia_face')||DEFAULT_FACE;
+  let faceMesh=null,faceMat=null,faceFile=getFace(),frontAngle=0;
   function applyFace(file){
     faceFile=file;
     if(!faceMesh||!T)return;
@@ -492,6 +492,7 @@ function mountAvatarPreview(containerId){
       const d=new T.Vector3(b.x-a.x,0,b.z-a.z);if(d.lengthSq()>1e-8)left.copy(d.normalize());   // this model: the front is where RightHand->LeftHand points the other way (face was showing on the back)
     }
     const fwd=new T.Vector3().crossVectors(left,up);
+    frontAngle=-Math.atan2(fwd.x,fwd.z);   // pivot rotation that turns the face towards the camera (+Z)
     const R=r*1.012,K=Math.sin(FACE_CAP),cosCap=Math.cos(FACE_CAP);
     const g=new T.SphereGeometry(R,64,48),p=g.attributes.position,uv=g.attributes.uv,front=[];
     const d=new T.Vector3();
@@ -526,15 +527,17 @@ function mountAvatarPreview(containerId){
     });
     paint();
     buildFace();
+    if(opts.bust&&pivot)pivot.rotation.y=frontAngle;
   }
 
   Promise.all([import('three'),import('three/addons/loaders/GLTFLoader.js')]).then(([THREE,{GLTFLoader}])=>{
     if(disposed)return;T=THREE;
     const scene=new T.Scene();
-    scene.background=new T.Color(sceneBg());
-    const cam=new T.PerspectiveCamera(45,w/h,0.1,100);
-    cam.position.set(0,3.2,10.5);cam.lookAt(0,2.6,0);
-    renderer=new T.WebGLRenderer({antialias:true});
+    if(!opts.bust)scene.background=new T.Color(sceneBg());
+    const cam=opts.bust?new T.PerspectiveCamera(30,w/h,0.1,100):new T.PerspectiveCamera(45,w/h,0.1,100);
+    if(opts.bust){cam.position.set(0,4.35,4.85);cam.lookAt(0,4.35,0)}   // frames head + upper torso, level view
+    else{cam.position.set(0,3.2,10.5);cam.lookAt(0,2.6,0)}
+    renderer=new T.WebGLRenderer({antialias:true,alpha:!!opts.bust});
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.setSize(w,h);
     renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
@@ -564,7 +567,7 @@ function mountAvatarPreview(containerId){
       getHats().forEach(hatId=>{new GLTFLoader().load('assets/customize/hats/'+hatId+'.glb',hg=>{if(!disposed){hg.scene.traverse(hc=>{if(hc.isMesh)hc.castShadow=true;});m.add(hg.scene);}},null,()=>{});});
     },undefined,()=>fallback());
 
-    renderer.domElement.addEventListener('mousedown',e=>{dragging=true;spinning=false;lastX=e.clientX});
+    if(!opts.bust)renderer.domElement.addEventListener('mousedown',e=>{dragging=true;spinning=false;lastX=e.clientX});
     const loop=()=>{if(disposed)return;rafId=requestAnimationFrame(loop);if(spinning&&pivot)pivot.rotation.y+=0.008;renderer.render(scene,cam)};
     loop();
   }).catch(()=>{if(!disposed)container.innerHTML=`<div style="display:flex;height:100%;align-items:center;justify-content:center;opacity:.3;flex-direction:column;gap:8px"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg></div>`});
@@ -580,8 +583,8 @@ function mountAvatarPreview(containerId){
   };
 }
 
-let activePreview=null;
-const disposeActivePreview=()=>{if(activePreview){activePreview.dispose();activePreview=null}};
+let activePreview=null,bustPreview=null;
+const disposeActivePreview=()=>{if(activePreview){activePreview.dispose();activePreview=null}if(bustPreview){bustPreview.dispose();bustPreview=null}};
 const mountPreview=id=>{disposeActivePreview();activePreview=mountAvatarPreview(id)};
 
 // Hat icon renderer — small isometric-ish view of just the hat
@@ -669,10 +672,9 @@ function renderProfile(){
   </style>
   <div class="up-page">
     <div class="up-header">
-      <div class="up-av-thumb" style="background:${skinColors.head}">${itemSvg}</div>
+      <div class="up-av-bust" id="up-av-bust"></div>
       <span class="up-name">${t('profile_username')}</span>
       <span class="up-friends">${L('Friends','Znajomi')}: 0</span>
-      <button class="up-edit-btn">${L('Edit','Edytuj')}</button>
     </div>
     <div class="up-cols">
       <div class="up-block">
@@ -695,6 +697,7 @@ function renderProfile(){
   </div>`;
 
   mountPreview('up-av-big');
+  bustPreview=mountAvatarPreview('up-av-bust',{bust:true});   // header: static front-facing bust, cropped at mid-torso
 
   // Mount hat thumbnail preview (small isometric view)
   hatIds.forEach((id,i)=>{if(document.getElementById('up-hat-icon-'+i))mountHatIcon('up-hat-icon-'+i,id)});
@@ -708,16 +711,21 @@ const HATS=[
   {id:'Red Cap',    label:'Red Cap'},
   {id:'Party Hat',  label:'Party Hat'},
   {id:'Headphones', label:'Headphones'},
+  {id:'Little Flower', label:'Little Flower'},
 ];
 // face system (images live in assets/customize/faces/)
 const FACE_DIR='assets/customize/faces/';
 const FACES=[
   {id:'deafult_face.png',    label:'Deafult Face'},
-  {id:'smile_face.png',      label:'Smile Face'},
+  {id:'happy_face.png',      label:'Happy'},
   {id:'markerface_face.png', label:'Markerface'},
+  {id:'shocked_face.png',    label:'Shocked'},
+  {id:'neutral_face.png',    label:'Neutral Face'},
 ];
+const FACE_ALIASES={'smile_face.png':'happy_face.png'};   // old saves after the Smile -> Happy rename
 const DEFAULT_FACE=FACES[0].id;
-let equippedFace=localStorage.getItem('creatopia_face')||DEFAULT_FACE;
+function getFace(){const f=localStorage.getItem('creatopia_face')||DEFAULT_FACE;return FACE_ALIASES[f]||f}
+let equippedFace=getFace();
 function saveFace(id){equippedFace=id;try{localStorage.setItem('creatopia_face',id)}catch(e){}}
 let equippedHats=getHats();
 function saveHats(a){equippedHats=a;setHats(a)}
